@@ -16,7 +16,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--bg);
+    background: url("../assets/border.png") repeat-x bottom;
+    background-size: 100vw 5rem;
     padding: 1.5rem 2rem;
 }
 
@@ -59,7 +60,7 @@
     font-family: "Calistoga", serif;
     font-weight: 400;
     font-style: normal;
-    font-size: 8rem;
+    font-size: 6.5rem;
     line-height: 1.2;
     margin: 0;
 }
