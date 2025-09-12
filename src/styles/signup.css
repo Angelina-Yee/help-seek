@@ -1,0 +1,138 @@
+:root {
+  --bg: #fdf8ec;
+  --blue: #0f3484;
+}
+
+.su1 {
+  background-color: var(--bg);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/*NavBar*/
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: url("../assets/border.png") repeat-x bottom;
+  background-size: 100vw 5rem;
+  padding: 1.5rem 2rem;
+}
+
+.navbar a {
+  margin-left: 1.5rem;
+  color: var(--blue);
+  text-decoration: none;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.5rem;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+.logo {
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.5rem;
+  color: var(--blue);
+}
+
+/*Hero*/
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.signup-box {
+  max-width: 400px;
+  max-height: 480px;
+  width: 100%;
+  border: 5px solid var(--blue);
+  border-radius: 15px;
+  padding: 40px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.signup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.signup-header h2 {
+  color: var(--blue);
+  font-size: 32px;
+  margin: 0;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.step {
+  color: var(--blue);
+  font-size: 24px;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.login-text {
+  color: var(--blue);
+  margin-bottom: 30px;
+}
+
+.login-text a {
+  color: var(--blue);
+  text-decoration: underline;
+}
+
+.signup-form {
+  padding: 5rem 0;
+}
+
+.signup-form input {
+  width: 100%;
+  padding: 15px;
+  border: 5px solid var(--blue);
+  border-radius: 8px;
+  background-color: var(--bg);
+  font-size: 16px;
+  margin-bottom: 30px;
+  box-sizing: border-box;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.signup-form label {
+  display: block;
+  color: var(--blue);
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.send-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  border-radius: 8px;
+  padding: 30px 30px;
+  font-size: 24px;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  cursor: pointer;
+  display: block;
+  margin-top: 60px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0px;
+}
