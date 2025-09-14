@@ -1,0 +1,147 @@
+:root {
+  --bg: #fdf8ec;
+  --blue: #0f3484;
+}
+
+.su3 {
+  background-color: var(--bg);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: url("../assets/border.png") repeat-x bottom;
+  background-size: 100vw 5rem;
+  padding: 1.5rem 2rem;
+}
+.navbar a:hover {
+  text-decoration: underline;
+}
+.logo {
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.5rem;
+  color: var(--blue);
+}
+
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 0vh;
+  padding-top: 0px;
+}
+.signup-box {
+  background-color: var(--bg);
+  border: 3px solid var(--blue);
+  border-radius: 15px;
+  padding: 40px;
+  width: 400px;
+  text-align: left;
+}
+
+.signup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.signup-header h2 {
+  color: var(--blue);
+  font-size: 24px;
+  margin: 0;
+  font-weight: normal;
+}
+
+.step {
+  color: var(--blue);
+  font-size: 18px;
+}
+
+/* Form styles */
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+/* Name row for first and last name */
+.name-row {
+  display: flex;
+  gap: 15px;
+  max-height: 95px;
+  margin-bottom: 18px;
+  margin-top: 30px;
+}
+
+.name-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.name-field label {
+  color: var(--blue);
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.name-field input {
+  padding: 12px;
+  border: 2px solid var(--blue);
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: transparent;
+  color: var(--blue);
+}
+
+/* Regular input styles */
+.signup-form label {
+  color: var(--blue);
+  font-size: 16px;
+  margin-bottom: 8px;
+  margin-top: 15px;
+}
+
+.signup-form input[type="password"] {
+  padding: 12px;
+  border: 2px solid var(--blue);
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: transparent;
+  color: var(--blue);
+  margin-bottom: 15px;
+}
+
+.signup-form input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 5px rgba(15, 52, 132, 0.3);
+}
+
+/* Signup button */
+.signup-btn {
+  background-color: var(--blue);
+  color: var(--blue);
+  border: none;
+  border-radius: 5px;
+  padding: 12px 40px;
+  font-size: 18px;
+  font-family: "Calistoga", serif;
+  cursor: pointer;
+  margin-top: 30px;
+}
+
+.signup-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.signup-btn:disabled {
+  background-color: transparent;
+  cursor: not-allowed;
+  opacity: 0.6;
+}

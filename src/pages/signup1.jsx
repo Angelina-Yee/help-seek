@@ -1,11 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/signup.css";
 
 function Signup1() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+
+  // Check if email ends with @ucsd.edu
+  const isUCSDEmail = email.trim().toLowerCase().endsWith("@ucsd.edu");
+
   const onSend = (e) => {
     e.preventDefault();
+    if (!isUCSDEmail) {
+      alert("Please enter a valid UCSD email");
+      return;
+    }
     navigate("/signup2");
   };
   return (
@@ -30,7 +39,14 @@ function Signup1() {
 
           <form className="signup-form" onSubmit={onSend}>
             <label htmlFor="email">email</label>
-            <input type="email" id="email" name="email" required />
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
             <button type="submit" className="send-btn">
               verify
             </button>
