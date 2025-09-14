@@ -1,0 +1,102 @@
+:root {
+  --bg: #fdf8ec;
+  --blue: #0f3484;
+}
+
+.su2 {
+  background-color: var(--bg);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: url("../assets/border.png") repeat-x bottom;
+  background-size: 100vw 5rem;
+  padding: 1.5rem 2rem;
+}
+.navbar a:hover {
+  text-decoration: underline;
+}
+.logo {
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.5rem;
+  color: var(--blue);
+}
+
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+.code-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 60px;
+}
+
+.code-input {
+  width: 50px;
+  height: 90px;
+  border: 2px solid var(--blue);
+  border-radius: 5px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--blue);
+  background-color: transparent;
+}
+
+.code-input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 5px rgba(15, 52, 132, 0.3);
+}
+
+/* Resend button */
+.resend-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-align: right;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.resend-btn:hover {
+  opacity: 0.8;
+}
+
+/* Copy confirm button styles (same as verify button) */
+.confirm-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  border-radius: 8px;
+  padding: 10px 40px;
+  font-size: 32px;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  cursor: pointer;
+  display: block;
+  margin-top: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0px;
+}
+
+.confirm-btn:disabled {
+  background-color: transparent;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
