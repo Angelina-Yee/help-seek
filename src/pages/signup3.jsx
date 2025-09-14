@@ -92,6 +92,7 @@ function Signup3() {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   minLength="1"
+                  required
                 />
               </div>
 
@@ -104,6 +105,7 @@ function Signup3() {
                   value={formData.lastName}
                   onChange={handleInputChange}
                   minLength="1"
+                  required
                 />
               </div>
             </div>
@@ -116,6 +118,7 @@ function Signup3() {
               value={formData.newPassword}
               onChange={handleInputChange}
               minLength="8"
+              required
             />
 
             <label htmlFor="confirmPassword">confirm password</label>
@@ -125,6 +128,7 @@ function Signup3() {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleInputChange}
+              required
             />
 
             <button
