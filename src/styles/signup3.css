@@ -124,8 +124,7 @@
 
 /* Signup button */
 .signup-btn {
-  background-color: var(--blue); /* Add blue background like confirm button */
-  color: white; /* White text on blue background */
+  background: none;
   border: none;
   color: var(--blue);
   border-radius: 8px;
@@ -142,13 +141,8 @@
   margin-bottom: 0px;
 }
 
-.signup-btn:hover:not(:disabled) {
-  opacity: 0.9; /* Add hover effect like confirm button */
-}
-
 .signup-btn:disabled {
-  background-color: #fdf8ec; /* Gray background when disabled */
-  color: white;
+  background-color: transparent;
   cursor: not-allowed;
   opacity: 0.6;
 }
