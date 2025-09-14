@@ -1,11 +1,23 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import Landing from "./pages/landing";
 import Instructions from "./pages/instructions";
 import Signup1 from "./pages/signup1";
 import Signup2 from "./pages/signup2";
 import Signup3 from "./pages/signup3";
 import EditProfile from "./pages/editProfile";
+import Sidebar from "./components/sidebar";
+
+function Layout(){
+  return(
+    <>
+      <Sidebar/>
+      <main>
+        <Outlet />
+      </main>
+    </>
+  );
+}
 
 function App() {
   return (
@@ -16,7 +28,9 @@ function App() {
         <Route path="/signup1" element={<Signup1 />} />
         <Route path="/signup2" element={<Signup2 />} />
         <Route path="/signup3" element={<Signup3 />} />
-        <Route path="/editProfile" element={<EditProfile />} />
+        <Route element={<Layout />}>
+          <Route path="/editProfile" element={<EditProfile />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

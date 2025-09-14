@@ -1,0 +1,114 @@
+:root{
+    --bg: #FDF8EC;
+    --blue: #0F3484;
+}
+
+.sidebar{
+    position: fixed;
+    left: 0;
+    top: 3px;
+    bottom: 3px;
+    width: 200px;
+    background-color: var(--blue);
+    color: var(--bg);
+    border-radius: 0 24px 24px 0;
+    box-shadow: 4px 0 16px rgb(128, 128,128);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+    z-index: 500;
+}
+
+.sidebar.is-closed{
+    transform: translateX(-100%);
+}
+
+.sb-logo{
+    font-family: "Calistoga", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.5rem;
+    color: var(--bg);
+    margin-left: 12.5px;
+}
+
+.sb-section{
+    margin-top: 30px;
+}
+
+.sb-title{
+    font-family: "Lato", sans-serif;
+    font-weight: 1000;
+    font-style: normal;
+    color: #CCCCCC;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.sb-item{
+    display: block;
+    text-decoration: none;
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--bg);
+    margin: 15px 20px;
+    padding: 4px 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.sb-item:hover, .sb-item:active, .sb-logout{
+    transform: translateY(3%) scale(0.98);
+}
+
+.sb-footer{
+    margin-top: auto;
+}
+
+.sb-logout{
+    width: 100%;
+    background: none;
+    border: none;
+    font-family: "Lato", sans-serif;
+    font-weight: 1000;
+    font-style: normal;
+    text-transform: uppercase;
+    color: var(--bg);
+    letter-spacing: 3px;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 20px;
+}
+
+.sb-toggle{
+    position: fixed;
+    left: 0;
+    top: 90px;
+    transform: translateY(-50%);
+    width: 33px;
+    height: 50px;
+    border: none;
+    background: var(--blue);
+    color: var(--bg);
+    border-radius: 0 12px 12px 0;
+    cursor: pointer;
+    box-shadow: 2px 0 3px rgb(128, 128,128);
+    z-index: 600;
+    display: grid;
+    place-items: center;
+    transition: left 0.3s ease-in-out;
+}
+
+.sidebar.is-open + .sb-toggle{
+    left: 240px;
+}
+
+.sb-toggle .click{
+    font-size: 22px;
+    font-weight: bold;
+}
