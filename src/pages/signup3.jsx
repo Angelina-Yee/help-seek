@@ -20,8 +20,8 @@ function Signup3() {
   };
 
   // Validation checks
-  const isFirstNameValid = formData.firstName.length >= 3;
-  const isLastNameValid = formData.lastName.length >= 3;
+  const isFirstNameValid = formData.firstName.length >= 1;
+  const isLastNameValid = formData.lastName.length >= 1;
   const isPasswordValid =
     formData.newPassword.length >= 8 &&
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(
@@ -41,11 +41,11 @@ function Signup3() {
     e.preventDefault();
 
     if (!isFirstNameValid) {
-      alert("First name must be at least 3 characters long");
+      alert("First name must be at least 1 characters long");
       return;
     }
     if (!isLastNameValid) {
-      alert("Last name must be at least 3 characters long");
+      alert("Last name must be at least 1 characters long");
       return;
     }
     if (!isPasswordValid) {
@@ -91,8 +91,7 @@ function Signup3() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  minLength="3"
-                  required
+                  minLength="1"
                 />
               </div>
 
@@ -104,8 +103,7 @@ function Signup3() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  minLength="3"
-                  required
+                  minLength="1"
                 />
               </div>
             </div>
@@ -118,7 +116,6 @@ function Signup3() {
               value={formData.newPassword}
               onChange={handleInputChange}
               minLength="8"
-              required
             />
 
             <label htmlFor="confirmPassword">confirm password</label>
@@ -128,7 +125,6 @@ function Signup3() {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleInputChange}
-              required
             />
 
             <button
