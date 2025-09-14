@@ -37,7 +37,7 @@ function Signup1() {
             already have an account? <a href="#">login</a>
           </p>
 
-          <form className="signup-form" onSubmit={onSend}>
+          <form className="signup-form1" onSubmit={onSend}>
             <label htmlFor="email">email</label>
             <input
               type="email"
