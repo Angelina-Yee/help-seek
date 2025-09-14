@@ -136,7 +136,7 @@ function Signup3() {
               className="signup-btn"
               disabled={!isFormValid}
             >
-              signup
+              sign up
             </button>
           </form>
         </section>
