@@ -119,29 +119,29 @@
 
 .signup-form input:focus {
   outline: none;
-  border-color: var(--blue);
-  box-shadow: 0 0 5px rgba(15, 52, 132, 0.3);
+  border-color: transparent;
 }
 
 /* Signup button */
 .signup-btn {
-  background-color: var(--blue);
-  color: var(--blue);
+  background: none;
   border: none;
-  border-radius: 5px;
-  padding: 12px 40px;
-  font-size: 18px;
+  color: var(--blue);
+  padding: 10px 40px;
+  font-size: 32px;
   font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
   cursor: pointer;
+  display: block;
   margin-top: 30px;
-}
-
-.signup-btn:hover:not(:disabled) {
-  opacity: 0.9;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0px;
 }
 
 .signup-btn:disabled {
-  background-color: transparent;
+  background: none;
   cursor: not-allowed;
   opacity: 0.6;
 }
