@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/signup.css";
 
+//API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
 function Signup1() {
@@ -12,6 +13,7 @@ function Signup1() {
   // Check if email ends with @ucsd.edu
   const isUCSDEmail = email.trim().toLowerCase().endsWith("@ucsd.edu");
 
+  //Send verifaction code request
   const onSend = async (e) => {
     e.preventDefault();
     if (!isUCSDEmail) {
@@ -27,6 +29,7 @@ function Signup1() {
       });
       const data = await res.json();
 
+      //Error cases
       if (!res.ok) {
         if (res.status === 409) {
           alert("An account with this email already exists. Redirecting to log in page.");
@@ -39,6 +42,7 @@ function Signup1() {
         return;
       }
 
+      //Save email temporarily
       sessionStorage.setItem("signupEmail", email.trim().toLowerCase());
 
       navigate("/signup2", {replace: true});
@@ -50,6 +54,7 @@ function Signup1() {
     }
   };
 
+  //HTML
   return (
     <div className="su1">
       {/*Navbar*/}

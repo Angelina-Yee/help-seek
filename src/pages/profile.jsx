@@ -5,11 +5,13 @@ import raccoon from "../assets/raccoon.png";
 import Postcard from "../components/postcard";
 
 function Profile() {
+    //State to hold user's display name
     const [userName, setUserName] = useState("...");
 
+    //Fetch profile data on mount
     useEffect(() => {
         const abort = new AbortController();
-        
+
         (async () => {
           try {
             const res = await fetch("http://localhost:4000/api/profile/me", {
@@ -23,6 +25,7 @@ function Profile() {
               signal: abort.signal,
             });
 
+            //Prefer user name, fall back to email prefix or "Friend"
             if (!res.ok) throw new Error("profile fetch failed");
             const data = await res.json();
       
@@ -37,12 +40,14 @@ function Profile() {
         return () => abort.abort();
     }, []);
 
+    //Placeholder stats
     const stats = [
         {value: 1, label: "finds"},
         {value: 10, label: "helped"},
         {value: 0, label: "losses"},
     ];
 
+    //Example posts
     const posts= [
             {id: 1, 
             name: "John Doe", 
@@ -52,6 +57,7 @@ function Profile() {
         },
     ];
 
+    //HTML
     return(<div className="prof">
         {/*Navbar*/}
         <header className="navbar">

@@ -8,22 +8,28 @@ import { User } from "../models/User.js";
 import { Otp } from "../models/Otp.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
+//router handling signup and login
 const router = express.Router();
 
+//email ends with @ucsd.edu
 function ucsdOnly(email) {
   return typeof email === "string" && email.toLowerCase().endsWith("@ucsd.edu");
 }
 
+//generate random 5-digit OTP code
 function makeOtp() {
   return String(Math.floor(Math.random() * 100000)).padStart(5, "0");
 }
 
+//create temp JWT tokens
 function signSignupToken(email) {
   return jwt.sign({ typ: "signup", email }, process.env.JWT_ACCESS_SECRET, {
     expiresIn: "30m",
   });
 }
 
+
+//access token for logged in users
 function signAccessToken(user) {
   return jwt.sign(
     { sub: user._id.toString(), email: user.email },
@@ -32,6 +38,7 @@ function signAccessToken(user) {
   );
 }
 
+// Requeast sign up code via email
 router.post(
   "/signup/request-code",
   body("email").isEmail(),
@@ -76,6 +83,7 @@ router.post(
   }
 );
 
+//verify code enteredd by the user
 router.post(
   "/signup/verify-code",
   body("email").isEmail(),
@@ -115,6 +123,7 @@ router.post(
   }
 );
 
+//sign up complete: set name and password
 router.post(
   "/signup/complete",
   body("firstName").isString().isLength({ min: 1 }),
@@ -164,6 +173,7 @@ router.post(
   }
 );
 
+//login with email and password
 router.post(
   "/login",
   body("email").isEmail(),

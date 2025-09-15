@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/signup2.css";
 
+//API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
 function Signup2() {
@@ -10,10 +11,12 @@ function Signup2() {
   const [loading, setLoading] = useState(false);
   const email = sessionStorage.getItem("signupEmail");
 
+  //Redirect back if no email is stored
   useEffect(() => {
     if (!email) navigate ("/signup1");
   }, [email, navigate]);
 
+  //Type OTP inputs
   const handleCodeChange = (index, value) => {
     if (/^[0-9]$/.test(value) || value === "") {
       const newCode = [...code];
@@ -33,8 +36,10 @@ function Signup2() {
     }
   };
 
+  //Check if all inputs are filled
   const isCodeComplete = code.every((digit) => digit !== "");
 
+  //Submit verification code to backend
   const onConfirm = async (e) => {
     e.preventDefault();
     if (!isCodeComplete) return;
@@ -58,6 +63,7 @@ function Signup2() {
     }
   };
 
+  //Request new code and reset inputs
   const onResendCode = async () => {
     try {
       const res = await fetch(`${API}/auth/signup/request-code`, {
@@ -76,6 +82,7 @@ function Signup2() {
     }
   };
 
+  //HTML
   return (
     <div className="su2">
       {/* Navbar */}

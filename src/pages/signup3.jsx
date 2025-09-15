@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/signup3.css";
 
+//API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
 function Signup3() {
@@ -13,19 +14,25 @@ function Signup3() {
     confirmPassword: "",
   });
 
+  //Track loading state
   const [loading, setLoading] = useState(false);
+
+  //Retrieve stored token and email
   const signupToken = sessionStorage.getItem("signupToken");
   const signupEmail = sessionStorage.getItem("signupEmail");
 
+  //Redirect back if no token is stored
   useEffect(() => {
     if (!signupToken) navigate("/signup1", { replace: true });
   }, [signupToken, navigate]);
 
+  //From input handler
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  //Check basic validation
   const isFirstNameValid = formData.firstName.length >= 1;
   const isLastNameValid = formData.lastName.length >= 1;
   const isPasswordValid =
@@ -39,6 +46,7 @@ function Signup3() {
   const isFormValid =
     isFirstNameValid && isLastNameValid && isPasswordValid && isPasswordMatching;
 
+  //Save auth details locally
   const persistAuth = (accessToken, user) => {
     if (!accessToken) return false;
     try {
@@ -58,6 +66,7 @@ function Signup3() {
     }
   };
 
+  //Fallback login if signup response doesn't include token
   const fallbackLogin = async (email, password) => {
     if (!email || !password) return null;
     const res = await fetch(`${API}/auth/login`, {
@@ -73,6 +82,7 @@ function Signup3() {
     return data;
   };
 
+  //Submit final signup
   const onSignup = async (e) => {
     e.preventDefault();
     if (!isFormValid) return;
@@ -80,6 +90,7 @@ function Signup3() {
     try {
       setLoading(true);
 
+      //Call backend
       const res = await fetch(`${API}/auth/signup/complete`, {
         method: "POST",
         headers: {
@@ -96,6 +107,7 @@ function Signup3() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to complete signup");
 
+      //Persist auth or fallback to login if not included
       let ok = false;
       if (data?.accessToken) {
         ok = persistAuth(data.accessToken, data.user);
@@ -106,9 +118,11 @@ function Signup3() {
       }
       if (!ok) throw new Error("Could not persist auth. Please try logging in.");
 
+      //Clear temporary storage
       sessionStorage.removeItem("signupToken");
       sessionStorage.removeItem("signupEmail");
 
+      //Small delay to ensure storage is set before redirect
       await new Promise((r) => setTimeout(r, 60));
       window.location.replace("/profile");
     } catch (err) {
@@ -118,6 +132,7 @@ function Signup3() {
     }
   };
 
+  //HTML
   return (
     <div className="su3">
       {/* Navbar */}

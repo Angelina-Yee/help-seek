@@ -9,20 +9,27 @@ import profileRouter from "./routes/profile.js";
 
 const app = express();
 
+//Enable Cors for frontend
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true
 }));
 
+//parse JSON requests and log requests
 app.use(express.json());
 app.use(morgan("dev"));
 
+//check health
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
+//API routes
 app.use("/auth", authRoutes);
 app.use("/api/profile", profileRouter);
 
+//404 handler
 app.use((_req, _res, next) => next(createError(404, "Not found")));
+
+//Error handler
 app.use((err, _req, res, _next) => {
   const status = err.status || 500;
   const payload = { status, message: err.message || "Server error" };
@@ -30,8 +37,8 @@ app.use((err, _req, res, _next) => {
   res.status(status).json(payload);
 });
 
+//Start server
 const PORT = Number((process.env.PORT || "4000").trim());
-
 connectDB()
   .then(() =>
     app.listen(PORT, "0.0.0.0", () =>
