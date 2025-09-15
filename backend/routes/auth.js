@@ -177,10 +177,12 @@ router.post(
       if (!ok) throw createError(401, "Invalid credentials");
 
       const accessToken = signAccessToken(user);
-      res.json({
+
+      res.status(201).json({
+        message: "Signup successful",
         user: { id: user._id, email: user.email, name: user.name },
         accessToken,
-        expiresIn: 900,
+        expiresIn: 900
       });
     } catch (err) {
       next(err);

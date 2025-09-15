@@ -14,22 +14,18 @@ function Signup3() {
   });
 
   const [loading, setLoading] = useState(false);
-
   const signupToken = sessionStorage.getItem("signupToken");
+  const signupEmail = sessionStorage.getItem("signupEmail");
 
-  useEffect (() => {
-    if (!signupToken) navigate("/signup1");
+  useEffect(() => {
+    if (!signupToken) navigate("/signup1", { replace: true });
   }, [signupToken, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Validation checks
   const isFirstNameValid = formData.firstName.length >= 1;
   const isLastNameValid = formData.lastName.length >= 1;
   const isPasswordValid =
@@ -40,18 +36,50 @@ function Signup3() {
   const isPasswordMatching =
     formData.newPassword === formData.confirmPassword &&
     formData.confirmPassword !== "";
-
   const isFormValid =
-    isFirstNameValid &&
-    isLastNameValid &&
-    isPasswordValid &&
-    isPasswordMatching;
+    isFirstNameValid && isLastNameValid && isPasswordValid && isPasswordMatching;
+
+  const persistAuth = (accessToken, user) => {
+    if (!accessToken) return false;
+    try {
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("token", accessToken);
+      sessionStorage.setItem("accessToken", accessToken);
+      sessionStorage.setItem("token", accessToken);
+      if (user) localStorage.setItem("user", JSON.stringify(user));
+
+      document.cookie = `token=${accessToken}; path=/; SameSite=Lax`;
+
+      localStorage.setItem("isAuthenticated", "true");
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const fallbackLogin = async (email, password) => {
+    if (!email || !password) return null;
+    const res = await fetch(`${API}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: String(email).trim().toLowerCase(),
+        password,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Login failed");
+    return data;
+  };
 
   const onSignup = async (e) => {
     e.preventDefault();
     if (!isFormValid) return;
+
     try {
       setLoading(true);
+
       const res = await fetch(`${API}/auth/signup/complete`, {
         method: "POST",
         headers: {
@@ -64,12 +92,25 @@ function Signup3() {
           password: formData.newPassword,
         }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to complete signup");
 
+      let ok = false;
+      if (data?.accessToken) {
+        ok = persistAuth(data.accessToken, data.user);
+      }
+      if (!ok) {
+        const login = await fallbackLogin(signupEmail, formData.newPassword);
+        ok = persistAuth(login?.accessToken, login?.user);
+      }
+      if (!ok) throw new Error("Could not persist auth. Please try logging in.");
+
       sessionStorage.removeItem("signupToken");
       sessionStorage.removeItem("signupEmail");
-      navigate("/login", { replace: true });
+
+      await new Promise((r) => setTimeout(r, 60));
+      window.location.replace("/profile");
     } catch (err) {
       alert(err.message);
     } finally {
