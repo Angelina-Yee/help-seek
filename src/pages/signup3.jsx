@@ -59,7 +59,7 @@ function Signup3() {
       return;
     }
 
-    navigate("/editProfile");
+    navigate("/profile");
   };
 
   return (

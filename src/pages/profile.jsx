@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import "../styles/profile.css";
 import { Link } from "react-router-dom";
 import raccoon from "../assets/raccoon.png";
+import Postcard from "../components/postcard";
 
 function Profile() {
     const stats = [
@@ -10,7 +11,12 @@ function Profile() {
         {value: 0, label: "losses"},
     ];
     const posts= [
-        {id: 1, name: "Water bottle near Geisel", status: "resolved",  date: "2025-09-10"},
+            {id: 1, 
+            name: "John Doe", 
+            title:"Lost Water Bottle",
+            location: "Geisel Library",
+            desc: "Blue stanley water bottle with pink stickers. Left near the first floor computer area. Found 20 minutes ago.",
+            },
     ]
     return(<div className="prof">
         {/*Navbar*/}
@@ -25,48 +31,44 @@ function Profile() {
                     <Link to="/editProfile" className="prof-link">Edit Profile</Link>
                     <Link to="/instructions" className="prof-link">Settings</Link>
                 </div>
-
-                {/*Stats*/}
-                <div className="prof-stats">
-                    {stats.map((s, i) => (
-                        <React.Fragment key={i}>
-                            <div className="stat" key={i}>
-                                <div className="stat-value">{s.value}</div>
-                                <div className="stat-label">{s.label}</div>
-                            </div>
-                            {i < stats.length -1 && <div className="stat-divider" />}
-                        </React.Fragment>
-                    ))}
-                </div>
             </section>
+
             {/*Avatar Stamp*/}
             <aside className="prof-stamp">
                 <div className="stamp-frame">
-                    <img src={raccoon} alt="Profile avatar"/>
+                    <img className="racc-img" src={raccoon} alt="Profile avatar"/>
                 </div>
             </aside>
         </div>
-        <section className="prof-posts">
-            <div className="posts-header">
-                <h3>Your Posts</h3>
-                <button className="filter-btn" aria-label="Filter posts">▾</button>
-            </div>
 
-            <div className="posts-table">
-                <div className="posts-row posts-head">
-                    <div className="cell icon" title="type">☺︎</div>
-                    <div className="cell name">Name</div>
-                    <div className= "cell status">Status</div>
-                    <div className="cell date">Date</div>
-                </div>
-                {posts.map(p => (
-                    <div className="posts-row" key={p.id}>
-                        <div className="cell name">{p.name}</div>
-                        <div className={`cell status ${p.status}`}>{p.status}</div>
-                        <div className="cell date">{p.date}</div>
-                    </div>
+        {/*Stats*/}
+            <div className="prof-stats">
+                {stats.map((s, i) => (
+                    <React.Fragment key={i}>
+                        <div className="stat" key={i}>
+                            <div className="stat-value">{s.value}</div>
+                            <div className="stat-label">{s.label}</div>
+                        </div>
+                        {i < stats.length -1 && <div className="stat-divider" />}
+                    </React.Fragment>
                 ))}
             </div>
+
+        <section className="prof-posts">
+            <div className="posts-header">
+                <h3>Your posts</h3>
+            </div>
+
+            {posts.map(p => (
+                <Postcard
+                key={p.id}
+                name={p.name}
+                date={p.date}
+                title={p.title}
+                location={p.location}
+                desc={p.desc}
+                />
+            ))}
         </section>
         </div>
     );

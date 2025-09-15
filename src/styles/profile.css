@@ -3,11 +3,19 @@
     --blue: #0f3484;
 }
 
+html, body{
+    height: 100%;
+    background: var(--bg);
+    margin: 0;
+    padding: 0;
+}
+
 .prof{
     background: var(--bg);
-    min-height: 100vh;
-    min-width: 100vw;
+    min-height: 100%;
+    min-width: 100%;
     color: var(--blue);
+    overflow-x: clip;
 }
 
 /*NavBar*/
@@ -32,7 +40,7 @@
     display: grid;
     grid-template-columns: 1fr 320px;
     gap: 24px;
-    padding: 10px 0px 20px 90px;
+    padding: 8px 90px 20px 90px;
 }
 
 .prof-title{
@@ -67,9 +75,10 @@
 .prof-stats{
     display: flex;
     align-items: stretch;
-    gap: 100px;
-    margin-top: 40px;
+    gap: 10rem;
+    margin: 20px 30px;
     padding: 12px 0 4px;
+    justify-content: center;
 }
 
 .stats{
@@ -100,4 +109,55 @@
     background: rgb(84, 84, 84);
     margin: 0 8px;
     opacity: 50%;
+}
+
+/*Stamp Image*/
+.prof-stamp{
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    width: 230px;
+    height: 260px;
+}
+
+.stamp-frame{
+    width: 250px;
+    height: 270px;
+    background: url("../assets/stamp-pic.png") no-repeat;
+    background-position: center center;
+    background-size: cover;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.racc-img{
+    height: 11rem;
+    width: auto;
+}
+
+/*Post card*/
+.prof-posts{
+    margin: 10px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.posts-header{
+    margin-right: 40rem;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.posts-header h3{
+    color: var(--blue);
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    margin: 0;
+    font-size: 1.4rem;
 }
