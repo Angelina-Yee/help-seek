@@ -6,6 +6,7 @@ import Signup1 from "./pages/signup1";
 import Signup2 from "./pages/signup2";
 import Signup3 from "./pages/signup3";
 import EditProfile from "./pages/editProfile";
+import Profile from "./pages/profile";
 import Sidebar from "./components/sidebar";
 
 function Layout(){
@@ -30,6 +31,7 @@ function App() {
         <Route path="/signup3" element={<Signup3 />} />
         <Route element={<Layout />}>
           <Route path="/editProfile" element={<EditProfile />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>

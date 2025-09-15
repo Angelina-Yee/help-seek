@@ -1,0 +1,152 @@
+:root {
+    --bg: #fdf8ec;
+    --blue: #0f3484;
+}
+
+.eP {
+    background-color: var(--bg);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+/*NavBar*/
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: url("../assets/border.png") repeat-x bottom;
+    background-size: 100vw 5rem;
+    padding: 1.5rem 2rem;
+}
+
+.logo {
+    font-family: "Calistoga", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.5rem;
+    color: var(--blue);
+}
+
+/*Hero*/
+.eP-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+h1{
+    font-family: "Calistoga", serif;
+    font-weight: 400;
+    font-style: normal;
+    color: var(--blue);
+}
+
+.eP-box {
+    max-width: 300px;
+    max-height: 360px;
+    width: 100%;
+    border: 5px solid var(--blue);
+    padding: 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+img{
+    height: 13rem;
+    width: auto;
+}
+
+.eP-header{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ePP{
+    text-decoration: underline;
+    font-family: "Calistoga", serif;
+    font-weight: 400;
+    font-style: normal;
+    color: #1440AD;
+    margin-bottom: 26px;
+}
+
+.row{
+    display: flex;
+    flex-direction: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+label{
+    font-family: "Calistoga", serif;
+    font-weight: 400;
+    font-style: normal;
+    color: var(--blue);
+    font-size: 18px;
+}
+
+#name{
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    color: var(--blue);
+}
+
+select{
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    border: 2.5px solid var(--blue);
+    width: 10rem;
+    height: 1.8rem;
+    color: var(--blue);
+    cursor: pointer;
+}
+
+.footer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+    position: relative;
+}
+
+.footer h4{
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    color: var(--blue);
+    font-size: 15px;
+    margin: 0;
+    position: absolute;
+    right: -9rem;
+    bottom: 2.4rem;
+    width: 85px;
+}
+
+.save-btn{
+    background: var(--blue);
+    border: none;
+    color: var(--bg);
+    border-radius: 50px;
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 12px;
+    padding: 12px 35px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.2s ease, transform 0.15s ease;
+    margin-top: 10px;
+    box-shadow: 0 4px 6px rgb(128, 128, 128);
+}
+
+.save-btn:hover{
+    transform: translateY(3%) scale(0.98);
+    opacity: 90%;
+}

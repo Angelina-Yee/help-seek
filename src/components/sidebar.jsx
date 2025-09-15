@@ -18,7 +18,7 @@ function Sidebar(){
                     <div className="sb-title">General</div>
                     <NavLink to="/" className="sb-item">Home</NavLink>
                     <NavLink to="/" className="sb-item">Settings</NavLink>
-                    <NavLink to="/" className="sb-item">Profile</NavLink>
+                    <NavLink to="/profile" className="sb-item">Profile</NavLink>
                     <NavLink to="/" className="sb-item">Inbox</NavLink>
                 </div>
                 <div className="sb-section">

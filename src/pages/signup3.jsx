@@ -59,7 +59,6 @@ function Signup3() {
       return;
     }
 
-    // Navigate to next page or complete signup
     navigate("/editProfile");
   };
 
