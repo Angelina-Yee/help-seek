@@ -74,14 +74,14 @@ function Signup3() {
       </header>
 
       {/* Main Content */}
-      <div className="signup-container">
-        <section className="signup-box">
-          <div className="signup-header">
+      <div className="signup-container3">
+        <section className="signup-box3">
+          <div className="signup-header3">
             <h2>sign up</h2>
-            <span className="step">3/3</span>
+            <span className="step3">3/3</span>
           </div>
 
-          <form className="signup-form" onSubmit={onSignup}>
+          <form className="signup-form3" onSubmit={onSignup}>
             <div className="name-row">
               <div className="name-field">
                 <label htmlFor="firstName">first name</label>
