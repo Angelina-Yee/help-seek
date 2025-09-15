@@ -44,6 +44,16 @@
 }
 
 /*Hero*/
+.hero{
+    background: var(--blue);
+    color: var(--bg);
+    padding: 0rem 3.5rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 80vh;
+}
 
 .hero h1 {
   font-family: "Calistoga", serif;
