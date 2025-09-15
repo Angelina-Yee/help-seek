@@ -60,7 +60,7 @@ function Signup3() {
     }
 
     // Navigate to next page or complete signup
-    navigate("/dashboard"); // or wherever you want to go after signup
+    navigate("/editProfile");
   };
 
   return (
