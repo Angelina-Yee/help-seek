@@ -1,0 +1,141 @@
+:root {
+  --bg: #fdf8ec;
+  --blue: #0f3484;
+}
+
+.login-page {
+  background-color: var(--bg);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: url("../assets/border.png") repeat-x bottom;
+  background-size: 100vw 5rem;
+  padding: 1.5rem 2rem;
+}
+
+.navbar a {
+  margin-left: 1.5rem;
+  color: var(--blue);
+  text-decoration: none;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.5rem;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+.logo {
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.5rem;
+  color: var(--blue);
+}
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 60vh;
+  padding-top: 50px;
+}
+
+.login-box {
+  background-color: var(--bg);
+  border: 3px solid var(--blue);
+  border-radius: 15px;
+  font-family: "Calistoga", serif;
+  padding: 40px;
+  width: 400px;
+  text-align: left;
+}
+
+.login-header {
+  text-align: left;
+  margin-bottom: 40px;
+}
+
+.login-header h2 {
+  color: var(--blue);
+  font-size: 24px;
+  margin: 0;
+  font-weight: normal;
+}
+
+/* Form styles */
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form label {
+  color: var(--blue);
+  font-size: 16px;
+  margin-bottom: 8px;
+  margin-top: 15px;
+}
+
+.login-form input {
+  padding: 12px;
+  border: 2px solid var(--blue);
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: transparent;
+  color: var(--blue);
+  margin-bottom: 15px;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 5px rgba(15, 52, 132, 0.3);
+}
+
+/* Forgot password button */
+.forgot-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-align: right;
+  margin: 10px 0 20px 0;
+  padding: 0;
+}
+
+.forgot-btn:hover {
+  opacity: 0.8;
+}
+
+/* Login button */
+.login-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  border-radius: 8px;
+  padding: 10px 40px;
+  font-size: 25px;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  cursor: pointer;
+  display: block;
+  margin-top: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0px;
+}
+
+.login-btn:disabled {
+  background-color: transparent;
+  cursor: not-allowed;
+  opacity: 0.6;
+}

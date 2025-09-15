@@ -8,11 +8,12 @@ import Signup3 from "./pages/signup3";
 import EditProfile from "./pages/editProfile";
 import Profile from "./pages/profile";
 import Sidebar from "./components/sidebar";
+import Login from "./pages/login";
 
-function Layout(){
-  return(
+function Layout() {
+  return (
     <>
-      <Sidebar/>
+      <Sidebar />
       <main>
         <Outlet />
       </main>
@@ -33,6 +34,7 @@ function App() {
           <Route path="/editProfile" element={<EditProfile />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
+        <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );
