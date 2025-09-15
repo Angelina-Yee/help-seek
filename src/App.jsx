@@ -6,12 +6,15 @@ import Signup1 from "./pages/signup1";
 import Signup2 from "./pages/signup2";
 import Signup3 from "./pages/signup3";
 import EditProfile from "./pages/editProfile";
+import Profile from "./pages/profile";
 import Sidebar from "./components/sidebar";
+import Login from "./pages/login";
+import ForgotPassword from "./pages/forgotpassword";
 
-function Layout(){
-  return(
+function Layout() {
+  return (
     <>
-      <Sidebar/>
+      <Sidebar />
       <main>
         <Outlet />
       </main>
@@ -30,7 +33,10 @@ function App() {
         <Route path="/signup3" element={<Signup3 />} />
         <Route element={<Layout />}>
           <Route path="/editProfile" element={<EditProfile />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </BrowserRouter>
   );

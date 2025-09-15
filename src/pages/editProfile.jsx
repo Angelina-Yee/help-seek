@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import "../styles/profile.css";
+import "../styles/eprofile.css";
 import { Link } from "react-router-dom";
 import raccoon from "../assets/raccoon.png";
 

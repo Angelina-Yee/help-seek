@@ -87,14 +87,17 @@ function Signup2() {
       </header>
 
       {/* Main Content */}
-      <div className="signup-container">
-        <section className="signup-box">
-          <div className="signup-header">
+      <div className="signup-container2">
+        <section className="signup-box2">
+          <div className="signup-header2">
             <h2>sign up</h2>
-            <span className="step">2/3</span>
+            <span className="step2">2/3</span>
           </div>
+          <p className="auth-text">
+            please enter your authentication code below.
+          </p>
 
-          <form className="signup-form" onSubmit={onConfirm}>
+          <form className="signup-form2" onSubmit={onConfirm}>
             <div className="code-inputs">
               {code.map((digit, index) => (
                 <input
