@@ -43,6 +43,13 @@ router.post(
       const email = String(req.body.email).trim().toLowerCase();
       if (!ucsdOnly(email)) throw createError(400, "UCSD email required (@ucsd.edu)");
 
+      const existing = await User.findOne({ email });
+      if (existing && existing.verifiedAt) {
+        return res
+          .status(409)
+          .json({ message: "Account already exists. Redirecting to log in." });
+      }
+
       const code = makeOtp();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
@@ -62,7 +69,7 @@ router.post(
         `,
       });
 
-      res.json({ message: "Code sent", next: "verify-code" });
+      return res.json({ message: "Code sent", next: "verify-code" });
     } catch (err) {
       next(err);
     }
@@ -170,11 +177,12 @@ router.post(
       const { password } = req.body;
 
       const user = await User.findOne({ email });
-      if (!user) throw createError(401, "Invalid credentials");
+      if (!user) throw createError(401, "Your password is incorrect or this account does not exist.");
+
       if (!user.verifiedAt) throw createError(403, "Please verify your email to continue.");
 
       const ok = await bcrypt.compare(password, user.passwordHash);
-      if (!ok) throw createError(401, "Invalid credentials");
+      if (!ok) throw createError(401, "Your password is incorrect or this account does not exist.");
 
       const accessToken = signAccessToken(user);
 

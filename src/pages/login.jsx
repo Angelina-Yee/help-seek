@@ -2,41 +2,76 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/login.css";
 
+const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
+
 function Login() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setErrMsg("");
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Basic validation
   const isFormValid =
     formData.email.trim() !== "" && formData.password.trim() !== "";
 
-  const onLogin = (e) => {
+  const onLogin = async (e) => {
     e.preventDefault();
+    if (!isFormValid || loading) return;
 
-    if (!isFormValid) {
-      alert("Please fill in all fields");
-      return;
+    try {
+      setLoading(true);
+      setErrMsg("");
+
+      const res = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email.trim().toLowerCase(),
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          alert("Your password is incorrect or this account does not exist.");
+        } else if (res.status === 401) {
+          alert("Your password is incorrect or this account does not exist.");
+        } else if (res.status === 403) {
+          alert("Please verify your email before logging in.");
+        } else {
+          alert(data.message || "Login failed. Please try again.");
+        }
+        return;
+      }
+
+      if (!data.accessToken) {
+        alert("No access token returned. Please try again.");
+        return;
+      }
+
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("token", data.accessToken);
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+      localStorage.setItem("isAuthenticated", "true");
+
+      navigate("/profile", { replace: true });
+    } catch (err) {
+      alert(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    // Add login logic here
-    console.log("Login attempt:", formData);
-    navigate("/editProfile"); // or wherever you want to go after login
   };
 
   const onForgotPassword = () => {
-    // Add forgot password logic here
-    console.log("Forgot password clicked");
     navigate("/forgot-password");
   };
 
@@ -90,7 +125,7 @@ function Login() {
             </button>
 
             <button type="submit" className="login-btn" disabled={!isFormValid}>
-              confirm
+              {loading ? "signing in..." : "confirm"}
             </button>
           </form>
         </section>

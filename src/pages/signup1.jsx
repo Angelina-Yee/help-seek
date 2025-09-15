@@ -26,12 +26,25 @@ function Signup1() {
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to send code");
+
+      if (!res.ok) {
+        if (res.status === 409) {
+          alert("An account with this email already exists. Redirecting to log in page.");
+          navigate("/login", {replace: true});
+        } else if (res.status === 400) {
+          alert(data.message || "Invalid email address.");
+        } else {
+          alert (data.message || "Failed to send code. Please try again.");
+        }
+        return;
+      }
 
       sessionStorage.setItem("signupEmail", email.trim().toLowerCase());
-    navigate("/signup2");
+
+      navigate("/signup2", {replace: true});
+
     } catch (err) {
-      alert(err.message);
+      alert(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
