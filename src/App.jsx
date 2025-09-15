@@ -9,6 +9,7 @@ import EditProfile from "./pages/editProfile";
 import Profile from "./pages/profile";
 import Sidebar from "./components/sidebar";
 import Login from "./pages/login";
+import ForgotPassword from "./pages/forgotpassword";
 
 function Layout() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </BrowserRouter>
   );

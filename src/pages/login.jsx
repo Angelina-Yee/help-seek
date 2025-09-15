@@ -37,7 +37,7 @@ function Login() {
   const onForgotPassword = () => {
     // Add forgot password logic here
     console.log("Forgot password clicked");
-    navigate("/forgotPassword");
+    navigate("/forgot-password");
   };
 
   return (
@@ -55,6 +55,9 @@ function Login() {
         <section className="login-box">
           <div className="login-header">
             <h2>login</h2>
+            <p className="login-text">
+              Don't have an account? <Link to="/signup1">signup</Link>
+            </p>
           </div>
 
           <form className="login-form" onSubmit={onLogin}>

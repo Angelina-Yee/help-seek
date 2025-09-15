@@ -1,71 +1,61 @@
-:root{
-    --bg: #FDF8EC;
-    --blue: #0F3484;
+:root {
+  --bg: #fdf8ec;
+  --blue: #0f3484;
 }
 
-.Land1{
-    font-family: Arial, Helvetica, sans-serif;
-    background: var(--blue);
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
+.Land1 {
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--blue);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 /*NavBar*/
-.navbar{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: url("../assets/border.png") repeat-x bottom;
-    background-size: 100vw 5rem;
-    padding: 1.5rem 2rem;
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: url("../assets/border.png") repeat-x bottom;
+  background-size: 100vw 5rem;
+  padding: 1.5rem 2rem;
 }
 
-.navbar a{
-    margin-left: 1.5rem;
-    color: var(--blue);
-    text-decoration: none;
-    font-family: "Calistoga", serif;
-    font-weight: 400;
-    font-style: normal;
-    font-size: 1.5rem;
+.navbar a {
+  margin-left: 1.5rem;
+  color: var(--blue);
+  text-decoration: none;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.5rem;
 }
 
-.navbar a:hover{
-    text-decoration: underline;
+.navbar a:hover {
+  text-decoration: underline;
 }
 
-.logo{
-    font-family: "Calistoga", serif;
-    font-weight: 400;
-    font-style: normal;
-    font-size: 1.5rem;
-    color: var(--blue);
+.logo {
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.5rem;
+  color: var(--blue);
 }
 
 /*Hero*/
-.hero{
-    background: var(--blue);
-    padding: 0rem 3.5rem;
-    text-align: left;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    height: 80vh;
+.hero h1 {
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 6.5rem;
+  line-height: 1.2;
+  color: var(--bg);
+  margin: 0;
 }
 
-.hero h1{
-    font-family: "Calistoga", serif;
-    font-weight: 400;
-    font-style: normal;
-    font-size: 6.5rem;
-    line-height: 1.2;
-    color: var(--bg);
-    margin: 0;
-}
-
-.hero span{
-    display: block;
-    margin-top: 0.5rem;
+.hero span {
+  display: block;
+  margin-top: 0.5rem;
 }
