@@ -3,7 +3,6 @@ import { body, validationResult } from "express-validator";
 import createError from "http-errors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import crypto from "crypto";
 
 import { User } from "../models/User.js";
 import { Otp } from "../models/Otp.js";
@@ -16,15 +15,13 @@ function ucsdOnly(email) {
 }
 
 function makeOtp() {
-  return String(Math.floor(Math.random() * 1_000_000)).padStart(6, "0");
+  return String(Math.floor(Math.random() * 100000)).padStart(5, "0");
 }
 
-function signSignupToken(user) {
-  return jwt.sign(
-    { typ: "signup", sub: user._id.toString(), email: user.email },
-    process.env.JWT_ACCESS_SECRET,
-    { expiresIn: "30m" }
-  );
+function signSignupToken(email) {
+  return jwt.sign({ typ: "signup", email }, process.env.JWT_ACCESS_SECRET, {
+    expiresIn: "30m",
+  });
 }
 
 function signAccessToken(user) {
@@ -43,38 +40,26 @@ router.post(
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw createError(400, { errors: errors.array() });
 
-      const email = req.body.email.toLowerCase();
+      const email = String(req.body.email).trim().toLowerCase();
       if (!ucsdOnly(email)) throw createError(400, "UCSD email required (@ucsd.edu)");
-
-      let user = await User.findOne({ email });
-
-      if (user && user.verifiedAt) {
-        throw createError(409, "Account already exists. Please log in.");
-      }
-
-      if (!user) {
-        user = await User.create({
-          email,
-          emailDomain: "ucsd.edu",
-          passwordHash: "__PENDING__",
-          name: null,
-          verifiedAt: null
-        });
-      }
 
       const code = makeOtp();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-      await Otp.deleteMany({ userId: user._id, type: "SIGNUP" });
-      await Otp.create({ userId: user._id, type: "SIGNUP", code, expiresAt });
+
+      await Otp.findOneAndUpdate(
+        { email, type: "SIGNUP" },
+        { email, type: "SIGNUP", code, expiresAt, attempts: 0 },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
 
       await sendEmail({
-        to: user.email,
+        to: email,
         subject: "Your Help N Seek verification code",
         html: `
           <p>Your verification code is:</p>
           <div style="font-size:28px;font-weight:700;letter-spacing:6px">${code}</div>
           <p>This code expires in 15 minutes.</p>
-        `
+        `,
       });
 
       res.json({ message: "Code sent", next: "verify-code" });
@@ -87,27 +72,25 @@ router.post(
 router.post(
   "/signup/verify-code",
   body("email").isEmail(),
-  body("code").isLength({ min: 6, max: 6 }),
+  body("code").isLength({ min: 5, max: 5 }),
   async (req, res, next) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw createError(400, { errors: errors.array() });
 
-      const email = req.body.email.toLowerCase();
+      const email = String(req.body.email).trim().toLowerCase();
       const code = String(req.body.code).trim();
 
-      const user = await User.findOne({ email });
-      if (!user) throw createError(404, "User not found. Start over.");
-
-      const otp = await Otp.findOne({ userId: user._id, type: "SIGNUP" });
+      const otp = await Otp.findOne({ email, type: "SIGNUP" });
       if (!otp) throw createError(400, "Code expired or not found. Request a new one.");
+
       if (otp.expiresAt.getTime() < Date.now()) {
         await Otp.deleteOne({ _id: otp._id });
         throw createError(400, "Code expired. Request a new one.");
       }
 
       if (otp.code !== code) {
-        otp.attempts += 1;
+        otp.attempts = (otp.attempts || 0) + 1;
         await otp.save();
         if (otp.attempts >= 5) {
           await Otp.deleteOne({ _id: otp._id });
@@ -116,12 +99,8 @@ router.post(
         throw createError(401, "Invalid code.");
       }
 
-      const now = new Date();
-      if (!user.verifiedAt) user.verifiedAt = now;
-      await user.save();
-      await Otp.deleteOne({ _id: otp._id });
+      const signupToken = signSignupToken(email);
 
-      const signupToken = signSignupToken(user);
       res.json({ message: "Email verified", next: "complete", signupToken });
     } catch (err) {
       next(err);
@@ -151,16 +130,27 @@ router.post(
       }
       if (payload.typ !== "signup") throw createError(401, "Wrong token type");
 
-      const user = await User.findById(payload.sub);
-      if (!user) throw createError(404, "User not found");
-      if (!user.verifiedAt) throw createError(400, "Verify email first");
-
+      const email = String(payload.email).toLowerCase();
       const { firstName, lastName, password } = req.body;
-      user.name = `${firstName.trim()} ${lastName.trim()}`;
-      user.passwordHash = await bcrypt.hash(password, 12);
-      await user.save();
 
-      res.status(201).json({ message: "Signup complete. You can now log in."});
+      const existing = await User.findOne({ email });
+      if (existing) {
+        throw createError(409, "Account already exists. Please log in.");
+      }
+
+      const passwordHash = await bcrypt.hash(password, 12);
+
+      const user = await User.create({
+        email,
+        name: `${firstName.trim()} ${lastName.trim()}`,
+        passwordHash,
+        verifiedAt: new Date(),
+        emailDomain: "ucsd.edu",
+      });
+
+      await Otp.deleteMany({ email, type: "SIGNUP" });
+
+      return res.status(201).json({ message: "Signup complete. You can now log in." });
     } catch (err) {
       next(err);
     }
@@ -176,25 +166,21 @@ router.post(
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw createError(400, { errors: errors.array() });
 
-      const email = req.body.email.toLowerCase();
+      const email = String(req.body.email).trim().toLowerCase();
       const { password } = req.body;
 
       const user = await User.findOne({ email });
       if (!user) throw createError(401, "Invalid credentials");
-
-      if (!user.verifiedAt) {
-        throw createError(403, "Please verify your email to continue.");
-      }
+      if (!user.verifiedAt) throw createError(403, "Please verify your email to continue.");
 
       const ok = await bcrypt.compare(password, user.passwordHash);
       if (!ok) throw createError(401, "Invalid credentials");
 
       const accessToken = signAccessToken(user);
-
       res.json({
         user: { id: user._id, email: user.email, name: user.name },
         accessToken,
-        expiresIn: 900
+        expiresIn: 900,
       });
     } catch (err) {
       next(err);

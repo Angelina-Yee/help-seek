@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const otpSchema = new mongoose.Schema(
   {
+    email: { type: String, required: true, index: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     type: { type: String, enum: ["SIGNUP"], required: true },
     code: { type: String, required: true },

@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/signup3.css";
+
+const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
 function Signup3() {
   const navigate = useNavigate();
@@ -10,6 +12,14 @@ function Signup3() {
     newPassword: "",
     confirmPassword: "",
   });
+
+  const [loading, setLoading] = useState(false);
+
+  const signupToken = sessionStorage.getItem("signupToken");
+
+  useEffect (() => {
+    if (!signupToken) navigate("/signup1");
+  }, [signupToken, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,30 +47,34 @@ function Signup3() {
     isPasswordValid &&
     isPasswordMatching;
 
-  const onSignup = (e) => {
+  const onSignup = async (e) => {
     e.preventDefault();
+    if (!isFormValid) return;
+    try {
+      setLoading(true);
+      const res = await fetch(`${API}/auth/signup/complete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${signupToken}`,
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          password: formData.newPassword,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to complete signup");
 
-    if (!isFirstNameValid) {
-      alert("First name must be at least 1 characters long");
-      return;
+      sessionStorage.removeItem("signupToken");
+      sessionStorage.removeItem("signupEmail");
+      navigate("/login", { replace: true });
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
     }
-    if (!isLastNameValid) {
-      alert("Last name must be at least 1 characters long");
-      return;
-    }
-    if (!isPasswordValid) {
-      alert(
-        "Password must be at least 8 characters with uppercase, lowercase, number, and special character"
-      );
-      return;
-    }
-    if (!isPasswordMatching) {
-      alert("Passwords do not match");
-      return;
-    }
-
-    // Navigate to next page or complete signup
-    navigate("/dashboard"); // or wherever you want to go after signup
   };
 
   return (
@@ -134,9 +148,9 @@ function Signup3() {
             <button
               type="submit"
               className="signup-btn"
-              disabled={!isFormValid}
+              disabled={!isFormValid || loading}
             >
-              sign up
+              {loading ? "creating..." : "sign up"}
             </button>
           </form>
         </section>

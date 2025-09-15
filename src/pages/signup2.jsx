@@ -1,19 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/signup2.css";
+
+const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
 function Signup2() {
   const navigate = useNavigate();
   const [code, setCode] = useState(["", "", "", "", ""]);
+  const [loading, setLoading] = useState(false);
+  const email = sessionStorage.getItem("signupEmail");
+
+  useEffect(() => {
+    if (!email) navigate ("/signup1");
+  }, [email, navigate]);
 
   const handleCodeChange = (index, value) => {
-    // Only allow single digits (0-9)
     if (/^[0-9]$/.test(value) || value === "") {
       const newCode = [...code];
       newCode[index] = value;
       setCode(newCode);
 
-      // Auto-focus next input
       if (value && index < 4) {
         document.getElementById(`code-${index + 1}`).focus();
       }
@@ -21,24 +27,53 @@ function Signup2() {
   };
 
   const handleKeyDown = (index, e) => {
-    // Handle backspace to go to previous input
     if (e.key === "Backspace" && !code[index] && index > 0) {
-      document.getElementById(`code-${index - 1}`).focus();
+      const prev = document.getElementById(`code-${index - 1}`);
+      prev && prev.focus();
     }
   };
 
   const isCodeComplete = code.every((digit) => digit !== "");
 
-  const onConfirm = (e) => {
+  const onConfirm = async (e) => {
     e.preventDefault();
-    if (isCodeComplete) {
-      navigate("/signup3"); // or wherever you want to go next
+    if (!isCodeComplete) return;
+    try {
+      setLoading(true);
+      const fullCode = code.join("");
+      const res = await fetch(`${API}/auth/signup/verify-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code: fullCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Invalid or expired code");
+
+      sessionStorage.setItem("signupToken", data.signupToken);
+      navigate("/signup3");
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const onResendCode = () => {
-    // Add resend code logic here
-    console.log("Resending code...");
+  const onResendCode = async () => {
+    try {
+      const res = await fetch(`${API}/auth/signup/request-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to resend code");
+      alert("A new code has been sent to your email.");
+      setCode(["", "", "", "", ""]);
+      const first = document.getElementById("code-0");
+      first && first.focus();
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
   return (
@@ -82,9 +117,9 @@ function Signup2() {
             <button
               type="submit"
               className="confirm-btn"
-              disabled={!isCodeComplete}
+              disabled={!isCodeComplete || loading}
             >
-              confirm
+              {loading ? "verifying..." : "confirm"}
             </button>
           </form>
         </section>

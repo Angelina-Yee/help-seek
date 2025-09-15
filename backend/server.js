@@ -3,12 +3,16 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import createError from "http-errors";
-import {connectDB} from "./config/db.js";
+import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 
 const app = express();
 
-app.use(cors({origin: process.env.FRONTEND_URL || true }));
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(morgan("dev"));
 
@@ -24,9 +28,14 @@ app.use((err, _req, res, _next) => {
   res.status(status).json(payload);
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = Number((process.env.PORT || "4000").trim());
+
 connectDB()
-  .then(() => app.listen(PORT, () => console.log(`Server running on http://localhost: ${PORT}`)))
+  .then(() =>
+    app.listen(PORT, "0.0.0.0", () =>
+      console.log(`Server running on http://localhost:${PORT}`)
+    )
+  )
   .catch((e) => {
     console.error("DB connect failed:", e);
     process.exit(1);
