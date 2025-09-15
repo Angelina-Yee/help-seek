@@ -1,23 +1,57 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import "../styles/profile.css";
 import { Link } from "react-router-dom";
 import raccoon from "../assets/raccoon.png";
 import Postcard from "../components/postcard";
 
 function Profile() {
+    const [userName, setUserName] = useState("...");
+
+    useEffect(() => {
+        const abort = new AbortController();
+        
+        (async () => {
+          try {
+            const res = await fetch("http://localhost:4000/api/profile/me", {
+              method: "GET",
+              credentials: "include",
+              headers: {
+                ...(localStorage.getItem("token")
+                  ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                  : {}),
+              },
+              signal: abort.signal,
+            });
+
+            if (!res.ok) throw new Error("profile fetch failed");
+            const data = await res.json();
+      
+            setUserName(data.name || (data.email ? data.email.split("@")[0] : "Friend"));
+
+          } catch (e) {
+            console.error(e);
+            setUserName("Friend");
+          }
+        })();
+
+        return () => abort.abort();
+    }, []);
+
     const stats = [
         {value: 1, label: "finds"},
         {value: 10, label: "helped"},
         {value: 0, label: "losses"},
     ];
+
     const posts= [
             {id: 1, 
             name: "John Doe", 
             title:"Lost Water Bottle",
             location: "Geisel Library",
             desc: "Blue stanley water bottle with pink stickers. Left near the first floor computer area. Found 20 minutes ago.",
-            },
-    ]
+        },
+    ];
+
     return(<div className="prof">
         {/*Navbar*/}
         <header className="navbar">
@@ -26,7 +60,7 @@ function Profile() {
         {/*Hero*/}
         <div className="prof-container">
             <section className="prof-box">
-                <h1 className="prof-title">Hello,<br />John Doe</h1>
+                <h1 className="prof-title">Hello,<br />{userName}</h1>
                 <div className="prof-actions">
                     <Link to="/editProfile" className="prof-link">Edit Profile</Link>
                     <Link to="/instructions" className="prof-link">Settings</Link>

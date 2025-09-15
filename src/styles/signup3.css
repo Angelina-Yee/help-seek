@@ -11,7 +11,7 @@
 }
 .navbar {
   display: flex;
-  justify-content: spaßce-between;
+  justify-content: space-between;
   align-items: center;
   background: url("../assets/border.png") repeat-x bottom;
   background-size: 100vw 5rem;

@@ -5,6 +5,7 @@ import morgan from "morgan";
 import createError from "http-errors";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.js";
+import profileRouter from "./routes/profile.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(morgan("dev"));
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.use("/auth", authRoutes);
+app.use("/api/profile", profileRouter);
 
 app.use((_req, _res, next) => next(createError(404, "Not found")));
 app.use((err, _req, res, _next) => {
