@@ -31,13 +31,13 @@ function Login() {
 
     // Add login logic here
     console.log("Login attempt:", formData);
-    navigate("/dashboard"); // or wherever you want to go after login
+    navigate("/editProfile"); // or wherever you want to go after login
   };
 
   const onForgotPassword = () => {
     // Add forgot password logic here
     console.log("Forgot password clicked");
-    // navigate("/forgot-password");
+    navigate("/forgotPassword");
   };
 
   return (
@@ -54,7 +54,7 @@ function Login() {
       <div className="login-container">
         <section className="login-box">
           <div className="login-header">
-            <h2>log in</h2>
+            <h2>login</h2>
           </div>
 
           <form className="login-form" onSubmit={onLogin}>
@@ -87,7 +87,7 @@ function Login() {
             </button>
 
             <button type="submit" className="login-btn" disabled={!isFormValid}>
-              login
+              confirm
             </button>
           </form>
         </section>

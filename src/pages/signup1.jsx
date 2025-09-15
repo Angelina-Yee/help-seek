@@ -34,7 +34,7 @@ function Signup1() {
             <span className="step1">1/3</span>
           </div>
           <p className="login-text">
-            already have an account? <a href="#">login</a>
+            already have an account? <Link to="/login">login</Link>
           </p>
 
           <form className="signup-form1" onSubmit={onSend}>
