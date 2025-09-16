@@ -21,7 +21,7 @@ function EditProfile() {
             <section className="eP-box">
             <div className="eP-header">
                 <img src={raccoon} alt="raccoon"/>
-                <Link to="/instructions" className="ePP">Edit Profile Picture</Link>
+                <Link to="/editPP" className="ePP">Edit Profile Picture</Link>
             </div>
             <div className="form-container">
                 <div className="row">

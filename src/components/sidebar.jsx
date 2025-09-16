@@ -3,7 +3,7 @@ import {NavLink} from "react-router-dom";
 import "../styles/sidebar.css";
 
 function Sidebar(){
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     
     return(
         <>

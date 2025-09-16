@@ -10,6 +10,7 @@ import Profile from "./pages/profile";
 import Sidebar from "./components/sidebar";
 import Login from "./pages/login";
 import ForgotPassword from "./pages/forgotpassword";
+import EditPP from "./pages/editPP";
 
 function Layout() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/editProfile" element={<EditProfile />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/editPP" element={<EditPP />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -1,0 +1,215 @@
+:root {
+    --bg: #fdf8ec;
+    --blue: #0f3484;
+}
+
+.ePP2 {
+    background-color: var(--bg);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+html, body{
+    overflow: hidden;
+}
+
+/*NavBar*/
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: url("../assets/border.png") repeat-x bottom;
+    background-size: 100vw 5rem;
+    padding: 1.5rem 2rem;
+}
+
+.logo {
+    font-family: "Calistoga", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.5rem;
+    color: var(--blue);
+}
+
+/*Hero*/
+.ePP-container{
+    display: grid;
+    grid-template-columns: 18px 1fr 480px;
+    padding: 10px 7rem 32px 4rem;
+    align-items: start;
+}
+
+.ePP-back{
+    display: grid;
+    place-items: center;
+    text-decoration: none;
+    font-size: 40px;
+    color: var(--blue);
+    margin-right: 30px;
+}
+
+.ePP-back:hover{
+    transform: translateY(3%) scale(0.98);
+}
+
+.ePP-left{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 50px;
+    margin-right: 70px;
+}
+
+.ePP-preview{
+    --glow: #0F348F;
+    background: radial-gradient(circle at 50% 33%, 
+    color-mix(in oklab, var(--glow) 100%, transparent), 
+    color-mix(in oklab, var(--glow) 90%, transparent), 
+    color-mix(in oklab, var(--glow) 50%, transparent),
+    transparent 40%);
+    width: 40rem;
+    height: 40rem;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+.ePP-preview img{
+    margin-left: 40px;
+    width: 50%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 10px rgb(128, 128,128));
+}
+
+.ePP-save{
+    background: var(--blue);
+    border: none;
+    color: var(--bg);
+    border-radius: 50px;
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 15px;
+    padding: 15px 38px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 4px 6px rgb(128, 128, 128);
+    margin-left: 35rem;
+    margin-top: -10rem;
+}
+
+.ePP-save:hover{
+    transform: translateY(3%) scale(0.98);
+    opacity: 90%;
+}
+
+.ePP-panel{
+    position: relative;
+    height: 39rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.ePP-panel::before{
+    content: "";
+    position: absolute;
+    inset: -6px;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.ePP-panel-inner{
+    background: var(--bg);
+    border: 5px solid var(--blue);
+    border-radius: 15px;
+    padding: 30px 25px 10px 30px;
+    z-index: 1;
+}
+
+.ePP-group{
+    margin-bottom: 20px;
+}
+
+.ePP-label{
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-weight: 800;
+    color: var(--blue);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+
+.ePP-swatches{
+    display: flex;
+    gap: 21px;
+    flex-wrap: wrap;
+}
+
+.ePP-paints{
+    cursor: pointer;
+}
+
+.ePP-paints input{
+    display: none;
+}
+
+.ePP-paints .dots{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    box-shadow: 0px 3px 6px rgb(128, 128,128);
+}
+
+.ePP-paints .tick{
+    width: 50px; 
+    height: 50px;
+    border-radius: 50%;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 500;
+    font-size: 30px;
+}
+
+.ePP-grid{
+    height: 25rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    position: relative;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    padding: 8px;
+    margin-top: -8px;
+}
+
+.ePP-card{
+    background: #fff;
+    border: 3px solid var(--blue);
+    border-radius: 10px;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgb(128, 128, 128);
+}
+
+.ePP-card.is-active{
+    outline: 4px solid var(--blue);
+    outline-offset: 2px;
+}
+
+.ePP-face{
+    width: 100%;
+    height: 160px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+}
