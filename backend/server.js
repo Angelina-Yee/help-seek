@@ -6,6 +6,7 @@ import createError from "http-errors";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import profileRouter from "./routes/profile.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -15,11 +16,11 @@ app.use(cors({
   credentials: true
 }));
 
-//parse JSON requests and log requests
+//Parse JSON requests and log requests
 app.use(express.json());
 app.use(morgan("dev"));
 
-//check health
+//Check health
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
 //API routes
@@ -36,6 +37,9 @@ app.use((err, _req, res, _next) => {
   if (err.errors) payload.errors = err.errors;
   res.status(status).json(payload);
 });
+
+//Parse cookies
+app.use(cookieParser());
 
 //Start server
 const PORT = Number((process.env.PORT || "4000").trim());

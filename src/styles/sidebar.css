@@ -62,7 +62,7 @@
     text-transform: uppercase;
 }
 
-.sb-item:hover, .sb-item:active, .sb-logout{
+.sb-item:hover, .sb-item:active{
     transform: translateY(3%) scale(0.98);
 }
 
@@ -83,6 +83,10 @@
     font-size: 16px;
     cursor: pointer;
     padding: 20px;
+}
+
+.sb-logout:hover, .sb-logout:active {
+    transform: translateY(5%) scale(0.98);
 }
 
 .sb-toggle{

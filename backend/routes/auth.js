@@ -3,39 +3,72 @@ import { body, validationResult } from "express-validator";
 import createError from "http-errors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import {RefreshToken} from "../models/RefreshToken.js";
 
 import { User } from "../models/User.js";
 import { Otp } from "../models/Otp.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
-//router handling signup and login
+
+//Router handling signup and login
 const router = express.Router();
 
-//email ends with @ucsd.edu
+//Email ends with @ucsd.edu
 function ucsdOnly(email) {
   return typeof email === "string" && email.toLowerCase().endsWith("@ucsd.edu");
-}
+};
 
-//generate random 5-digit OTP code
+//Generate random 5-digit OTP code
 function makeOtp() {
   return String(Math.floor(Math.random() * 100000)).padStart(5, "0");
-}
+};
 
-//create temp JWT tokens
+//Create temp JWT tokens
 function signSignupToken(email) {
   return jwt.sign({ typ: "signup", email }, process.env.JWT_ACCESS_SECRET, {
     expiresIn: "30m",
   });
-}
+};
 
-
-//access token for logged in users
+//Access token for logged in users
 function signAccessToken(user) {
   return jwt.sign(
     { sub: user._id.toString(), email: user.email },
     process.env.JWT_ACCESS_SECRET,
     { expiresIn: "15m" }
   );
+};
+
+//Refresh token to get new access tokens
+function signRefreshToken(user) {
+  return jwt.sign(
+    {sub: user._id.toString(), typ: "refresh"},
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: "30d" }
+  );
+};
+
+//Store refresh token in DB
+async function persistRefreshToken({user, token, req}) {
+  const decoded = jwt.decode(token);
+  await RefreshToken.create({
+    userId: user.id,
+    token,
+    expiresAt: new Date(decoded.exp * 1000),
+    userAgent: req.get["user-agent"],
+    ip: req.ip,
+  });
+}
+
+//Set refresh token as HttpOnly cookie
+function setRefreshCookie(res, token) {
+  res.cookie("refresh_token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/auth/refresh",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
 }
 
 // Requeast sign up code via email
@@ -55,7 +88,7 @@ router.post(
         return res
           .status(409)
           .json({ message: "Account already exists. Redirecting to log in." });
-      }
+      };
 
       const code = makeOtp();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
@@ -83,7 +116,7 @@ router.post(
   }
 );
 
-//verify code enteredd by the user
+//Verify code enteredd by the user
 router.post(
   "/signup/verify-code",
   body("email").isEmail(),
@@ -102,7 +135,7 @@ router.post(
       if (otp.expiresAt.getTime() < Date.now()) {
         await Otp.deleteOne({ _id: otp._id });
         throw createError(400, "Code expired. Request a new one.");
-      }
+      };
 
       if (otp.code !== code) {
         otp.attempts = (otp.attempts || 0) + 1;
@@ -110,9 +143,9 @@ router.post(
         if (otp.attempts >= 5) {
           await Otp.deleteOne({ _id: otp._id });
           throw createError(429, "Too many attempts. Request a new code.");
-        }
+        };
         throw createError(401, "Invalid code.");
-      }
+      };
 
       const signupToken = signSignupToken(email);
 
@@ -123,7 +156,7 @@ router.post(
   }
 );
 
-//sign up complete: set name and password
+//Sign up complete: set name and password
 router.post(
   "/signup/complete",
   body("firstName").isString().isLength({ min: 1 }),
@@ -173,7 +206,7 @@ router.post(
   }
 );
 
-//login with email and password
+//Login with email and password
 router.post(
   "/login",
   body("email").isEmail(),
@@ -188,17 +221,19 @@ router.post(
 
       const user = await User.findOne({ email });
       if (!user) throw createError(401, "Your password is incorrect or this account does not exist.");
-
       if (!user.verifiedAt) throw createError(403, "Please verify your email to continue.");
 
       const ok = await bcrypt.compare(password, user.passwordHash);
       if (!ok) throw createError(401, "Your password is incorrect or this account does not exist.");
 
       const accessToken = signAccessToken(user);
+      const refreshToken = signRefreshToken(user);
+      await persistRefreshToken({ user, token: refreshToken, req });
+      setRefreshCookie(res, refreshToken);
 
       res.status(201).json({
-        message: "Signup successful",
-        user: { id: user._id, email: user.email, name: user.name },
+        message: "Login successful",
+        user: { id: user._id, email: user.email, name: user.name, college: user.college, year: user.year },
         accessToken,
         expiresIn: 900
       });
@@ -207,5 +242,46 @@ router.post(
     }
   }
 );
+
+// Refresh access token using refresh token
+router.post("/refresh", async (req, res, next) => {
+  try {
+    const token = req.cookies?.refresh_token;
+    if (!token) throw createError(401, "Missing refresh token");
+
+    const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    if (payload.typ !== "refresh") throw createError(401, "Wrong token type");
+
+    const doc = await RefreshToken.findOne({ token, revokedAt: null });
+    if (!doc) throw createError(401, "Refresh token invalid");
+
+    // rotate the refresh token
+    await RefreshToken.updateOne({ _id: doc._id }, { $set: { revokedAt: new Date() } });
+
+    const user = await User.findById(payload.sub);
+    if (!user) throw createError(401, "User no longer exists");
+
+    const newAccess = signAccessToken(user);
+    const newRefresh = signRefreshToken(user);
+    await persistRefreshToken({ user, token: newRefresh, req });
+    setRefreshCookie(res, newRefresh);
+
+    res.json({ accessToken: newAccess, expiresIn: 900 });
+  } catch (err) {
+    res.clearCookie("refresh_token", { path: "/auth/refresh" });
+    next(createError(401, "Please log in again"));
+  }
+});
+
+
+//Logout and revoke refresh token
+router.post("/logout", async (req, res) => {
+  const token = req.cookies?.refresh_token;
+  if (token) {
+    await RefreshToken.updateOne({ token, revokedAt: null }, { $set: { revokedAt: new Date() } });
+  }
+  res.clearCookie("refresh_token", { path: "/auth/refresh" });
+  res.json({ message: "Logged out" });
+});
 
 export default router;

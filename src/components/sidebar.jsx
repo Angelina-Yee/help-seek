@@ -1,10 +1,37 @@
-import React, {useState} from "react";
-import {NavLink} from "react-router-dom";
+import React, { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import "../styles/sidebar.css";
 
-function Sidebar(){
-    const [open, setOpen] = useState(false);
-    
+//API request URL
+const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
+
+function Sidebar() {
+  const [open, setOpen] = useState(true);
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    try {
+      //revoke refresh token and clear cookie
+      await fetch(`${API}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      // Clear local/session storage
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("isAuthenticated");
+      sessionStorage.clear();
+
+      // Redirect to landing page
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.error("Logout failed:", err);
+      alert("Could not log out. Please try again.");
+    }
+  }
+
+    //HTML
     return(
         <>
         <aside className={`sidebar ${open ? "is-open":"is-closed"}`} 
@@ -28,7 +55,7 @@ function Sidebar(){
                 </div>
             </nav>
             <div className="sb-footer">
-                <button className="sb-logout">log out</button>
+                <button className="sb-logout" onClick={handleLogout}>log out</button>
             </div>
         </aside>
         <button className="sb-toggle" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Collapse sidebar":"Expand sidebar"}>
