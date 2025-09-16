@@ -6,7 +6,7 @@ import "../styles/sidebar.css";
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
 function Sidebar() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
   async function handleLogout() {
