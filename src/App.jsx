@@ -10,11 +10,8 @@ import Profile from "./pages/profile";
 import Sidebar from "./components/sidebar";
 import Login from "./pages/login";
 import ForgotPassword from "./pages/forgotpassword";
-<<<<<<< HEAD
-import ForgetPassword2 from "./pages/forgetpassword2"; // added
-=======
+import ForgetPassword2 from "./pages/forgetpassword2";
 import EditPP from "./pages/editPP";
->>>>>>> 52fff2bdd304b697ff0e42f306f1c4a4559bf73a
 
 function Layout() {
   return (
