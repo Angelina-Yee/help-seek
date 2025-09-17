@@ -8,6 +8,7 @@ html, body{
     background: var(--bg);
     margin: 0;
     padding: 0;
+    scrollbar-width: thin;
 }
 
 .prof{
@@ -54,10 +55,11 @@ html, body{
     display: flex;
     gap: 16px;
     flex-direction: column;
+    align-items: left;
     margin-top: -40px;
 }
 
-.prof-link{
+.prof-link, .prof-link-second{
     text-transform: uppercase;
     font-family: "Lato", sans-serif;
     font-weight: 700;
@@ -66,9 +68,21 @@ html, body{
     letter-spacing: 1.0px;
     text-decoration: none;
     color: #e36a00;
+    border: none;
+    background: none;
 }
 
-.prof-link:hover{
+.prof-link{
+    width: 105px;
+}
+
+.prof-link-second{
+    width: 80px;
+    padding: 0;
+    margin-left: -4px;
+}
+
+.prof-link:hover, .prof-link-second:hover{
     text-decoration: underline;
 }
 

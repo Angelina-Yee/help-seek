@@ -3,10 +3,14 @@ import "../styles/profile.css";
 import { Link } from "react-router-dom";
 import raccoon from "../assets/raccoon.png";
 import Postcard from "../components/postcard";
+import AccSettings from "../components/accSettings";
 
 function Profile() {
     //State to hold user's display name
     const [userName, setUserName] = useState("...");
+
+    //For settings popup.
+    const[showSettings, setShowSettings] = useState(false);
 
     //Fetch profile data on mount
     useEffect(() => {
@@ -69,7 +73,9 @@ function Profile() {
                 <h1 className="prof-title">Hello,<br />{userName}</h1>
                 <div className="prof-actions">
                     <Link to="/editProfile" className="prof-link">Edit Profile</Link>
-                    <Link to="/instructions" className="prof-link">Settings</Link>
+                    <button className="prof-link-second" onClick={() => setShowSettings(true)}>
+                        Settings
+                    </button>
                 </div>
             </section>
 
@@ -110,6 +116,8 @@ function Profile() {
                 />
             ))}
         </section>
+
+        {showSettings && <AccSettings onClose={() => setShowSettings(false)} />}
         </div>
     );
 }
