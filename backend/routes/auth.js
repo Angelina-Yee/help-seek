@@ -52,10 +52,10 @@ function signRefreshToken(user) {
 async function persistRefreshToken({user, token, req}) {
   const decoded = jwt.decode(token);
   await RefreshToken.create({
-    userId: user.id,
+    userId: user._id,
     token,
     expiresAt: new Date(decoded.exp * 1000),
-    userAgent: req.get["user-agent"],
+    userAgent: req.get('user-agent') || '',
     ip: req.ip,
   });
 }

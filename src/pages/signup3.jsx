@@ -57,8 +57,6 @@ function Signup3() {
       sessionStorage.setItem("token", accessToken);
       if (user) localStorage.setItem("user", JSON.stringify(user));
 
-      document.cookie = `token=${accessToken}; path=/; SameSite=Lax`;
-
       localStorage.setItem("isAuthenticated", "true");
       return true;
     } catch {
@@ -71,7 +69,10 @@ function Signup3() {
     if (!email || !password) return null;
     const res = await fetch(`${API}/auth/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json", 
+      },
+      credentials: "include",
       body: JSON.stringify({
         email: String(email).trim().toLowerCase(),
         password,
@@ -97,6 +98,7 @@ function Signup3() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${signupToken}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           firstName: formData.firstName,
           lastName: formData.lastName,
