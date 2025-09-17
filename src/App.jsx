@@ -41,7 +41,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/forgotpassword2" element={<ForgetPassword2 />} />{" "}
-        {/* added */}
       </Routes>
     </BrowserRouter>
   );
