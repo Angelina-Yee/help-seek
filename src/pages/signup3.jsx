@@ -21,6 +21,9 @@ function Signup3() {
   //Track loading state
   const [loading, setLoading] = useState(false);
 
+  //Touched fields state
+  const [touched, setTouched] = useState({ firstName: false, lastName: false });
+
   //Retrieve stored token and email
   const signupToken = sessionStorage.getItem("signupToken");
   const signupEmail = sessionStorage.getItem("signupEmail");
@@ -45,9 +48,15 @@ function Signup3() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+  };
+
   //Check basic validation
-  const isFirstNameValid = formData.firstName.length >= 1;
-  const isLastNameValid = formData.lastName.length >= 1;
+  const nameRegex = /^[A-Z][a-zA-Z]*$/;
+  const isFirstNameValid = nameRegex.test(formData.firstName);
+  const isLastNameValid = nameRegex.test(formData.lastName);
   const isPasswordValid =
     formData.newPassword.length >= 8 &&
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(
@@ -61,6 +70,11 @@ function Signup3() {
     isLastNameValid &&
     isPasswordValid &&
     isPasswordMatching;
+
+  const showFirstNameHint =
+    touched.firstName && formData.firstName !== "" && !isFirstNameValid;
+  const showLastNameHint =
+    touched.lastName && formData.lastName !== "" && !isLastNameValid;
 
   //Save auth details locally
   const persistAuth = (accessToken, user) => {
@@ -193,9 +207,18 @@ function Signup3() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
+                  onBlur={handleBlur}
                   minLength="1"
                   required
+                  pattern="[A-Z][A-Za-z]*"
+                  title="First name must start with a capital letter and contain only letters."
+                  aria-invalid={showFirstNameHint ? "true" : "false"}
                 />
+                {showFirstNameHint && (
+                  <div className="name-hint error" aria-live="polite">
+                    start with uppercase
+                  </div>
+                )}
               </div>
 
               <div className="name-field">
@@ -206,9 +229,18 @@ function Signup3() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
+                  onBlur={handleBlur}
                   minLength="1"
                   required
+                  pattern="[A-Z][A-Za-z]*"
+                  title="Last name must start with a capital letter and contain only letters."
+                  aria-invalid={showLastNameHint ? "true" : "false"}
                 />
+                {showLastNameHint && (
+                  <div className="name-hint error" aria-live="polite">
+                    start with uppercase
+                  </div>
+                )}
               </div>
             </div>
 

@@ -37,7 +37,7 @@ function ForgotPassword() {
       <div className="forgot-container">
         <section className="forgot-box">
           <div className="forgot-header">
-            <h2>Forgot Password</h2>
+            <h2>forgot password</h2>
           </div>
 
           <p className="forgot-text">
