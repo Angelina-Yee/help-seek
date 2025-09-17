@@ -2,7 +2,7 @@ import React, {useEffect, useRef} from "react";
 import {createPortal} from "react-dom";
 import "../styles/settings.css";
 
-function AccSettings({onClose}) {
+function Settings({onClose}) {
     const dialogRef = useRef(null);
 
     //Closing the Settings Popup
@@ -22,13 +22,13 @@ function AccSettings({onClose}) {
             <button className="settings-close" onClick={onClose} aria-label="Close">X</button>
             <div className="settings-actions">
                 <button className="settings-btn">
-                    Delete Account
+                    Terms of Service
                 </button>
                 <button className="settings-btn">
-                    Notification Preference
+                    Privacy Policy
                 </button>
                 <button className="settings-btn">
-                    Reset Password
+                    Report
                 </button>
             </div>
         </div>
@@ -37,4 +37,4 @@ function AccSettings({onClose}) {
   );
 }
 
-export default AccSettings;
+export default Settings;

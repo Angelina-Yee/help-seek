@@ -3,7 +3,7 @@
     --blue: #0f3484;
 }
 
-.accSettings-overlay{
+.settings-overlay{
     position: fixed;
     inset: 0;
     background: none;
@@ -14,7 +14,7 @@
     z-index: 1000;
 }
 
-.accSettings-dialog{
+.settings-dialog{
     position: relative;
     width: min(480px, 92vw);
     background: var(--blue);
@@ -23,7 +23,7 @@
     padding: 22px 20px 26px;
 }
 
-.accSettings-close{
+.settings-close{
     position: absolute;
     top: 8px;
     right: 10px;
@@ -40,13 +40,13 @@
     filter: drop-shadow(0 6px 10px rgb(128, 128,128));
 }
 
-.accSettings-actions{
+.settings-actions{
     display: grid;
     gap: 20px;
     padding: 15px;
 }
 
-.accSettings-btn{
+.settings-btn{
     appearance: none;
     width: 100%;
     padding: 15px 10px;
@@ -65,7 +65,7 @@
     box-shadow: 0 3px 6px rgb(98, 98, 98);
 }
 
-.accSettings-btn:hover, .accSettings-btn:active{
+.settings-btn:hover, .settings-btn:active{
     transform: translateY(3%) scale(0.98);
 }
 

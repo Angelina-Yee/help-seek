@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "../styles/sidebar.css";
+import Settings from "../components/settings";
 
 //API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
@@ -8,6 +9,7 @@ const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 function Sidebar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const[showSettings, setShowSettings] = useState(false);
 
   async function handleLogout() {
     try {
@@ -44,7 +46,9 @@ function Sidebar() {
                 <div className="sb-section">
                     <div className="sb-title">General</div>
                     <NavLink to="/" className="sb-item">Home</NavLink>
-                    <NavLink to="/" className="sb-item">Settings</NavLink>
+                    <button className="settings-sb" onClick={() => setShowSettings(true)}>
+                        Settings
+                    </button>
                     <NavLink to="/profile" className="sb-item">Profile</NavLink>
                     <NavLink to="/" className="sb-item">Inbox</NavLink>
                 </div>
@@ -61,6 +65,7 @@ function Sidebar() {
         <button className="sb-toggle" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Collapse sidebar":"Expand sidebar"}>
                 <span className="click">{open ? ">" : "<"}</span>
         </button>
+        {showSettings && <Settings onClose={() => setShowSettings(false)} />}
         </>
     );
 }

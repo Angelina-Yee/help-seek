@@ -47,7 +47,7 @@
     font-size: 16px;
 }
 
-.sb-item{
+.sb-item, .settings-sb{
     display: block;
     text-decoration: none;
     font-family: "Lato", sans-serif;
@@ -62,8 +62,14 @@
     text-transform: uppercase;
 }
 
-.sb-item:hover, .sb-item:active{
+.sb-item:hover, .sb-item:active, .settings-sb:hover, .settings-sb:active{
     transform: translateY(3%) scale(0.98);
+}
+
+.settings-sb{
+    background: none;
+    text-decoration: none;
+    border: none;
 }
 
 .sb-footer{
