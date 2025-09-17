@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "../styles/signup2.css"; // reuse the same styling
+import "../styles/signup2.css";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
@@ -9,15 +9,12 @@ function ForgetPassword2() {
   const [code, setCode] = useState(["", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
 
-  // email saved from the "forgot password" step 1
   const email = sessionStorage.getItem("forgotEmail");
 
-  // redirect back if no email is stored
   useEffect(() => {
     if (!email) navigate("/forgot-password", { replace: true });
   }, [email, navigate]);
 
-  // type OTP inputs
   const handleCodeChange = (index, value) => {
     if (/^[0-9]$/.test(value) || value === "") {
       const newCode = [...code];
@@ -40,7 +37,6 @@ function ForgetPassword2() {
 
   const isCodeComplete = code.every((d) => d !== "");
 
-  // verify code
   const onConfirm = async (e) => {
     e.preventDefault();
     if (!isCodeComplete) return;
