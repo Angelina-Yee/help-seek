@@ -50,7 +50,7 @@ function Sidebar() {
                         Settings
                     </button>
                     <NavLink to="/profile" className="sb-item">Profile</NavLink>
-                    <NavLink to="/" className="sb-item">Inbox</NavLink>
+                    <NavLink to="/others" className="sb-item">Inbox</NavLink>
                 </div>
                 <div className="sb-section">
                     <div className="sb-title">Browse</div>

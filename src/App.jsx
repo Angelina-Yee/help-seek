@@ -13,6 +13,7 @@ import ForgotPassword from "./pages/forgotpassword";
 import ForgetPassword2 from "./pages/forgetpassword2";
 import EditPP from "./pages/editPP";
 import AccSettings from "./components/accSettings";
+import Others from "./pages/others";
 
 function Layout() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/editPP" element={<EditPP />} />
           <Route path="/accSettings" element={<AccSettings />} />
+          <Route path="/others" element={<Others />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
