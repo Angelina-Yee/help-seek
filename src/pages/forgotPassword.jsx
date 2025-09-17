@@ -17,10 +17,10 @@ function ForgotPassword() {
       return;
     }
 
-    // Add forgot password logic here
-    console.log("Sending reset email to:", email);
-    alert("Password reset email sent! Check your inbox.");
-    navigate("/login");
+    const cleaned = email.trim().toLowerCase();
+    sessionStorage.setItem("forgotEmail", cleaned);
+
+    navigate("/forgotpassword2");
   };
 
   return (

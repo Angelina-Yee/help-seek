@@ -10,6 +10,7 @@ import Profile from "./pages/profile";
 import Sidebar from "./components/sidebar";
 import Login from "./pages/login";
 import ForgotPassword from "./pages/forgotpassword";
+import ForgetPassword2 from "./pages/forgetpassword2"; // added
 
 function Layout() {
   return (
@@ -37,6 +38,8 @@ function App() {
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/forgotpassword2" element={<ForgetPassword2 />} />{" "}
+        {/* added */}
       </Routes>
     </BrowserRouter>
   );

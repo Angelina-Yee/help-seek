@@ -122,16 +122,6 @@
   margin-top: 15px;
 }
 
-.signup-form3 input[type="password"] {
-  padding: 12px;
-  border: 4px solid var(--blue);
-  border-radius: 5px;
-  font-size: 16px;
-  background-color: transparent;
-  color: var(--blue);
-  margin-bottom: 15px;
-}
-
 .signup-form3 input:focus {
   outline: none;
   border: 4px solid var(--blue);
@@ -139,7 +129,87 @@
   color: var(--blue);
 }
 
-/* Signup button */
+/* Password input container (same spacing as other inputs) */
+.password-container {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-bottom: 15px; /* match other inputs */
+}
+
+/* One definitive rule so size never changes when type toggles */
+.password-container > input {
+  padding: 12px 40px 12px 12px; /* room for eye, consistent with others */
+  border: 4px solid var(--blue);
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: transparent;
+  color: var(--blue);
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 42%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+
+.password-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--blue);
+}
+
+.pw-strength {
+  margin-top: -4px;
+  margin-bottom: 4px;
+  min-height: 10px;
+}
+
+.pw-track {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.pw-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 200ms ease;
+  background: #e5e7eb;
+}
+
+.pw-fill.weak {
+  background: #e74c3c;
+} /* red */
+.pw-fill.medium {
+  background: #f39c12;
+} /* orange */
+.pw-fill.strong {
+  background: #2ecc71;
+} /* green */
+
+.pw-text {
+  font-size: 12px;
+  color: var(--blue);
+  margin-top: 6px;
+  min-height: 14px;
+}
+
+.signup-form3 label[for="confirmPassword"] {
+  margin-top: 6px;
+}
+
 .signup-btn {
   background: none;
   border: none;
@@ -152,7 +222,7 @@
   font-style: normal;
   cursor: pointer;
   display: block;
-  margin-top: 30px;
+  margin-top: 12px;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 0px;

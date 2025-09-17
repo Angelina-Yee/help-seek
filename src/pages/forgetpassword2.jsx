@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "../styles/signup2.css";
+import "../styles/signup2.css"; // reuse the same styling
 
-//API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
-function Signup2() {
+function ForgetPassword2() {
   const navigate = useNavigate();
   const [code, setCode] = useState(["", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
-  const email = sessionStorage.getItem("signupEmail");
 
-  //Redirect back if no email is stored
+  // email saved from the "forgot password" step 1
+  const email = sessionStorage.getItem("forgotEmail");
+
+  // redirect back if no email is stored
   useEffect(() => {
-    if (!email) navigate("/signup1");
+    if (!email) navigate("/forgot-password", { replace: true });
   }, [email, navigate]);
 
-  //Type OTP inputs
+  // type OTP inputs
   const handleCodeChange = (index, value) => {
     if (/^[0-9]$/.test(value) || value === "") {
       const newCode = [...code];
@@ -24,38 +25,45 @@ function Signup2() {
       setCode(newCode);
 
       if (value && index < 4) {
-        document.getElementById(`code-${index + 1}`).focus();
+        const next = document.getElementById(`fp-code-${index + 1}`);
+        next && next.focus();
       }
     }
   };
 
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
-      const prev = document.getElementById(`code-${index - 1}`);
+      const prev = document.getElementById(`fp-code-${index - 1}`);
       prev && prev.focus();
     }
   };
 
-  //Check if all inputs are filled
-  const isCodeComplete = code.every((digit) => digit !== "");
+  const isCodeComplete = code.every((d) => d !== "");
 
-  //Submit verification code to backend
+  // verify code
   const onConfirm = async (e) => {
     e.preventDefault();
     if (!isCodeComplete) return;
+
     try {
       setLoading(true);
       const fullCode = code.join("");
-      const res = await fetch(`${API}/auth/signup/verify-code`, {
+
+      // TODO: confirm your endpoint path
+      const res = await fetch(`${API}/auth/forgot-password/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: fullCode }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Invalid or expired code");
 
-      sessionStorage.setItem("signupToken", data.signupToken);
-      navigate("/signup3");
+      // store reset token for the next step
+      sessionStorage.setItem("resetToken", data.resetToken);
+
+      // TODO: change route if your reset page path differs
+      navigate("/forgotpassword3");
     } catch (err) {
       alert(err.message);
     } finally {
@@ -63,26 +71,27 @@ function Signup2() {
     }
   };
 
-  //Request new code and reset inputs
+  // resend code
   const onResendCode = async () => {
     try {
-      const res = await fetch(`${API}/auth/signup/request-code`, {
+      // TODO: confirm your endpoint path
+      const res = await fetch(`${API}/auth/forgot-password/request-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to resend code");
+
       alert("A new code has been sent to your email.");
       setCode(["", "", "", "", ""]);
-      const first = document.getElementById("code-0");
+      const first = document.getElementById("fp-code-0");
       first && first.focus();
     } catch (err) {
       alert(err.message);
     }
   };
 
-  //HTML
   return (
     <div className="su2">
       {/* Navbar */}
@@ -97,19 +106,17 @@ function Signup2() {
       <div className="signup-container2">
         <section className="signup-box2">
           <div className="signup-header2">
-            <h2>sign up</h2>
+            <h2>reset password</h2>
             <span className="step2">2/3</span>
           </div>
-          <p className="auth-text">
-            please enter your authentication code below.
-          </p>
+          <p className="auth-text">please enter the code sent to your email.</p>
 
           <form className="signup-form2" onSubmit={onConfirm}>
             <div className="code-inputs">
               {code.map((digit, index) => (
                 <input
                   key={index}
-                  id={`code-${index}`}
+                  id={`fp-code-${index}`}
                   type="text"
                   maxLength="1"
                   value={digit}
@@ -138,4 +145,4 @@ function Signup2() {
   );
 }
 
-export default Signup2;
+export default ForgetPassword2;
