@@ -114,6 +114,18 @@
   box-shadow: 0 0 5px rgba(15, 52, 132, 0.3);
 }
 
+.name-field .name-hint {
+  font-size: 12px;
+  color: var(--blue);
+  margin-top: 6px;
+  line-height: 1.2;
+  min-height: 14px; /* keeps layout steady */
+}
+
+.name-field .name-hint.error {
+  color: #e74c3c; /* red for alert */
+}
+
 /* Regular input styles */
 .signup-form3 label {
   color: var(--blue);
