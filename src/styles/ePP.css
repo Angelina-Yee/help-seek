@@ -72,6 +72,19 @@
     display: grid;
     place-items: center;
     overflow: hidden;
+    position: relative;
+}
+
+.ePP-preview::after{
+    content: "";
+    background: radial-gradient(ellipse, rgb(128, 128, 128), transparent 70%);
+    position: absolute;
+    width: 60%;
+    height: 40px;
+    border-radius: 50%;
+    z-index: 0;
+    bottom: 8.2rem;
+    margin-left: 10px;
 }
 
 .ePP-preview img{
@@ -80,6 +93,7 @@
     height: auto;
     object-fit: contain;
     filter: drop-shadow(0 6px 10px rgb(128, 128,128));
+    z-index: 1;
 }
 
 .ePP-save{
@@ -99,6 +113,7 @@
     box-shadow: 0 4px 6px rgb(128, 128, 128);
     margin-left: 35rem;
     margin-top: -10rem;
+    z-index: 1;
 }
 
 .ePP-save:hover{
