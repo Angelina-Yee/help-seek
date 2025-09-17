@@ -37,6 +37,21 @@
     min-height: 80vh;
 }
 
+.eP-prev{
+    display: grid;
+    place-items: center;
+    text-decoration: none;
+    font-size: 40px;
+    color: var(--blue);
+    position: absolute;
+    left: 64px;
+    top: 89px;
+}
+
+.eP-prev:hover{
+    transform: translateY(3%) scale(0.98);
+}
+
 h1{
     font-family: "Calistoga", serif;
     font-weight: 400;
@@ -53,9 +68,27 @@ h1{
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-img{
+.eP-preview{
+    --glow: #0F348F;
+    background: radial-gradient(circle at center, 
+    color-mix(in oklab, var(--glow) 100%, transparent), 
+    color-mix(in oklab, var(--glow) 90%, transparent), 
+    color-mix(in oklab, var(--glow) 50%, transparent),
+    transparent 40%);
+    width: 28rem;
+    height: 28rem;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    position: relative;
+    margin-top: -8rem;
+    z-index: 0;
+}
+
+.eP-preview img{
     height: 13rem;
     width: auto;
+    margin-left: 15px;
 }
 
 .eP-header{
@@ -71,6 +104,8 @@ img{
     font-style: normal;
     color: #1440AD;
     margin-bottom: 26px;
+    margin-top: -6rem;
+    z-index: 1;
 }
 
 .row{
@@ -115,19 +150,6 @@ select{
     position: relative;
 }
 
-.footer h4{
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: normal;
-    color: var(--blue);
-    font-size: 15px;
-    margin: 0;
-    position: absolute;
-    right: -9rem;
-    bottom: 2.4rem;
-    width: 85px;
-}
-
 .save-btn{
     background: var(--blue);
     border: none;
@@ -142,7 +164,7 @@ select{
     text-transform: uppercase;
     letter-spacing: 1px;
     transition: background 0.2s ease, transform 0.15s ease;
-    margin-top: 10px;
+    margin-top: 5px;
     box-shadow: 0 4px 6px rgb(128, 128, 128);
 }
 
