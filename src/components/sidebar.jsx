@@ -45,7 +45,7 @@ function Sidebar() {
             <nav className="sb-nav">
                 <div className="sb-section">
                     <div className="sb-title">General</div>
-                    <NavLink to="/" className="sb-item">Home</NavLink>
+                    <NavLink to="/home" className="sb-item">Home</NavLink>
                     <button className="settings-sb" onClick={() => setShowSettings(true)}>
                         Settings
                     </button>

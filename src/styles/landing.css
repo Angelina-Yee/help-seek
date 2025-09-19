@@ -4,7 +4,8 @@
 }
 
 .Land1 {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Lato", sans-serif;
+  font-style: normal;
   background: var(--blue);
   min-height: 100vh;
   margin: 0;

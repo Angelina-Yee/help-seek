@@ -17,9 +17,9 @@ export default function Postcard(props={}){
         <article className="postcard">
             <header className="pc-head">
                 <div className="pc-user">
-                    <div className="pc-avatar" aria-hidden>
+                    <button className="pc-avatar" aria-hidden>
                         <img className="ava-img" src={raccoon} alt="Profile avatar"/>
-                    </div>
+                    </button>
                     <div className="pc-name">{name}</div>
                 </div>
                 <div className="pc-date">{date}</div>

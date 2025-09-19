@@ -14,6 +14,7 @@ import ForgetPassword2 from "./pages/forgetpassword2";
 import EditPP from "./pages/editPP";
 import AccSettings from "./components/accSettings";
 import Others from "./pages/others";
+import Home from "./pages/home";
 
 function Layout() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="/editPP" element={<EditPP />} />
           <Route path="/accSettings" element={<AccSettings />} />
           <Route path="/others" element={<Others />} />
+          <Route path="/home" element={<Home />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -29,20 +29,30 @@
 }
 
 .pc-avatar{
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
     background: var(--blue);
+    display: flex;
+    justify-content: center;
+    border: none;
+    box-shadow: 0px 2px 3px rgb(128, 128, 128);
+    cursor: pointer;
+}
+
+.pc-avatar:hover{
+    transform: translateY(3%) scale(0.98);
 }
 
 .pc-avatar img{
     width: auto;
-    height: 120%;
+    height: 116%;
     object-fit: cover;
     object-position: center;
-    display: block;
+    margin-left: 6px;
+    margin-top: 5px;
 }
 
 .pc-name{
