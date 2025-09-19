@@ -1,29 +1,24 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "../styles/sidebar.css";
+import { setAccessToken } from "../api";
 
-//API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
+// Sidebar component
 function Sidebar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
+  // Handle user logout
   async function handleLogout() {
     try {
-      //revoke refresh token and clear cookie
-      await fetch(`${API}/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-
-      // Clear local/session storage
+      await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
+      setAccessToken(null);
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       localStorage.removeItem("isAuthenticated");
       sessionStorage.clear();
-
-      // Redirect to landing page
       navigate("/", { replace: true });
     } catch (err) {
       console.error("Logout failed:", err);
@@ -31,38 +26,38 @@ function Sidebar() {
     }
   }
 
-    //HTML
-    return(
-        <>
-        <aside className={`sidebar ${open ? "is-open":"is-closed"}`} 
-        aria-label="navigator">
-            <div className="sb-logo">
-                <div className="sb-name">help n seek</div>
-            </div>
+  //Sidebar HTML
+  return (
+    <>
+      <aside className={`sidebar ${open ? "is-open" : "is-closed"}`} aria-label="navigator">
+        <div className="sb-logo"><div className="sb-name">help n seek</div></div>
 
-            <nav className="sb-nav">
-                <div className="sb-section">
-                    <div className="sb-title">General</div>
-                    <NavLink to="/" className="sb-item">Home</NavLink>
-                    <NavLink to="/" className="sb-item">Settings</NavLink>
-                    <NavLink to="/profile" className="sb-item">Profile</NavLink>
-                    <NavLink to="/" className="sb-item">Inbox</NavLink>
-                </div>
-                <div className="sb-section">
-                    <div className="sb-title">Browse</div>
-                    <NavLink to="/" className="sb-item">Losses</NavLink>
-                    <NavLink to="/" className="sb-item">Finds</NavLink>
-                </div>
-            </nav>
-            <div className="sb-footer">
-                <button className="sb-logout" onClick={handleLogout}>log out</button>
-            </div>
-        </aside>
-        <button className="sb-toggle" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Collapse sidebar":"Expand sidebar"}>
-                <span className="click">{open ? ">" : "<"}</span>
-        </button>
-        </>
-    );
+        <nav className="sb-nav">
+          <div className="sb-section">
+            <div className="sb-title">General</div>
+            <NavLink to="/" className="sb-item">Home</NavLink>
+            <NavLink to="/" className="sb-item">Settings</NavLink>
+            <NavLink to="/profile" className="sb-item">Profile</NavLink>
+            <NavLink to="/" className="sb-item">Inbox</NavLink>
+          </div>
+          <div className="sb-section">
+            <div className="sb-title">Browse</div>
+            <NavLink to="/" className="sb-item">Losses</NavLink>
+            <NavLink to="/" className="sb-item">Finds</NavLink>
+          </div>
+        </nav>
+
+        <div className="sb-footer">
+          <button className="sb-logout" onClick={handleLogout}>log out</button>
+        </div>
+      </aside>
+
+      <button className="sb-toggle" onClick={() => setOpen(!open)} aria-expanded={open}
+        aria-label={open ? "Collapse sidebar" : "Expand sidebar"}>
+        <span className="click">{open ? ">" : "<"}</span>
+      </button>
+    </>
+  );
 }
 
 export default Sidebar;

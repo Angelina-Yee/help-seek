@@ -2,49 +2,58 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/signup2.css";
 
-//API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
+// Verify email code
 function Signup2() {
   const navigate = useNavigate();
   const [code, setCode] = useState(["", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
   const email = sessionStorage.getItem("signupEmail");
 
-  //Redirect back if no email is stored
+  // Redirect back if no email
   useEffect(() => {
-    if (!email) navigate ("/signup1");
+    if (!email) navigate("/signup1", { replace: true });
+    const first = document.getElementById("code-0");
+    first && first.focus();
   }, [email, navigate]);
 
-  //Type OTP inputs
+  // Code input changes
   const handleCodeChange = (index, value) => {
-    if (/^[0-9]$/.test(value) || value === "") {
-      const newCode = [...code];
-      newCode[index] = value;
-      setCode(newCode);
-
-      if (value && index < 4) {
-        document.getElementById(`code-${index + 1}`).focus();
-      }
-    }
+    if (!/^[0-9]?$/.test(value)) return;
+    const next = [...code];
+    next[index] = value;
+    setCode(next);
+    setErr("");
+    if (value && index < 4) document.getElementById(`code-${index + 1}`)?.focus();
   };
 
+  // Backspace to go back
   const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      const prev = document.getElementById(`code-${index - 1}`);
-      prev && prev.focus();
-    }
+    if (e.key === "Backspace" && !code[index] && index > 0) document.getElementById(`code-${index - 1}`)?.focus();
   };
 
-  //Check if all inputs are filled
-  const isCodeComplete = code.every((digit) => digit !== "");
+  // paste event
+  const handlePaste = (e) => {
+    const t = (e.clipboardData.getData("text") || "").trim();
+    if (!/^\d{5}$/.test(t)) return;
+    setCode(t.split(""));
+    setErr("");
+    document.getElementById("code-4")?.focus();
+    e.preventDefault();
+  };
 
-  //Submit verification code to backend
+  // Check if code is complete
+  const isCodeComplete = code.every((d) => d !== "");
+
+  // Confirm code submission
   const onConfirm = async (e) => {
     e.preventDefault();
-    if (!isCodeComplete) return;
+    if (!isCodeComplete || loading) return;
     try {
       setLoading(true);
+      setErr("");
       const fullCode = code.join("");
       const res = await fetch(`${API}/auth/signup/verify-code`, {
         method: "POST",
@@ -53,19 +62,20 @@ function Signup2() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Invalid or expired code");
-
       sessionStorage.setItem("signupToken", data.signupToken);
-      navigate("/signup3");
-    } catch (err) {
-      alert(err.message);
+      navigate("/signup3", { replace: true });
+    } catch (er) {
+      setErr(er.message || "Verification failed.");
     } finally {
       setLoading(false);
     }
   };
 
-  //Request new code and reset inputs
+  // Resend code
   const onResendCode = async () => {
     try {
+      setLoading(true);
+      setErr("");
       const res = await fetch(`${API}/auth/signup/request-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,60 +85,43 @@ function Signup2() {
       if (!res.ok) throw new Error(data.message || "Failed to resend code");
       alert("A new code has been sent to your email.");
       setCode(["", "", "", "", ""]);
-      const first = document.getElementById("code-0");
-      first && first.focus();
-    } catch (err) {
-      alert(err.message);
+      document.getElementById("code-0")?.focus();
+    } catch (er) {
+      setErr(er.message || "Could not resend code.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  //HTML
+  // HTML
   return (
     <div className="su2">
-      {/* Navbar */}
       <header className="navbar">
         <div className="logo">help n seek</div>
-        <nav>
-          <Link to="/instructions">how it works</Link>
-        </nav>
+        <nav><Link to="/instructions">how it works</Link></nav>
       </header>
 
-      {/* Main Content */}
       <div className="signup-container2">
         <section className="signup-box2">
           <div className="signup-header2">
-            <h2>sign up</h2>
-            <span className="step2">2/3</span>
+            <h2>sign up</h2><span className="step2">2/3</span>
           </div>
-          <p className="auth-text">
-            please enter your authentication code below.
-          </p>
+          <p className="auth-text">please enter your authentication code below.</p>
 
-          <form className="signup-form2" onSubmit={onConfirm}>
-            <div className="code-inputs">
+          <form className="signup-form2" onSubmit={onConfirm} noValidate>
+            <div className="code-inputs" onPaste={handlePaste}>
               {code.map((digit, index) => (
-                <input
-                  key={index}
-                  id={`code-${index}`}
-                  type="text"
-                  maxLength="1"
-                  value={digit}
-                  onChange={(e) => handleCodeChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="code-input"
-                />
+                <input key={index} id={`code-${index}`} type="text" inputMode="numeric" pattern="[0-9]*"
+                  maxLength={1} value={digit} onChange={(e) => handleCodeChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)} className="code-input" disabled={loading}
+                  aria-label={`digit ${index + 1}`} />
               ))}
             </div>
 
-            <button type="button" className="resend-btn" onClick={onResendCode}>
-              resend code
-            </button>
+            {err && <div className="error" role="alert" style={{ marginTop: 8 }}>{err}</div>}
 
-            <button
-              type="submit"
-              className="confirm-btn"
-              disabled={!isCodeComplete || loading}
-            >
+            <button type="button" className="resend-btn" onClick={onResendCode} disabled={loading}>resend code</button>
+            <button type="submit" className="confirm-btn" disabled={!isCodeComplete || loading}>
               {loading ? "verifying..." : "confirm"}
             </button>
           </form>

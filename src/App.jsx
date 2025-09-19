@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+
 import Landing from "./pages/landing";
 import Instructions from "./pages/instructions";
 import Signup1 from "./pages/signup1";
@@ -10,7 +11,10 @@ import Profile from "./pages/profile";
 import Sidebar from "./components/sidebar";
 import Login from "./pages/login";
 import ForgotPassword from "./pages/forgotpassword";
+import ForgetPassword2 from "./pages/forgetpassword2";
 import EditPP from "./pages/editPP";
+
+import { initAuth } from "./api";
 
 function Layout() {
   return (
@@ -24,6 +28,10 @@ function Layout() {
 }
 
 function App() {
+  useEffect(() => {
+    initAuth();
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -39,6 +47,7 @@ function App() {
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/forgotpassword2" element={<ForgetPassword2 />} />
       </Routes>
     </BrowserRouter>
   );

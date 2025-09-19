@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const COLLEGES = ["Eight", "ERC", "John Muir", "Marshall", "Revelle", "Sixth", "Seventh", "Warren"];
+const COLLEGES = ["Eighth", "ERC", "John Muir", "Marshall", "Revelle", "Sixth", "Seventh", "Warren"];
 
 const YEARS = ["Freshman", "Sophomore", "Junior", "Senior"];
 

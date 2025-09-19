@@ -2,44 +2,58 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/forgotpassword.css";
 
+// API request URL
+const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
+
+// Request password reset code in email
 function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Check if email is valid UCSD email
-  const isUCSDEmail = email.trim().toLowerCase().endsWith("@ucsd.edu");
+  const cleaned = email.trim().toLowerCase();
+  const isUCSDEmail = cleaned.endsWith("@ucsd.edu");
 
-  const onSendReset = (e) => {
+  // Send reset code request
+  const onSendReset = async (e) => {
     e.preventDefault();
-
     if (!isUCSDEmail) {
       alert("Please enter your UCSD email");
       return;
     }
 
-    // Add forgot password logic here
-    console.log("Sending reset email to:", email);
-    alert("Password reset email sent! Check your inbox.");
-    navigate("/login");
+    try {
+      setLoading(true);
+      const res = await fetch(`${API}/auth/forgot-password/request-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: cleaned }),
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to send reset code");
+
+      // Save email temporarily
+      sessionStorage.setItem("forgotEmail", cleaned);
+      navigate("/forgotpassword2");
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // HTML
   return (
     <div className="forgot-page">
-      {/* Navbar */}
       <header className="navbar">
         <div className="logo">help n seek</div>
-        <nav>
-          <Link to="/instructions">how it works</Link>
-        </nav>
+        <nav><Link to="/instructions">how it works</Link></nav>
       </header>
 
-      {/* Main Content */}
       <div className="forgot-container">
         <section className="forgot-box">
-          <div className="forgot-header">
-            <h2>Forgot Password</h2>
-          </div>
-
+          <div className="forgot-header"><h2>Forgot Password</h2></div>
           <p className="forgot-text">
             enter your UCSD email. back to <Link to="/login">login</Link>
           </p>
@@ -50,17 +64,17 @@ function ForgotPassword() {
               type="email"
               id="email"
               name="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-
             <button
               type="submit"
               className="send-reset-btn"
-              disabled={!isUCSDEmail}
+              disabled={!isUCSDEmail || loading}
             >
-              send
+              {loading ? "sending..." : "send"}
             </button>
           </form>
         </section>
