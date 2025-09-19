@@ -1,0 +1,71 @@
+:root {
+    --bg: #fdf8ec;
+    --blue: #0f3484;
+}
+
+.settings-overlay{
+    position: fixed;
+    inset: 0;
+    background: none;
+    backdrop-filter: blur(4px);
+    --webkit-backdrop-filter: blur(4px);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+}
+
+.settings-dialog{
+    position: relative;
+    width: min(480px, 92vw);
+    background: var(--blue);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgb(128, 128, 128);
+    padding: 22px 20px 26px;
+}
+
+.settings-close{
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    color: var(--bg);
+    font-size: 20px;
+    font-weight: 600;
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    cursor: pointer;
+    filter: drop-shadow(0 6px 10px rgb(128, 128,128));
+}
+
+.settings-actions{
+    display: grid;
+    gap: 20px;
+    padding: 15px;
+}
+
+.settings-btn{
+    appearance: none;
+    width: 100%;
+    padding: 15px 10px;
+    border: 0;
+    border-radius: 10px;
+    color: var(--blue);
+    font-weight: 700;
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    letter-spacing: 0.9px;
+    font-size: 18px;
+    background: var(--bg);
+    text-transform: none;
+    border: 6px solid transparent;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgb(98, 98, 98);
+}
+
+.settings-btn:hover, .settings-btn:active{
+    transform: translateY(3%) scale(0.98);
+}
+

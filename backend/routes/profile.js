@@ -6,7 +6,7 @@ import { User, USER_ENUMS } from "../models/User.js";
 
 const router = express.Router();
 
-//helper: get user id from Bearer token
+// Get user id from Bearer token
 function getUserIdFromAuth(req) {
   const hdr = req.headers.authorization || "";
   const token = hdr.startsWith("Bearer ") ? hdr.slice(7).trim() : null;
@@ -31,7 +31,9 @@ router.get("/me", async (req, res, next) => {
       name: user.name || "",
       email: user.email,
       college: user.college || null,
-      year: user.year || null
+      year: user.year || null,
+      avatarCharId: user.avatarCharId || "raccoon",
+      avatarColor: user.avatarColor || "blue",
     });
   } catch (err) {
     next(err);
@@ -46,6 +48,8 @@ router.patch(
   body("name").optional().isString().isLength({ min: 1, max: 80 }),
   body("college").optional().isIn(USER_ENUMS.COLLEGES),
   body("year").optional().isIn(USER_ENUMS.YEARS),
+  body("avatarCharId").optional().isIn(USER_ENUMS.AVATAR_CHAR),
+  body("avatarColor").optional().isIn(USER_ENUMS.AVATAR_COLOR),
 
   async (req, res, next) => {
     try {
@@ -59,6 +63,8 @@ router.patch(
       if (typeof req.body.name === "string") update.name = req.body.name.trim();
       if (typeof req.body.college === "string") update.college = req.body.college;
       if (typeof req.body.year === "string") update.year = req.body.year;
+      if (typeof req.body.avatarCharId === "string") update.avatarCharId = req.body.avatarCharId;
+      if (typeof req.body.avatarColor === "string") update.avatarColor = req.body.avatarColor;
 
       // Save updated profile
       const user = await User.findByIdAndUpdate(
@@ -81,5 +87,38 @@ router.patch(
     }
   }
 );
+
+// Update user's avatar
+router.patch(
+  "/me/avatar",
+  body("charId").isString().custom((v) => USER_ENUMS.AVATAR_CHAR.includes(v)),
+  body("color").isString().custom((v) => USER_ENUMS.AVATAR_COLOR.includes(v)),
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(createError(400, "Invalid avatar selection"));
+      }
+
+      const userId = getUserIdFromAuth(req);
+      const { charId, color } = req.body;
+
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { $set: { avatarCharId: charId, avatarColor: color } },
+        { new: true, runValidators: true, lean: true }
+      );
+      if (!user) throw createError(404, "User not found");
+
+      res.json({
+        avatarCharId: user.avatarCharId,
+        avatarColor: user.avatarColor,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 
 export default router;

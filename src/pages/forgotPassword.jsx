@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "../styles/forgotpassword.css";
+import "../styles/forgotPassword.css";
 
 // API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
@@ -53,7 +53,10 @@ function ForgotPassword() {
 
       <div className="forgot-container">
         <section className="forgot-box">
-          <div className="forgot-header"><h2>Forgot Password</h2></div>
+
+          <div className="forgot-header">
+            <h2>forgot password</h2>
+          </div>
           <p className="forgot-text">
             enter your UCSD email. back to <Link to="/login">login</Link>
           </p>

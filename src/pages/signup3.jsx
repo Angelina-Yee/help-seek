@@ -8,6 +8,7 @@ const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 // Final signup step
 function Signup3() {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -15,15 +16,17 @@ function Signup3() {
     confirmPassword: "",
   });
 
+  const [touched, setTouched] = useState({
+    firstName: false,
+    lastName: false,
+  })
+
   // Password visibility states
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Loading state
   const [loading, setLoading] = useState(false);
-
-  // Touched states
-  const [touched, setTouched] = useState({ firstName: false, lastName: false });
 
   //Retrieve stored token and email
   const signupToken = sessionStorage.getItem("signupToken");
@@ -51,13 +54,12 @@ function Signup3() {
 
   const handleBlur = (e) => {
     const { name } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
+    setTouched((prev) => ({ ...prev, [name]: true}));
   };
 
-  //Check validations
-  const nameRegex = /^[A-Z][a-zA-Z]*$/;
-  const isFirstNameValid = nameRegex.test(formData.firstName);
-  const isLastNameValid = nameRegex.test(formData.lastName);
+  //Check basic validation
+  const isFirstNameValid = formData.firstName.length >= 1;
+  const isLastNameValid = formData.lastName.length >= 1;
   const isPasswordValid =
     formData.newPassword.length >= 8 &&
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(

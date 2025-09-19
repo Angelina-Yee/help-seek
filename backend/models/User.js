@@ -4,6 +4,12 @@ const COLLEGES = ["Eighth", "ERC", "John Muir", "Marshall", "Revelle", "Sixth", 
 
 const YEARS = ["Freshman", "Sophomore", "Junior", "Senior"];
 
+const AVATAR_CHAR = [
+  "bear", "bunny", "cat", "chick", "chicken","cow", "dog", "goat", "koala", "lion","monkey", "turtle", "pig", "raccoon", "sheep", "tiger"
+];
+
+const AVATAR_COLOR = ["blue", "yellow", "orange", "pink", "mint"];
+
 //User Schema, stores email, password, domain, name, and verification info
 const userSchema = new mongoose.Schema(
   {
@@ -15,11 +21,23 @@ const userSchema = new mongoose.Schema(
     college: { type: String, enum: COLLEGES, default: null },
     year: { type: String, enum: YEARS, default: null },
 
+
+    avatarCharId: {type: String, enum: AVATAR_CHAR, default: "raccoon"},
+    avatarColor: {type: String, enum: AVATAR_COLOR, default: "blue"},
+
     verifiedAt: { type: Date, default: null },
     createdAt: { type: Date, default: Date.now }
   },
   { collection: "users" }
 );
 
+// Hide sensitive info when converting to JSON
+userSchema.set("toJSON", {
+  transform: (_doc, ret) => {
+    delete ret.passwordHash;
+    return ret;
+  }
+});
+
 export const User = mongoose.model("User", userSchema);
-export const USER_ENUMS = { COLLEGES, YEARS };
+export const USER_ENUMS = { COLLEGES, YEARS, AVATAR_CHAR, AVATAR_COLOR };

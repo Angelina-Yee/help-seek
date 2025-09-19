@@ -9,7 +9,6 @@ import http from "http";
 import https from "https";
 import path from "path";
 import { fileURLToPath } from "url";
-
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import profileRouter from "./routes/profile.js";
@@ -19,12 +18,14 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-/* ---------------- Core middleware ---------------- */
+// Middleware
 app.set("trust proxy", 1);
 app.use(cookieParser());
 
+// CORS
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 const allowed = new Set([FRONTEND_URL, "http://localhost:3000", "https://localhost:3000"]);
+
 
 app.use(
   cors({
@@ -38,16 +39,18 @@ app.use(
   })
 );
 
+// Logging and body parsing
 app.use(express.json());
 app.use(morgan("dev"));
 app.disable("x-powered-by");
 
-/* ---------------- Health & routes ---------------- */
+// Routes
 app.get("/health", (_req, res) => res.json({ ok: true }));
 app.use("/auth", authRoutes);
 app.use("/api/profile", profileRouter);
+app.use("/users", profileRouter);
 
-/* ---------------- 404 & error handlers ---------------- */
+// 404 and error handler
 app.use((_req, _res, next) => next(createError(404, "Not found")));
 app.use((err, _req, res, _next) => {
   const status = err.status || 500;
@@ -56,10 +59,11 @@ app.use((err, _req, res, _next) => {
   res.status(status).json(payload);
 });
 
-/* ---------------- Startup ---------------- */
+// Start server
 const PORT = Number((process.env.PORT || "4000").trim());
 let USE_HTTPS = (process.env.USE_HTTPS || "false").toLowerCase() === "true";
 
+// Check certs if HTTPS
 const KEY_PATH = process.env.SSL_KEY || path.join(__dirname, "certs/localhost.key");
 const CERT_PATH = process.env.SSL_CERT || path.join(__dirname, "certs/localhost.crt");
 if (USE_HTTPS) {
@@ -71,6 +75,7 @@ if (USE_HTTPS) {
   }
 }
 
+// Start
 async function start() {
   await connectDB();
 
@@ -88,6 +93,7 @@ async function start() {
   }
 }
 
+// Bootstrap
 start().catch((e) => {
   console.error("Boot failed:", e);
   process.exit(1);

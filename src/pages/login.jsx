@@ -97,7 +97,7 @@ function Login() {
           <div className="login-header">
             <h2>login</h2>
             <p className="login-text">
-              Don't have an account? <Link to="/signup1">signup</Link>
+              don't have an account? <Link to="/signup1">signup</Link>
             </p>
           </div>
 

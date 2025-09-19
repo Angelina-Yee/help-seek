@@ -8,6 +8,7 @@ html, body{
     background: var(--bg);
     margin: 0;
     padding: 0;
+    scrollbar-width: thin;
 }
 
 .prof{
@@ -40,7 +41,7 @@ html, body{
     display: grid;
     grid-template-columns: 1fr 320px;
     gap: 24px;
-    padding: 8px 90px 20px 90px;
+    padding: 8px 30px 20px 90px;
 }
 
 .prof-title{
@@ -54,10 +55,11 @@ html, body{
     display: flex;
     gap: 16px;
     flex-direction: column;
+    align-items: left;
     margin-top: -40px;
 }
 
-.prof-link{
+.prof-link, .prof-link-second, .prof-link-third{
     text-transform: uppercase;
     font-family: "Lato", sans-serif;
     font-weight: 700;
@@ -66,9 +68,37 @@ html, body{
     letter-spacing: 1.0px;
     text-decoration: none;
     color: #e36a00;
+    border: none;
+    background: none;
 }
 
-.prof-link:hover{
+.prof-link{
+    width: 105px;
+}
+
+.prof-link-second{
+    width: 80px;
+    padding: 0;
+    margin-left: -4px;
+}
+
+.prof-link-third{
+    height: 40px;
+    background: #e36a00;
+    color: var(--bg);
+    width: 120px;
+    border-radius: 20px;
+    padding: 0;
+    font-size: 13px;
+    box-shadow: 0px 3px 5px rgb(128, 128, 128);
+}
+
+.prof-link-third:hover, .prof-link-third:active{
+    transform: translateY(3%) scale(0.98);
+    opacity: 90%;
+}
+
+.prof-link:hover, .prof-link-second:hover{
     text-decoration: underline;
 }
 

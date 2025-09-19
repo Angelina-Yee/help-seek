@@ -5,11 +5,13 @@ import raccoon from "../assets/raccoon.png";
 import Postcard from "../components/postcard";
 import { getJson } from "../api";
 
+// Profile Page
 function Profile() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("...");
   const [loading, setLoading] = useState(true);
 
+  // Fetch user profile
   useEffect(() => {
     (async () => {
       try {
@@ -26,6 +28,7 @@ function Profile() {
     })();
   }, [navigate]);
 
+  // Fake data
   const stats = [
     { value: 1, label: "finds" },
     { value: 10, label: "helped" },
@@ -35,8 +38,10 @@ function Profile() {
     { id: 1, name: "John Doe", title: "Lost Water Bottle", location: "Geisel Library", desc: "Blue stanley..." },
   ];
 
+  // Loading state
   if (loading) return <div className="prof">Loading…</div>;
 
+  //HTML
   return (
     <div className="prof">
       <header className="navbar"><div className="logo">help n seek</div></header>
