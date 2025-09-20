@@ -3,6 +3,7 @@ import "../styles/profile.css";
 import { Link, useNavigate } from "react-router-dom";
 import raccoon from "../assets/raccoon.png";
 import Postcard from "../components/postcard";
+import AccSettings from "../components/accSettings";
 import { getJson } from "../api";
 
 // Profile Page
@@ -10,6 +11,7 @@ function Profile() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("...");
   const [loading, setLoading] = useState(true);
+  const [showAccSettings, setShowAccSettings] = useState(false);
 
   // Fetch user profile
   useEffect(() => {
@@ -51,7 +53,9 @@ function Profile() {
           <h1 className="prof-title">Hello,<br />{userName}</h1>
           <div className="prof-actions">
             <Link to="/editProfile" className="prof-link">Edit Profile</Link>
-            <Link to="/instructions" className="prof-link">Settings</Link>
+            <button className="prof-link-settings" aria-label="create" onClick={() => setShowAccSettings(true)}>
+              Settings
+            </button>
           </div>
         </section>
 
@@ -80,6 +84,7 @@ function Profile() {
           <Postcard key={p.id} name={p.name} date={p.date} title={p.title} location={p.location} desc={p.desc} />
         ))}
       </section>
+      {showAccSettings && <AccSettings onClose={() => setShowAccSettings(false)} />}
     </div>
   );
 }

@@ -14,6 +14,8 @@ import ForgotPassword from "./pages/forgotpassword";
 import ForgetPassword2 from "./pages/forgetpassword2";
 import EditPP from "./pages/editPP";
 import AccSettings from "./components/accSettings";
+import NewPost from "./components/newPost";
+import Choice from "./components/choice";
 import Others from "./pages/others";
 import Home from "./pages/home";
 
@@ -50,6 +52,8 @@ function App() {
           <Route path="/accSettings" element={<AccSettings />} />
           <Route path="/others" element={<Others />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/newPost" element={<NewPost />} />
+          <Route path="/choice" element={<Choice />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

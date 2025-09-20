@@ -66,7 +66,7 @@ function Others() {
         {/*Hero*/}
         <div className="prof-container">
             <section className="prof-box">
-                <h1 className="prof-title">Hello,<br />Jane Doe</h1>
+                <h1 className="prof-title">Hello,<br />I'm Jane Doe</h1>
                 <div className="prof-actions">
                     <button className="prof-link-third">
                         Block

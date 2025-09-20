@@ -2,6 +2,8 @@ import React, {useRef, useState, useEffect} from "react";
 import "../styles/home.css";
 import raccoon from "../assets/raccoon.png";
 import HomePostcard from "../components/homePostcard";
+import Choice from "../components/choice";
+import NewPost from "../components/newPost";
 
 const categories = ["Airpods", "Student ID", "Wallet", "Water Bottle"];
 
@@ -44,6 +46,9 @@ function useCarousel(){
 }
 
 function Home() {
+    const [showChoice, setShowChoice] = useState(false);
+    const [modal, setModal] = useState(null);
+
     //Example loss posts
     const posts= [
             {id: 1, 
@@ -110,7 +115,7 @@ function Home() {
                 <nav className="home-top">
                     <input placeholder="Search" className="home-searchbar"/>
                     <button className="home-search" aria-label="search">⌕</button>
-                    <button className="home-post" aria-label="create">
+                    <button className="home-post" aria-label="create" onClick={() => setModal("choice")}>
                         <span className="new">New Post</span>
                     </button>
                 </nav>
@@ -176,6 +181,18 @@ function Home() {
                     <button className="home-carousel next" onClick={finds.next} disabled={!finds.canNext} aria-label="next">〉</button>
                 </div>
             </section>
+            {modal === "choice" && (
+                <Choice
+                    onClose={() => setModal(null)}
+                    onPick={() => setModal("newPost")}
+                />
+            )}
+            {modal === "newPost" && (
+                <NewPost
+                    onClose={() => setModal(null)}
+                    onBack={() => setModal("choice")}
+                />
+            )}
         </div>
     );
 }

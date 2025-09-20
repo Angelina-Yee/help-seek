@@ -59,7 +59,7 @@ html, body{
     margin-top: -40px;
 }
 
-.prof-link, .prof-link-second, .prof-link-third{
+.prof-link, .prof-link-settings, .prof-link-third{
     text-transform: uppercase;
     font-family: "Lato", sans-serif;
     font-weight: 700;
@@ -70,16 +70,8 @@ html, body{
     color: #e36a00;
     border: none;
     background: none;
-}
-
-.prof-link{
     width: 105px;
-}
-
-.prof-link-second{
-    width: 80px;
-    padding: 0;
-    margin-left: -4px;
+    cursor: pointer;
 }
 
 .prof-link-third{
@@ -88,6 +80,7 @@ html, body{
     color: var(--bg);
     width: 120px;
     border-radius: 20px;
+    border: none;
     padding: 0;
     font-size: 13px;
     box-shadow: 0px 3px 5px rgb(128, 128, 128);
@@ -98,7 +91,11 @@ html, body{
     opacity: 90%;
 }
 
-.prof-link:hover, .prof-link-second:hover{
+.prof-link-settings{
+    margin-left: -15px;
+}
+
+.prof-link:hover, .prof-link-settings:hover{
     text-decoration: underline;
 }
 
