@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import {useNavigate, Link} from "react-router-dom";
 import "../styles/signup2.css";
 
 // API request URL
