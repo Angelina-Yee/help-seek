@@ -4,8 +4,10 @@ import raccoon from "../assets/raccoon.png";
 import HomePostcard from "../components/homePostcard";
 import Choice from "../components/choice";
 import NewPost from "../components/newPost";
+import { Link } from "react-router-dom";
+import CategAll from "../components/categAll";
 
-const categories = ["Airpods", "Student ID", "Wallet", "Water Bottle"];
+const categories = ["Books", "Clothing", "Electronics", "ID", "Wallet"];
 
 function useCarousel(){
     const ref= useRef(null);
@@ -46,8 +48,8 @@ function useCarousel(){
 }
 
 function Home() {
-    const [showChoice, setShowChoice] = useState(false);
     const [modal, setModal] = useState(null);
+    const [showCateg, setShowCateg] = useState(false);
 
     //Example loss posts
     const posts= [
@@ -132,7 +134,7 @@ function Home() {
                     {categories.map((c) => (
                         <button key={c} className="category">{c}</button>
                     ))}
-                    <button className="home-all">See all</button>
+                    <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
                 <div className="home-notif">
                     <button className="home-noti">🔔</button>
@@ -142,7 +144,7 @@ function Home() {
             <section className="home-hero">
                 <div className="home-head">
                     <h4>Recent Losses</h4>
-                    <button className="home-all">See all</button>
+                    <Link to="/lossFind" className="home-all">See all</Link>
                 </div>
                 <div className="home-post-container">
                     <div className="home-row" ref={losses.ref}>
@@ -164,7 +166,7 @@ function Home() {
             <section className="home-hero">
                 <div className="home-head">
                     <h4>Recent Finds</h4>
-                    <button className="home-all">See all</button>
+                    <Link to="/lossFind" className="home-all">See all</Link>
                 </div>
                 <div className="home-post-container">
                     <div className="home-row" ref={finds.ref}>
@@ -193,6 +195,7 @@ function Home() {
                     onBack={() => setModal("choice")}
                 />
             )}
+            {showCateg && <CategAll onClose={() => setShowCateg(false)} />}
         </div>
     );
 }

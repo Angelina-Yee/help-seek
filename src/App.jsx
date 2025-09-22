@@ -18,6 +18,9 @@ import NewPost from "./components/newPost";
 import Choice from "./components/choice";
 import Others from "./pages/others";
 import Home from "./pages/home";
+import LossFind from "./pages/lossFind";
+import CategAll from "./components/categAll";
+import ForgotPassword3 from "./pages/forgotpassword3";
 
 import { initAuth } from "./api";
 
@@ -54,10 +57,13 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/newPost" element={<NewPost />} />
           <Route path="/choice" element={<Choice />} />
+          <Route path="/lossFind" element={<LossFind />} />
+          <Route path="/categAll" element={<CategAll />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/forgotpassword2" element={<ForgetPassword2 />} />
+        <Route path="/forgotpassword3" element={<ForgotPassword3 />} />
       </Routes>
     </BrowserRouter>
   );

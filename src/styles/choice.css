@@ -48,7 +48,14 @@
     padding: 15px;
 }
 
-.choice-btn{
+.categ-actions{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.choice-btn, .categ-btn{
     text-decoration: none;
     width: 100%;
     padding: 15px 10px;
@@ -67,7 +74,11 @@
     text-align: center;
 }
 
-.choice-btn:hover, .choice-btn:active{
+.categ-btn{
+    margin: 20px 0px 0px;
+}
+
+.choice-btn:hover, .choice-btn:active, .categ-btn:hover, .categ-btn:active{
     transform: translateY(3%) scale(0.98);
 }
 
