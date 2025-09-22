@@ -46,8 +46,8 @@ function Sidebar() {
                 </div>
                 <div className="sb-section">
                     <div className="sb-title">Browse</div>
-                    <NavLink to="/" className="sb-item">Losses</NavLink>
-                    <NavLink to="/" className="sb-item">Finds</NavLink>
+                    <NavLink to="/lossFind" className="sb-item">Losses</NavLink>
+                    <NavLink to="/lossFind" className="sb-item">Finds</NavLink>
                 </div>
             </nav>
             <div className="sb-footer">

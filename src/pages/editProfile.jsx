@@ -6,7 +6,7 @@ import { charById, colorById } from "../lib/avatarCatalog";
 // API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
-const Colleges= ["Eighth", "ERC", "John Muir", "Marshall", "Revelle", "Sixth", "Seventh", "Warren"];
+const Colleges= ["Eighth", "ERC", "John Muir", "Marshall", "Revelle", "Seventh", "Sixth", "Warren"];
 const Years= ["Freshman", "Sophomore", "Junior", "Senior"];
 
 //Edit Profile Page

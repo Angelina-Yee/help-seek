@@ -1,0 +1,89 @@
+:root {
+    --bg: #fdf8ec;
+    --blue: #0f3484;
+}
+
+.lf-hero{
+    padding: 40px 50px;
+    background: var(--bg);
+}
+
+.lf-container{
+    max-width: 1220px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: 28px;
+    align-items: start;
+}
+
+.lf-row{
+    display: grid;
+    margin-left: 80px;
+}
+
+.lf-row .postcard{
+    transform: scale(0.95);
+}
+
+.lf-filter{
+    position: sticky;
+    top: 90px;
+    margin-top: 10px;
+}
+
+.lf-right{
+    background-color: var(--bg);
+    border: 3px solid var(--blue);
+    border-radius: 10px;
+    box-shadow: 0px 3px 6px rgb(128, 128, 128);
+    height: calc(100vh - 200px);
+    overflow: auto;
+}
+
+.lf-panel{
+    padding: 20px 25px 2px;
+}
+
+.lf-title{
+    font-weight: 700;
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    letter-spacing: 0.9px;
+    font-size: 16px;
+    color: var(--blue);
+    padding-bottom: 5px;
+}
+
+.lf-select{
+    width: 100%;
+    padding: 0px 10px;
+    border: 2px solid var(--blue);
+    border-radius: 8px;
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-size: 13px;
+    color: var(--blue);
+    box-shadow: 0px 1px 2px rgb(128, 128, 128);
+}
+
+.lf-select:focus{
+    outline: none;
+}
+
+.lf-check{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding-bottom: 4px;
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--blue);
+}
+
+.lf-check input{
+    accent-color: var(--blue);
+}
+
