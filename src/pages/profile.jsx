@@ -1,34 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import "../styles/profile.css";
-import { Link, useNavigate } from "react-router-dom";
-import raccoon from "../assets/raccoon.png";
+import {Link} from "react-router-dom";
 import Postcard from "../components/postcard";
 import AccSettings from "../components/accSettings";
-import { getJson } from "../api";
+import {charById, colorById} from "../lib/avatarCatalog";
+
+// API request URL
+const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
 // Profile Page
 function Profile() {
-  const navigate = useNavigate();
-  const [userName, setUserName] = useState("...");
+  const [name, setUserName] = useState("");
+  const [avatarCharId, setAvatarCharId] = useState("raccoon");
+  const [avatarColor, setAvatarColor] = useState("blue");
+
+  const activeChar = useMemo(() => charById(avatarCharId), [avatarCharId]);
+
+  const glowColor = useMemo(() => colorById(avatarColor), [avatarColor]);
   const [loading, setLoading] = useState(true);
   const [showAccSettings, setShowAccSettings] = useState(false);
 
   // Fetch user profile
   useEffect(() => {
     (async () => {
-      try {
-        const data = await getJson("/api/profile/me");
-        // prefer real name; fallback to email prefix
-        const nice = data?.name || (data?.email ? data.email.split("@")[0] : "Friend");
-        setUserName(nice);
-      } catch (e) {
-        alert(e.message || "Please log in again");
-        navigate("/login", { replace: true });
-      } finally {
-        setLoading(false);
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
+      const res = await fetch(`${API}/api/profile/me`, {
+        credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setUserName(data.name || "");
+        if (data.avatarCharId) setAvatarCharId(data.avatarCharId);
+        if (data.avatarColor) setAvatarColor(data.avatarColor);
       }
+      setLoading(false);                           
     })();
-  }, [navigate]);
+  }, []);
 
   // Fake data
   const stats = [
@@ -50,7 +60,7 @@ function Profile() {
 
       <div className="prof-container">
         <section className="prof-box">
-          <h1 className="prof-title">Hello,<br />{userName}</h1>
+          <h1 className="prof-title">Hello,<br />{name}</h1>
           <div className="prof-actions">
             <Link to="/editProfile" className="prof-link">Edit Profile</Link>
             <button className="prof-link-settings" aria-label="create" onClick={() => setShowAccSettings(true)}>
@@ -59,9 +69,21 @@ function Profile() {
           </div>
         </section>
 
-        <aside className="prof-stamp">
+        {/*Help image corrping please*/}
+        <aside className="prof-stamp" style={{ "--glow": glowColor }}> 
           <div className="stamp-frame">
-            <img className="racc-img" src={raccoon} alt="Profile avatar" />
+            <img
+              className="racc-img"
+              src={activeChar.src}
+              alt="Profile avatar"
+              style={{
+                width: "180px",
+                height: "auto",
+                transform: `translate(${(activeChar.previewX ?? 0) + 20}px, ${(activeChar.previewY ?? 0) + 6}px) scale(${(activeChar.previewScale ?? 1) * 0.92})`,
+                transformOrigin: "center center",
+                filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.15))",
+              }}
+            />
           </div>
         </aside>
       </div>

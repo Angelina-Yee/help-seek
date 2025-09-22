@@ -1,7 +1,7 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, {useState, useMemo, useEffect} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import "../styles/ePP.css";
-import { CHARACTERS, COLORS, charById, colorById } from "../lib/avatarCatalog";
+import {CHARACTERS, COLORS, charById, colorById} from "../lib/avatarCatalog";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
