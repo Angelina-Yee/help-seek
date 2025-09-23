@@ -48,7 +48,6 @@ router.post(
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw createError(400, { errors: errors.array() });
-
       const email = String(req.body.email).trim().toLowerCase();
       if (!ucsdOnly(email)) throw createError(400, "UCSD email required (@ucsd.edu)");
 
@@ -68,11 +67,7 @@ router.post(
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
 
-      await sendVerificationEmail("signup", {
-        to: email,
-        name: "",
-        code,
-      });
+      await sendVerificationEmail("signup", { to: email, name: "", code });
 
       return res.json({ message: "Code sent", next: "verify-code" });
     } catch (err) {
@@ -95,8 +90,7 @@ router.post(
       const code = String(req.body.code).trim();
 
       const otp = await Otp.findOne({ email, type: "SIGNUP" });
-      if (!otp)
-        throw createError(400, "Code expired or not found. Request a new one.");
+      if (!otp) throw createError(400, "Code expired or not found. Request a new one.");
 
       if (otp.expiresAt.getTime() < Date.now()) {
         await Otp.deleteOne({ _id: otp._id });
@@ -157,7 +151,6 @@ router.post(
       let user = null;
       if (payload.sub) user = await User.findById(payload.sub);
       if (!user) user = await User.findOne({ email });
-
       if (!user) {
         user = new User({ email, emailDomain: "ucsd.edu" });
       }
@@ -165,7 +158,6 @@ router.post(
       user.name = `${String(firstName).trim()} ${String(lastName).trim()}`;
       user.passwordHash = await bcrypt.hash(password, 12);
       user.verifiedAt = user.verifiedAt || new Date();
-
       await user.save();
 
       const accessToken = signAccessToken(user);
@@ -201,14 +193,11 @@ router.post(
       const { password } = req.body;
 
       const user = await User.findOne({ email });
-      if (!user)
-        throw createError(401, "Your password is incorrect or this account does not exist.");
-      if (!user.verifiedAt)
-        throw createError(403, "Please verify your email to continue.");
+      if (!user) throw createError(401, "Your password is incorrect or this account does not exist.");
+      if (!user.verifiedAt) throw createError(403, "Please verify your email to continue.");
 
       const ok = await bcrypt.compare(password, user.passwordHash || "");
-      if (!ok)
-        throw createError(401, "Your password is incorrect or this account does not exist.");
+      if (!ok) throw createError(401, "Your password is incorrect or this account does not exist.");
 
       const accessToken = signAccessToken(user);
       res.status(201).json({
@@ -243,7 +232,6 @@ router.post(
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.status(400).json({ message: "Invalid email" });
-
       const email = String(req.body.email).trim().toLowerCase();
       if (!ucsdOnly(email)) return res.status(400).json({ message: "UCSD email required (@ucsd.edu)" });
 
@@ -259,11 +247,7 @@ router.post(
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
 
-      await sendVerificationEmail("forgot", {
-        to: email,
-        name: user?.name || "",
-        code,
-      });
+      await sendVerificationEmail("forgot", { to: email, name: user?.name || "", code });
 
       return res.json({ message: "sent" });
     } catch (err) {
@@ -287,6 +271,7 @@ router.post(
 
       const otp = await Otp.findOne({ email, type: "FORGOT" });
       if (!otp) return res.status(400).json({ message: "Invalid or expired code" });
+
       if (otp.expiresAt.getTime() < Date.now()) {
         await Otp.deleteOne({ _id: otp._id });
         return res.status(400).json({ message: "Invalid or expired code" });
@@ -315,32 +300,66 @@ router.post(
 // Reset password
 router.post(
   "/forgot-password/reset",
-  body("email").isEmail(),
-  body("resetToken").isString(),
-  body("newPassword").isLength({ min: 8 }),
+  body("password").optional().isLength({ min: 8 }),
+  body("newPassword").optional().isLength({ min: 8 }),
+  body("email").optional({ nullable: true, checkFalsy: true }).isEmail(), // FIX: relaxed optional
+  body("resetToken").optional().isString(),
   async (req, res, next) => {
     try {
+      console.log("HIT unified /forgot-password/reset", {
+        hasAuth: Boolean((req.headers.authorization || "").startsWith("Bearer ")),
+        body: req.body,
+      });
+
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.status(400).json({ message: "Invalid request" });
 
-      const email = String(req.body.email).trim().toLowerCase();
-      const { resetToken, newPassword } = req.body;
+      let token = null;
+      const auth = req.headers.authorization || "";
+      if (auth.startsWith("Bearer ")) token = auth.slice(7);
+      if (!token && req.body.resetToken) token = String(req.body.resetToken);
+      if (!token) return res.status(401).json({ message: "Missing reset token" });
+
+      const newPassword = req.body.password ?? req.body.newPassword;
+      if (!newPassword || newPassword.length < 8) {
+        return res.status(400).json({ message: "Invalid request" });
+      }
 
       let payload;
       try {
-        payload = jwt.verify(resetToken, process.env.JWT_ACCESS_SECRET);
+        payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
       } catch {
         return res.status(400).json({ message: "Invalid or expired reset token" });
       }
-      if (payload.typ !== "pwreset" || payload.email !== email) {
-        return res.status(400).json({ message: "Invalid reset token" });
+
+      if (payload.typ !== "pwreset") {
+        return res.status(400).json({ message: "Invalid reset token type" });
       }
 
-      const user = await User.findOne({ email });
+      const emailFromToken = String(payload.email).toLowerCase();
+
+      // normalize optional email from body
+      const emailFromBodyRaw = req.body.email;
+      const emailFromBody =
+        typeof emailFromBodyRaw === "string" && emailFromBodyRaw.trim()
+          ? emailFromBodyRaw.trim().toLowerCase()
+          : null;
+
+      if (emailFromBody && emailFromBody !== emailFromToken) {
+        return res.status(400).json({ message: "Reset token does not match email" });
+      }
+
+      const user = await User.findOne({ email: emailFromToken });
       if (!user) return res.status(404).json({ message: "Account not found" });
 
-      const passwordHash = await bcrypt.hash(newPassword, 12);
-      user.passwordHash = passwordHash;
+      const samePassword = await bcrypt.compare(newPassword, user.passwordHash || "");
+      if (samePassword) {
+        return res
+          .status(409)
+          .json({ message: "Please choose a new password that you have never used before." });
+      }
+
+      user.passwordHash = await bcrypt.hash(newPassword, 12);
       await user.save();
 
       return res.json({ message: "ok" });
