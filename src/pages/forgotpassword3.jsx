@@ -2,18 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/forgotpassword3.css";
 
+// API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
+// Create new password
 function ForgotPassword3() {
   const navigate = useNavigate();
   const resetToken = sessionStorage.getItem("resetToken");
-  const email = sessionStorage.getItem("forgotEmail"); // optional, if needed server-side
+  const email = sessionStorage.getItem("forgotEmail");
 
-  const [form, setForm] = useState({
-    newPassword: "",
-    confirmPassword: "",
-  });
-
+  const [form, setForm] = useState({ newPassword: "", confirmPassword: "" });
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,25 +44,33 @@ function ForgotPassword3() {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!formValid || !resetToken) return;
+  
     try {
       setLoading(true);
+  
+      const payload = { password: form.newPassword };
+      if (email) payload.email = email;
+  
       const res = await fetch(`${API}/auth/forgot-password/reset`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${resetToken}`,
         },
-        body: JSON.stringify({
-          password: form.newPassword,
-          email, // send if backend expects it; remove if not needed
-        }),
+        body: JSON.stringify(payload),
       });
+  
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to reset password");
-      // cleanup
       sessionStorage.removeItem("resetToken");
-      // navigate to login
-      navigate("/login");
+      sessionStorage.removeItem("forgotEmail");
+      navigate("/login", { replace: true });
+      setTimeout(() => {
+        if (window.location.pathname !== "/login") {
+          window.location.assign("/login");
+        }
+      }, 0);
+  
     } catch (err) {
       alert(err.message);
     } finally {
@@ -72,6 +78,7 @@ function ForgotPassword3() {
     }
   };
 
+  // HTML
   return (
     <div className="fp3">
       <header className="navbar">
@@ -87,6 +94,7 @@ function ForgotPassword3() {
             <h2>create new password</h2>
             <span className="step3">3/3</span>
           </div>
+
           <form className="reset-form3" onSubmit={onSubmit}>
             <div className="reset-middle">
               <label htmlFor="newPassword">new password</label>
@@ -118,15 +126,12 @@ function ForgotPassword3() {
                   )}
                 </button>
               </div>
+
               <div
-                className={`pw-hint-slot ${
-                  !pwStrong && form.newPassword ? "show" : ""
-                }`}
+                className={`pw-hint-slot ${!pwStrong && form.newPassword ? "show" : ""}`}
                 aria-live="polite"
               >
-                {!pwStrong && form.newPassword
-                  ? "8+ chars upper, lower, number, special."
-                  : ""}
+                {!pwStrong && form.newPassword ? "8+ chars upper, lower, number, special." : ""}
               </div>
 
               <label htmlFor="confirmPassword">re-enter password</label>
@@ -157,24 +162,17 @@ function ForgotPassword3() {
                   )}
                 </button>
               </div>
+
               <div
-                className={`pw-hint-slot ${
-                  !pwMatch && form.confirmPassword ? "error show" : ""
-                }`}
+                className={`pw-hint-slot ${!pwMatch && form.confirmPassword ? "error show" : ""}`}
                 aria-live="polite"
               >
-                {!pwMatch && form.confirmPassword
-                  ? "passwords do not match"
-                  : ""}
+                {!pwMatch && form.confirmPassword ? "passwords do not match" : ""}
               </div>
             </div>
 
             <div className="reset-footer">
-              <button
-                type="submit"
-                className="reset-btn"
-                disabled={!formValid || loading}
-              >
+              <button type="submit" className="reset-btn" disabled={!formValid || loading}>
                 {loading ? "saving..." : "reset password"}
               </button>
             </div>
