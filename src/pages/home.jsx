@@ -166,7 +166,7 @@ function Home() {
             <section className="home-hero">
                 <div className="home-head">
                     <h4>Recent Finds</h4>
-                    <Link to="/lossFind" className="home-all">See all</Link>
+                    <Link to="/findLoss" className="home-all">See all</Link>
                 </div>
                 <div className="home-post-container">
                     <div className="home-row" ref={finds.ref}>

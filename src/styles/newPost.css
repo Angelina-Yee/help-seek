@@ -83,7 +83,7 @@
     border-radius: 10px;
     background: #fff;
     color: var(--blue);
-    padding: 10px 18px;
+    padding: 10px;
     font-family: "Lato", sans-serif;
     font-style: normal;
     font-weight: 600;
@@ -126,7 +126,24 @@
     border-radius: 10px;
     background: #fff;
     color: var(--blue);
-    padding: 10px 18px;
+    padding: 10px;
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: 0.9px;
+    box-shadow: 0px 2px 4px rgb(128, 128, 128);
+}
+
+.np-sel{
+    max-width: none;
+    outline: none;
+    border: 3px solid var(--blue);
+    border-radius: 10px;
+    background-color: #fff;
+    margin-top: 10px;
+    height: 40px;
+    width: 205px;
+    padding: 0px 10px;
     font-family: "Lato", sans-serif;
     font-style: normal;
     font-weight: 600;
