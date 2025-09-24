@@ -78,13 +78,30 @@ function NewPost({onClose, onBack}) {
                     <div className="np-duo">
                         <div className="np-field">
                         <label className="np-label" htmlFor="np-location">Location:</label>
-                        <input
-                        id="np-location"
+                        <select id="np-location"
                         value={location}
-                        className="np-in"
+                        className="np-sel"
                         onChange={(e) => setLocation(e.target.value)}
-                        required
-                        />
+                        required>
+                            <option value="">Pick one...</option>
+                            <option value="centerHall">Center Hall</option>
+                            <option value="diningHall">Dining Halls</option>
+                            <option value="dorms">Dorms</option>
+                            <option value="eighth">Eighth</option>
+                            <option value="erc">ERC</option>
+                            <option value="geisel">Geisel Library</option>
+                            <option value="gym">Gym</option>
+                            <option value="muir">John Muir</option>
+                            <option value="mandeville">Mandeville Auditorium</option>
+                            <option value="marshall">Marshall</option>
+                            <option value="price">Price Center</option>
+                            <option value="revelle">Revelle</option>
+                            <option value="wongavery">Sally T. WongAvery Library</option>
+                            <option value="seventh">Seventh</option>
+                            <option value="sixth">Sixth</option>
+                            <option value="restaurants">UCSD Restaurants</option>
+                            <option value="warren">Warren</option>
+                        </select>
                         </div>
                         <div className="np-field">
                         <label className="np-label" htmlFor="np-title">Object Category:</label>
