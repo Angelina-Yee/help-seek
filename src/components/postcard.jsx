@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import "../styles/postcard.css";
 import raccoon from "../assets/raccoon.png";
+import PostZoom from "./postZoom";
 
+// Postcard Component
 export default function Postcard(props = {}) {
   const {
     name = "Name",
@@ -15,48 +17,67 @@ export default function Postcard(props = {}) {
     avatarBgColorHex,
   } = props;
 
+  const [showZoom, setShowZoom] = useState(false);
+
+  //HTML
   return (
     <article className="postcard">
       <header className="pc-head">
         <div className="pc-user">
-            <button
-                className="pc-avatar"
-                aria-hidden
-                style={{
-                backgroundColor: avatarBgColorHex || "transparent",
-                borderRadius: "50%",
-                overflow: "hidden",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 36,
-                height: 36,
-                padding: 0,
-                border: "none",
-                }}
-            >
-                <img
-                className="ava-img"
-                src={avatarSrc || raccoon}
-                alt="Profile avatar"
-                style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                    objectPosition: "center",
-                    transform: "translate(-3px, 6px)", 
-                    display: "block",
-                }}
-                />
-            </button>
-            <div className="pc-name">{name}</div>
+          <button
+            className="pc-avatar"
+            aria-hidden
+            style={{
+              backgroundColor: avatarBgColorHex || "transparent",
+              borderRadius: "50%",
+              overflow: "hidden",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 36,
+              height: 36,
+              padding: 0,
+              border: "none",
+            }}
+          >
+            <img
+              className="ava-img"
+              src={avatarSrc || raccoon}
+              alt="Profile avatar"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                objectPosition: "center",
+                transform: "translate(-3px, 6px)",
+                display: "block",
+              }}
+            />
+          </button>
+          <div className="pc-name">{name}</div>
         </div>
         <div className="pc-date">{date}</div>
-    </header>
+      </header>
 
       <div className="pc-media">
         {imageSrc ? (
-          <img src={imageSrc} alt={title || "post image"} />
+          <button
+            type="button"
+            className="pc-media-btn"
+            onClick={() => setShowZoom(true)}
+            aria-label="Open image"
+            style={{
+              all: "unset",
+              cursor: "zoom-in",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            <img src={imageSrc} alt={title || "post image"} />
+          </button>
         ) : (
           <div className="pc-media-placeholder" aria-hidden>
             <span className="bloc a" />
@@ -76,6 +97,10 @@ export default function Postcard(props = {}) {
         </div>
         <button className="pc-message" onClick={onMessage}>Message</button>
       </div>
+
+      {showZoom && imageSrc && (
+        <PostZoom src={imageSrc} alt={title || "image"} onClose={() => setShowZoom(false)} />
+      )}
     </article>
   );
 }
