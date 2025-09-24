@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/signup2.css";
 
+//API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
 // Verify email code
@@ -60,9 +61,21 @@ function Signup2() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: fullCode }),
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Invalid or expired code");
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          alert("You entered the wrong code.");
+          setCode(["", "", "", "", ""]);
+          document.getElementById("code-0")?.focus();
+          return;
+        }
+        throw new Error(data.message || "Invalid or expired code");
+      }
+
       sessionStorage.setItem("signupToken", data.signupToken);
+
       navigate("/signup3", { replace: true });
     } catch (er) {
       setErr(er.message || "Verification failed.");
