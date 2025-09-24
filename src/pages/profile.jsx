@@ -15,10 +15,13 @@ function Profile() {
   const [avatarColor, setAvatarColor] = useState("blue");
 
   const activeChar = useMemo(() => charById(avatarCharId), [avatarCharId]);
-
   const glowColor = useMemo(() => colorById(avatarColor), [avatarColor]);
+
   const [loading, setLoading] = useState(true);
   const [showAccSettings, setShowAccSettings] = useState(false);
+
+  // real posts state
+  const [posts, setPosts] = useState([]);
 
   // Fetch user profile
   useEffect(() => {
@@ -36,19 +39,47 @@ function Profile() {
         if (data.avatarCharId) setAvatarCharId(data.avatarCharId);
         if (data.avatarColor) setAvatarColor(data.avatarColor);
       }
-      setLoading(false);                           
+      setLoading(false);
+
+      // Load Posts
+      try {
+        const pRes = await fetch(`${API}/api/posts/me`, {
+          credentials: "include",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        const pData = await pRes.json().catch(() => []);
+        if (pRes.ok) setPosts(pData);
+      } catch {}
     })();
   }, []);
 
   // Fake data
   const stats = [
-    { value: 1, label: "finds" },
+    { value: posts.filter(p => p.type === "find").length, label: "finds" },
     { value: 10, label: "helped" },
-    { value: 0, label: "losses" },
+    { value: posts.filter(p => p.type === "loss").length, label: "losses" },
   ];
-  const posts = [
-    { id: 1, name: "John Doe", title: "Lost Water Bottle", location: "Geisel Library", desc: "Blue stanley..." },
-  ];
+
+  // create New Post
+  useEffect(() => {
+    function onCreated(e) {
+      const created = e.detail;
+      if (created && created._id) {
+        setPosts(prev => [created, ...prev]);
+      } else {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        fetch(`${API}/api/posts/me`, {
+          credentials: "include",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+          .then(r => r.json())
+          .then(d => Array.isArray(d) && setPosts(d))
+          .catch(() => {});
+      }
+    }
+    window.addEventListener("post:created", onCreated);
+    return () => window.removeEventListener("post:created", onCreated);
+  }, []);
 
   // Loading state
   if (loading) return <div className="prof">Loading…</div>;
@@ -102,8 +133,19 @@ function Profile() {
 
       <section className="prof-posts">
         <div className="posts-header"><h3>Your posts</h3></div>
+        {posts.length === 0 && <div className="empty">No posts yet.</div>}
         {posts.map((p) => (
-          <Postcard key={p.id} name={p.name} date={p.date} title={p.title} location={p.location} desc={p.desc} />
+          <Postcard
+            key={p._id || p.id}
+            name={name}
+            date={new Date(p.createdAt || Date.now()).toLocaleDateString()}
+            title={p.title}
+            location={p.location}
+            desc={p.description || p.desc}
+            imageSrc={p.imageUrl ? `${API}${p.imageUrl}` : undefined}
+            avatarSrc={activeChar.src}
+            avatarBgColorHex={glowColor}
+          />
         ))}
       </section>
       {showAccSettings && <AccSettings onClose={() => setShowAccSettings(false)} />}
