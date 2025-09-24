@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from "react";
 import "../styles/eprofile.css";
 import {Link, useNavigate} from "react-router-dom";
-import {charById, colorById} from "../lib/avatarCatalog";
+import {charById, colorById, getPreviewFor} from "../lib/avatarCatalog";
 
 // API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
@@ -28,6 +28,8 @@ function EditProfile() {
 
     const activeChar = useMemo(() => charById(avatarCharId), [avatarCharId]);
     const glowColor = useMemo(() => colorById(avatarColor), [avatarColor]);
+
+    const {x, y, scale} = getPreviewFor(activeChar, "profile");
 
     //Fetch user profile on mount
     useEffect(() => {
@@ -130,7 +132,7 @@ function EditProfile() {
                     style={{
                       width: "180px",
                       height: "auto",
-                      transform: `translate(${(activeChar.previewX ?? 0) + 12}px, ${(activeChar.previewY ?? 0) + 12}px) scale(${(activeChar.previewScale ?? 1) * 0.92})`,
+                      transform: `translate(${x}px, ${y}px) scale(${scale})`,
                       transformOrigin: "center center",
                     }}
                   />
