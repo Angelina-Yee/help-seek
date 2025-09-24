@@ -9,7 +9,7 @@ import CategAll from "../components/categAll";
 const lfCategories = ["Books", "Clothing", "Electronics", "ID", "Wallet", "Water Bottle", "Others"];
 const categories = ["Books", "Clothing", "Electronics", "ID", "Wallet"];
 
-function LossFind() {
+function FindLoss() {
     const [modal, setModal] = useState(null);
     const [showCateg, setShowCateg] = useState(false);
 
@@ -93,7 +93,7 @@ function LossFind() {
             {/*Hero*/}
             <section className="lf-hero">
                 <div className="lf-header">
-                    <h2>Losses</h2>
+                    <h2>Finds</h2>
                 </div>
                 <div className="lf-container">
                     <div className="lf-row">
@@ -181,4 +181,4 @@ function LossFind() {
     );
 }
 
-export default LossFind;
+export default FindLoss;

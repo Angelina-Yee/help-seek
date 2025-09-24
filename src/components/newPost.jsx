@@ -88,14 +88,20 @@ function NewPost({onClose, onBack}) {
                         </div>
                         <div className="np-field">
                         <label className="np-label" htmlFor="np-title">Object Category:</label>
-                        <input
-                        id="np-category"
+                        <select id="np-category"
                         value={category}
-                        placeholder="ex. id, water bottle..."
-                        className="np-in"
+                        className="np-sel"
                         onChange={(e) => setCategory(e.target.value)}
-                        required
-                        />
+                        required>
+                            <option value="">Pick one...</option>
+                            <option value="books">Books</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="id">ID</option>
+                            <option value="wallet">Wallet</option>
+                            <option value="water-bottle">Water Bottle</option>
+                            <option value="others">Others</option>
+                        </select>
                         </div>
                     </div>
                     <label className="np-label" htmlFor="np-description">Description:</label>
