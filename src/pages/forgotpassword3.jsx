@@ -64,12 +64,9 @@ function ForgotPassword3() {
       if (!res.ok) throw new Error(data.message || "Failed to reset password");
       sessionStorage.removeItem("resetToken");
       sessionStorage.removeItem("forgotEmail");
-      navigate("/login", { replace: true });
-      setTimeout(() => {
-        if (window.location.pathname !== "/login") {
-          window.location.assign("/login");
-        }
-      }, 0);
+      
+      await new Promise((r) => setTimeout(r, 60));
+      window.location.replace("/login");
   
     } catch (err) {
       alert(err.message);

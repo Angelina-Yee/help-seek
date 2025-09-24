@@ -75,8 +75,19 @@ function ForgetPassword2() {
         credentials: "include",
         body: JSON.stringify({ email, code: fullCode }),
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Invalid or expired code");
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          alert ("You entered the wrong code.");
+          setCode(Array(CODE_LEN).fill(""));
+          inputsRef.current?.[0]?.focus();
+          return;
+      }
+      alert(data.message || "Invalid or expired code");
+      return;
+    }
 
       sessionStorage.setItem("resetToken", data.resetToken);
       navigate("/forgotpassword3");
