@@ -15,6 +15,12 @@ export default function Postcard(props = {}) {
     onMessage = () => {},
     avatarSrc,
     avatarBgColorHex,
+
+    // extra props for profile variant
+    onResolve = () => {},
+    variant = "default",
+    postId,
+    resolving = false,
   } = props;
 
   const [showZoom, setShowZoom] = useState(false);
@@ -95,7 +101,20 @@ export default function Postcard(props = {}) {
           </div>
           {desc && <p className="pc-desc">{desc}</p>}
         </div>
-        <button className="pc-message" onClick={onMessage}>Message</button>
+
+        {variant === "profile" ? (
+          <button
+            className="pc-message"
+            onClick={() => onResolve(postId)}
+            disabled={resolving}
+            aria-label="Mark post as resolved"
+            title="Mark as resolved"
+          >
+            {resolving ? "Resolving…" : "Resolved"}
+          </button>
+        ) : (
+          <button className="pc-message" onClick={onMessage}>Message</button>
+        )}
       </div>
 
       {showZoom && imageSrc && (
@@ -104,3 +123,4 @@ export default function Postcard(props = {}) {
     </article>
   );
 }
+
