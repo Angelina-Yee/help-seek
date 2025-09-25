@@ -4,7 +4,12 @@ import "../styles/newPost.css";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
-function NewPost({onClose, onBack}) {
+function normalizeType(t) {
+  const v = (t ?? "").toString().trim().toLowerCase();
+  return v === "find" || v === "loss" ? v : null;
+}
+
+function NewPost({onClose, onBack, postType}) {
     const dialogRef = useRef(null);
     
     const [title, setTitle] = useState("");
@@ -15,9 +20,6 @@ function NewPost({onClose, onBack}) {
     const [preview, setPreview] = useState("");
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
-
-    // NEW: loss | find
-    const [postType, setPostType] = useState("loss");
 
     //Prevent background scrolling during popup
     useEffect(() => {
@@ -68,13 +70,19 @@ function NewPost({onClose, onBack}) {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             if (!token) throw new Error("You are not logged in.");
 
+            // Normalize directly from prop at submit time (no state race)
+            const typeSafe = normalizeType(postType);
+            if (!typeSafe) {
+              throw new Error("Please choose Loss or Find first.");
+            }
+
             const form = new FormData();
-            form.append("type", postType);           // backend expects: loss | find
+            form.append("type", typeSafe);
             form.append("title", title);
             form.append("location", location);
-            form.append("objectCategory", category); // backend field name
+            form.append("objectCategory", category);
             form.append("description", description);
-            if (file) form.append("image", file);    // multer field name
+            if (file) form.append("image", file);
 
             const res = await fetch(`${API}/api/posts`, {
                 method: "POST",
