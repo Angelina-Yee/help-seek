@@ -8,7 +8,6 @@ const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 // New Post Popup
 function NewPost({onClose, onBack, postType, initialType}) {
   const dialogRef = useRef(null);
-
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [category, setCategory] = useState("");

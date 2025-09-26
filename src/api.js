@@ -1,6 +1,6 @@
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
-const ACCESS_KEY = "token"; // access JWT in localStorage
+const ACCESS_KEY = "token";
 
 export function setAccessToken(tok) {
   if (tok) localStorage.setItem(ACCESS_KEY, tok);
@@ -18,7 +18,7 @@ export async function apiFetch(path, opts = {}) {
   const res = await fetch(`${API}${path}`, {
     ...opts,
     headers,
-    credentials: "include", // harmless if no cookies are used
+    credentials: "include",
   });
   return res;
 }
@@ -42,5 +42,13 @@ export async function putJson(path, body) {
 }
 
 export function initAuth() {
-  // no-op for access-token-only
+}
+
+export function listPosts({ type, resolved = false, page = 1, limit = 20 }) {
+  const q = new URLSearchParams({ type, resolved: String(resolved), page: String(page), limit: String(limit) });
+  return getJson(`/api/posts?${q.toString()}`);
+}
+
+export function resolvePost(postId, resolved = true) {
+  return putJson(`/api/posts/${postId}/resolve`, { resolved });
 }
