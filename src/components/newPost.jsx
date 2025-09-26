@@ -2,7 +2,14 @@ import React, {useEffect, useState, useRef} from "react";
 import {createPortal} from "react-dom";
 import "../styles/newPost.css";
 
-function NewPost({onClose, onBack}) {
+const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
+
+function normalizeType(t) {
+  const v = (t ?? "").toString().trim().toLowerCase();
+  return v === "find" || v === "loss" ? v : null;
+}
+
+function NewPost({onClose, onBack, postType}) {
     const dialogRef = useRef(null);
     
     const [title, setTitle] = useState("");
@@ -12,6 +19,7 @@ function NewPost({onClose, onBack}) {
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState("");
     const [error, setError] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
     //Prevent background scrolling during popup
     useEffect(() => {
@@ -54,10 +62,49 @@ function NewPost({onClose, onBack}) {
         }
     };
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
-        console.log({title, location, description, file});
-        onClose();
+        setError("");
+        setSubmitting(true);
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            if (!token) throw new Error("You are not logged in.");
+
+            // Normalize directly from prop at submit time (no state race)
+            const typeSafe = normalizeType(postType);
+            if (!typeSafe) {
+              throw new Error("Please choose Loss or Find first.");
+            }
+
+            const form = new FormData();
+            form.append("type", typeSafe);
+            form.append("title", title);
+            form.append("location", location);
+            form.append("objectCategory", category);
+            form.append("description", description);
+            if (file) form.append("image", file);
+
+            const res = await fetch(`${API}/api/posts`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                body: form,
+            });
+
+            const data = await res.json().catch(() => null);
+            if (!res.ok) {
+                const firstMsg = data?.message || data?.errors?.[0]?.msg;
+                throw new Error(firstMsg || "Failed to create post");
+            }
+
+            // notify Profile to update immediately
+            window.dispatchEvent(new CustomEvent("post:created", { detail: data }));
+            onClose();
+        } catch (err) {
+            setError(err.message || "Something went wrong");
+            console.error("Create post failed:", err);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
   return createPortal(
@@ -67,6 +114,7 @@ function NewPost({onClose, onBack}) {
             <button className="np-close" onClick={onClose} aria-label="Close">X</button>
             <div className="np-actions">
                 <form className="np-form" onSubmit={onSubmit}>
+
                     <label className="np-label" htmlFor="np-title">Title:</label>
                     <input
                     id="np-title"
@@ -78,24 +126,47 @@ function NewPost({onClose, onBack}) {
                     <div className="np-duo">
                         <div className="np-field">
                         <label className="np-label" htmlFor="np-location">Location:</label>
-                        <input
-                        id="np-location"
+                        <select id="np-location"
                         value={location}
-                        className="np-in"
+                        className="np-sel"
                         onChange={(e) => setLocation(e.target.value)}
-                        required
-                        />
+                        required>
+                            <option value="">Pick one...</option>
+                            <option value="Center Hall">Center Hall</option>
+                            <option value="Dining Halls">Dining Halls</option>
+                            <option value="Dorms">Dorms</option>
+                            <option value="Eighth">Eighth</option>
+                            <option value="ERC">ERC</option>
+                            <option value="Geisel Library">Geisel Library</option>
+                            <option value="Gym">Gym</option>
+                            <option value="John Muir">John Muir</option>
+                            <option value="Mandeville Auditorium">Mandeville Auditorium</option>
+                            <option value="Marshall">Marshall</option>
+                            <option value="Price Center">Price Center</option>
+                            <option value="Revelle">Revelle</option>
+                            <option value="Sally T. WongAvery Library">Sally T. WongAvery Library</option>
+                            <option value="Seventh">Seventh</option>
+                            <option value="Sixth">Sixth</option>
+                            <option value="UCSD Restaurants">UCSD Restaurants</option>
+                            <option value="Warren">Warren</option>
+                        </select>
                         </div>
                         <div className="np-field">
                         <label className="np-label" htmlFor="np-title">Object Category:</label>
-                        <input
-                        id="np-category"
+                        <select id="np-category"
                         value={category}
-                        placeholder="ex. id, water bottle..."
-                        className="np-in"
+                        className="np-sel"
                         onChange={(e) => setCategory(e.target.value)}
-                        required
-                        />
+                        required>
+                            <option value="">Pick one...</option>
+                            <option value="books">Books</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="id">ID</option>
+                            <option value="wallet">Wallet</option>
+                            <option value="water-bottle">Water Bottle</option>
+                            <option value="others">Others</option>
+                        </select>
                         </div>
                     </div>
                     <label className="np-label" htmlFor="np-description">Description:</label>
@@ -127,11 +198,11 @@ function NewPost({onClose, onBack}) {
                     )}
 
                     <div className="np-actions">
-                        <button type="button" className="np-back" onClick={onBack}>
+                        <button type="button" className="np-back" onClick={onBack} disabled={submitting}>
                             Back
                         </button>
-                        <button type="submit" className="np-submit">
-                            Submit
+                        <button type="submit" className="np-submit" disabled={submitting}>
+                            {submitting ? "Submitting…" : "Submit"}
                         </button>
                     </div>
                 </form>
