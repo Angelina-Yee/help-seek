@@ -20,16 +20,33 @@
 .lf-row{
     display: grid;
     margin-left: 80px;
+    margin-top: -20px;
 }
 
 .lf-row .postcard{
     transform: scale(0.95);
 }
 
+.lf-header{
+    display: flex;
+    margin-left: 170px;
+    padding: 0;
+}
+
+.lf-header h2{
+    font-weight: 800;
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-size: 35px;
+    color: var(--blue);
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+}
+
 .lf-filter{
     position: sticky;
     top: 90px;
-    margin-top: 10px;
+    margin-top: -6px;
 }
 
 .lf-right{

@@ -9,9 +9,11 @@ import http from "http";
 import https from "https";
 import path from "path";
 import { fileURLToPath } from "url";
+
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import profileRouter from "./routes/profile.js";
+import postsRouter from "./routes/posts.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,7 +27,6 @@ app.use(cookieParser());
 // CORS
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 const allowed = new Set([FRONTEND_URL, "http://localhost:3000", "https://localhost:3000"]);
-
 
 app.use(
   cors({
@@ -44,11 +45,15 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.disable("x-powered-by");
 
+// Serve uploaded images
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 // Routes
 app.get("/health", (_req, res) => res.json({ ok: true }));
 app.use("/auth", authRoutes);
 app.use("/api/profile", profileRouter);
 app.use("/users", profileRouter);
+app.use("/api/posts", postsRouter);
 
 // 404 and error handler
 app.use((_req, _res, next) => next(createError(404, "Not found")));
@@ -75,7 +80,7 @@ if (USE_HTTPS) {
   }
 }
 
-// Start
+// Bootstrap
 async function start() {
   await connectDB();
 
@@ -93,7 +98,6 @@ async function start() {
   }
 }
 
-// Bootstrap
 start().catch((e) => {
   console.error("Boot failed:", e);
   process.exit(1);

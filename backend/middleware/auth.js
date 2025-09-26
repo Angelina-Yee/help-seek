@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import createError from "http-errors";
 
-// Authenticate requests with a 1-day JWT access token
+// Authenticate requests with a 1 day JWT access token
 export default function auth(req, _res, next) {
   try {
     const hdr = req.headers.authorization || "";

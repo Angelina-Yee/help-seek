@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from "react";
+import React, {useState} from "react";
 import "../styles/lossFind.css";
 import raccoon from "../assets/raccoon.png";
 import Postcard from "../components/postcard";
@@ -92,6 +92,9 @@ function LossFind() {
             </div>
             {/*Hero*/}
             <section className="lf-hero">
+                <div className="lf-header">
+                    <h2>Losses</h2>
+                </div>
                 <div className="lf-container">
                     <div className="lf-row">
                         {posts.map(p => (

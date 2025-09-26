@@ -10,7 +10,7 @@ const AVATAR_CHAR = [
 
 const AVATAR_COLOR = ["blue", "yellow", "orange", "pink", "mint"];
 
-//User Schema, stores email, password, domain, name, and verification info
+//User Schema
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
@@ -26,7 +26,8 @@ const userSchema = new mongoose.Schema(
     avatarColor: {type: String, enum: AVATAR_COLOR, default: "blue"},
 
     verifiedAt: { type: Date, default: null },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    resolvedCount: { type: Number, default: 0 },
   },
   { collection: "users" }
 );

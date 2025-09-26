@@ -15,10 +15,13 @@ function Profile() {
   const [avatarColor, setAvatarColor] = useState("blue");
 
   const activeChar = useMemo(() => charById(avatarCharId), [avatarCharId]);
-
   const glowColor = useMemo(() => colorById(avatarColor), [avatarColor]);
+
   const [loading, setLoading] = useState(true);
   const [showAccSettings, setShowAccSettings] = useState(false);
+
+  // real posts state
+  const [posts, setPosts] = useState([]);
 
   // Fetch user profile
   useEffect(() => {
@@ -36,19 +39,123 @@ function Profile() {
         if (data.avatarCharId) setAvatarCharId(data.avatarCharId);
         if (data.avatarColor) setAvatarColor(data.avatarColor);
       }
-      setLoading(false);                           
+
+      // Load Posts
+      try {
+        const pRes = await fetch(`${API}/api/posts/me`, {
+          credentials: "include",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        const pData = await pRes.json().catch(() => []);
+        if (pRes.ok) setPosts(pData);
+      } catch {}
+
+      // also load persisted stats (finds/losses/resolved) if available
+      try {
+        const sRes = await fetch(`${API}/api/posts/stats`, {
+          credentials: "include",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        const sData = await sRes.json().catch(() => null);
+        if (sRes.ok && sData) {
+          setStatsState({
+            finds: Number(sData.finds ?? 0),
+            resolved: Number(sData.resolved ?? 0),
+            losses: Number(sData.losses ?? 0),
+          });
+        } else {
+          // fallback: derive finds/losses from fetched posts
+          setStatsState(prev => {
+            const finds0 = Array.isArray(posts) ? posts.filter(p => (p.type || "").toLowerCase() === "find").length : 0;
+            const losses0 = Array.isArray(posts) ? posts.filter(p => (p.type || "").toLowerCase() === "loss").length : 0;
+            return { ...prev, finds: finds0, losses: losses0 };
+          });
+        }
+      } catch {}
+
+      setLoading(false);
     })();
   }, []);
 
   // Fake data
+  const [statsState, setStatsState] = useState({ finds: 0, resolved: 0, losses: 0 });
   const stats = [
-    { value: 1, label: "finds" },
-    { value: 10, label: "helped" },
-    { value: 0, label: "losses" },
+    { value: statsState.finds, label: "finds" },
+    { value: statsState.resolved, label: "resolved" },
+    { value: statsState.losses, label: "losses" },
   ];
-  const posts = [
-    { id: 1, name: "John Doe", title: "Lost Water Bottle", location: "Geisel Library", desc: "Blue stanley..." },
-  ];
+
+  // create New Post
+  useEffect(() => {
+    function onCreated(e) {
+      const created = e.detail;
+      if (created && (created._id || created.id)) {
+        setPosts(prev => [created, ...prev]);
+
+        // normalize type before counting
+        const t = (created.type || "").toLowerCase();
+        if (t === "find") {
+          setStatsState(s => ({ ...s, finds: s.finds + 1 }));
+        } else if (t === "loss") {
+          setStatsState(s => ({ ...s, losses: s.losses + 1 }));
+        }
+      } else {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        fetch(`${API}/api/posts/me`, {
+          credentials: "include",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+          .then(r => r.json())
+          .then(d => {
+            if (Array.isArray(d)) {
+              setPosts(d);
+              const finds1 = d.filter(p => (p.type || "").toLowerCase() === "find").length;
+              const losses1 = d.filter(p => (p.type || "").toLowerCase() === "loss").length;
+              setStatsState(s => ({ ...s, finds: finds1, losses: losses1 }));
+            }
+          })
+          .catch(() => {});
+      }
+    }
+    window.addEventListener("post:created", onCreated);
+    return () => window.removeEventListener("post:created", onCreated);
+  }, []);
+
+  const [resolvingId, setResolvingId] = useState(null);
+  const handleResolve = async (postId) => {
+    if (!postId) return;
+    setResolvingId(postId);
+
+    // optimistic UI update
+    setPosts(prev => prev.filter(p => (p._id || p.id) !== postId));
+    setStatsState(s => ({ ...s, resolved: s.resolved + 1 }));
+
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      await fetch(`${API}/api/posts/${postId}`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      // attempt to refresh persisted stats (so resolved survives reloads)
+      try {
+        const sRes = await fetch(`${API}/api/posts/stats`, {
+          credentials: "include",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        const sData = await sRes.json().catch(() => null);
+        if (sRes.ok && sData) {
+          setStatsState({
+            finds: Number(sData.finds ?? 0),
+            resolved: Number(sData.resolved ?? 0),
+            losses: Number(sData.losses ?? 0),
+          });
+        }
+      } catch {}
+    } catch {}
+    setResolvingId(null);
+  };
 
   // Loading state
   if (loading) return <div className="prof">Loading…</div>;
@@ -102,8 +209,23 @@ function Profile() {
 
       <section className="prof-posts">
         <div className="posts-header"><h3>Your posts</h3></div>
+        {posts.length === 0 && <div className="empty">No posts yet.</div>}
         {posts.map((p) => (
-          <Postcard key={p.id} name={p.name} date={p.date} title={p.title} location={p.location} desc={p.desc} />
+          <Postcard
+            key={p._id || p.id}
+            name={name}
+            date={new Date(p.createdAt || Date.now()).toLocaleDateString()}
+            title={p.title}
+            location={p.location}
+            desc={p.description || p.desc}
+            imageSrc={p.imageUrl || undefined}
+            avatarSrc={activeChar.src}
+            avatarBgColorHex={glowColor}
+            variant="profile"
+            postId={p._id || p.id}
+            onResolve={handleResolve}
+            resolving={resolvingId === (p._id || p.id)}
+          />
         ))}
       </section>
       {showAccSettings && <AccSettings onClose={() => setShowAccSettings(false)} />}
