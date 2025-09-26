@@ -20,7 +20,7 @@ function Profile() {
   const [loading, setLoading] = useState(true);
   const [showAccSettings, setShowAccSettings] = useState(false);
 
-  // real posts state
+  // Real posts state
   const [posts, setPosts] = useState([]);
 
   // Fetch user profile
@@ -50,7 +50,7 @@ function Profile() {
         if (pRes.ok) setPosts(pData);
       } catch {}
 
-      // also load persisted stats (finds/losses/resolved) if available
+      // Load Stats
       try {
         const sRes = await fetch(`${API}/api/posts/stats`, {
           credentials: "include",
@@ -64,7 +64,6 @@ function Profile() {
             losses: Number(sData.losses ?? 0),
           });
         } else {
-          // fallback: derive finds/losses from fetched posts
           setStatsState(prev => {
             const finds0 = Array.isArray(posts) ? posts.filter(p => (p.type || "").toLowerCase() === "find").length : 0;
             const losses0 = Array.isArray(posts) ? posts.filter(p => (p.type || "").toLowerCase() === "loss").length : 0;
@@ -77,7 +76,7 @@ function Profile() {
     })();
   }, []);
 
-  // Fake data
+  // Stats 
   const [statsState, setStatsState] = useState({ finds: 0, resolved: 0, losses: 0 });
   const stats = [
     { value: statsState.finds, label: "finds" },
@@ -92,7 +91,6 @@ function Profile() {
       if (created && (created._id || created.id)) {
         setPosts(prev => [created, ...prev]);
 
-        // normalize type before counting
         const t = (created.type || "").toLowerCase();
         if (t === "find") {
           setStatsState(s => ({ ...s, finds: s.finds + 1 }));
@@ -126,7 +124,6 @@ function Profile() {
     if (!postId) return;
     setResolvingId(postId);
 
-    // optimistic UI update
     setPosts(prev => prev.filter(p => (p._id || p.id) !== postId));
     setStatsState(s => ({ ...s, resolved: s.resolved + 1 }));
 
@@ -138,7 +135,6 @@ function Profile() {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      // attempt to refresh persisted stats (so resolved survives reloads)
       try {
         const sRes = await fetch(`${API}/api/posts/stats`, {
           credentials: "include",
