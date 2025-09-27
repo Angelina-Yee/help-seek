@@ -324,9 +324,6 @@ function FindLoss() {
 
             {/*Hero*/}
             <section className="lf-hero">
-                <div className="lf-header">
-                    <h2>Finds</h2>
-                </div>
                 <div className="lf-container">
                     <div className="lf-row">
                     {loading && <div>Loading…</div>}
