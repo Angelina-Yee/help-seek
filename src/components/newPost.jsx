@@ -169,6 +169,7 @@ function NewPost({onClose, onBack, postType, initialType}) {
         <div className="np-dialog" ref={dialogRef} role="document">
             <h3 className="np-title">New Post</h3>
             <button className="np-close" onClick={onClose} aria-label="Close">X</button>
+
             <div className="np-actions">
                 <form className="np-form" onSubmit={onSubmit}>
                     <label className="np-label" htmlFor="np-title">Title:</label>
@@ -179,6 +180,7 @@ function NewPost({onClose, onBack, postType, initialType}) {
                     onChange={(e) => setTitle(e.target.value)}
                     required
                     />
+
                     <div className="np-duo">
                         <div className="np-field">
                         <label className="np-label" htmlFor="np-location">Location:</label>
@@ -188,23 +190,23 @@ function NewPost({onClose, onBack, postType, initialType}) {
                         onChange={(e) => setLocation(e.target.value)}
                         required>
                             <option value="">Pick one...</option>
-                            <option value="centerHall">Center Hall</option>
-                            <option value="diningHall">Dining Halls</option>
-                            <option value="dorms">Dorms</option>
-                            <option value="eighth">Eighth</option>
-                            <option value="erc">ERC</option>
-                            <option value="geisel">Geisel Library</option>
-                            <option value="gym">Gym</option>
-                            <option value="muir">John Muir</option>
-                            <option value="mandeville">Mandeville Auditorium</option>
-                            <option value="marshall">Marshall</option>
-                            <option value="price">Price Center</option>
-                            <option value="revelle">Revelle</option>
-                            <option value="wongavery">Sally T. WongAvery Library</option>
-                            <option value="seventh">Seventh</option>
-                            <option value="sixth">Sixth</option>
-                            <option value="restaurants">UCSD Restaurants</option>
-                            <option value="warren">Warren</option>
+                            <option value="Center Hall">Center Hall</option>
+                            <option value="Dining Hall">Dining Halls</option>
+                            <option value="Dorms">Dorms</option>
+                            <option value="Eighth">Eighth</option>
+                            <option value="ERC">ERC</option>
+                            <option value="Geisel">Geisel Library</option>
+                            <option value="Gym">Gym</option>
+                            <option value="John Muir">John Muir</option>
+                            <option value="Mandeville Auditorium">Mandeville Auditorium</option>
+                            <option value="Marshall">Marshall</option>
+                            <option value="Price Center">Price Center</option>
+                            <option value="Revelle">Revelle</option>
+                            <option value="Sally T. WongAvery Library">Sally T. WongAvery Library</option>
+                            <option value="Seventh">Seventh</option>
+                            <option value="Sixth">Sixth</option>
+                            <option value="UCSD Restaurants">UCSD Restaurants</option>
+                            <option value="Warren">Warren</option>
                         </select>
                         </div>
                         <div className="np-field">
