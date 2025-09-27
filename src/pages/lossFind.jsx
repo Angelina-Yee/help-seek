@@ -5,6 +5,7 @@ import Postcard from "../components/postcard";
 import Choice from "../components/choice";
 import NewPost from "../components/newPost";
 import CategAll from "../components/categAll";
+import { useNavigate } from "react-router-dom";
 
 const lfCategories = ["Books", "Clothing", "Electronics", "ID", "Wallet", "Water Bottle", "Others"];
 const categories = ["Books", "Clothing", "Electronics", "ID", "Wallet"];
@@ -12,6 +13,7 @@ const categories = ["Books", "Clothing", "Electronics", "ID", "Wallet"];
 function LossFind() {
     const [modal, setModal] = useState(null);
     const [showCateg, setShowCateg] = useState(false);
+    const navigate = useNavigate();
 
     //Example loss posts
     const posts= [
@@ -82,7 +84,7 @@ function LossFind() {
             <div className="home-second">
                 <div className="home-categ">
                     {categories.map((c) => (
-                        <button key={c} className="category">{c}</button>
+                        <button key={c} className="category"onClick={() => navigate("/category")}>{c}</button>
                     ))}
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
@@ -92,11 +94,11 @@ function LossFind() {
             </div>
             {/*Hero*/}
             <section className="lf-hero">
-                <div className="lf-header">
-                    <h2>Losses</h2>
-                </div>
                 <div className="lf-container">
                     <div className="lf-row">
+                        <div className="lf-header">
+                            <h2>Losses</h2>
+                        </div>
                         {posts.map(p => (
                             <Postcard
                             className="postC"
