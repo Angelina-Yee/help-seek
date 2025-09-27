@@ -4,7 +4,7 @@ import raccoon from "../assets/raccoon.png";
 import HomePostcard from "../components/homePostcard";
 import Choice from "../components/choice";
 import NewPost from "../components/newPost";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CategAll from "../components/categAll";
 
 const categories = ["Books", "Clothing", "Electronics", "ID", "Wallet"];
@@ -50,6 +50,7 @@ function useCarousel(){
 function Home() {
     const [modal, setModal] = useState(null);
     const [showCateg, setShowCateg] = useState(false);
+    const navigate = useNavigate();
 
     //Example loss posts
     const posts= [
@@ -132,7 +133,7 @@ function Home() {
             <div className="home-second">
                 <div className="home-categ">
                     {categories.map((c) => (
-                        <button key={c} className="category">{c}</button>
+                        <button key={c} className="category"onClick={() => navigate("/category")}>{c}</button>
                     ))}
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
