@@ -91,67 +91,16 @@ router.post("/loss", auth, uploadImage.single("image"), (req, res, next) =>
   createPost(req, res, next, "loss")
 );
 
+// Image upload route
 router.post("/", auth, uploadImage.single("image"), (req, res, next) =>
   createPost(req, res, next, null)
 );
-
-// Get posts
-router.get("/", async (req, res, next) => {
-  try {
-    const page  = Math.max(1, parseInt(req.query.page, 10)  || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
-
-    const q = {};
-    const t = String(req.query.type || "").toLowerCase().trim();
-    if (t === "loss" || t === "find") q.type = t;
-
-    const [items, total] = await Promise.all([
-      Post.find(q)
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .populate("user", "firstName lastName") // names for display
-        .lean(),
-      Post.countDocuments(q),
-    ]);
-
-    res.json({
-      items,
-      page,
-      limit,
-      total,
-      hasMore: page * limit < total,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
 
 // Get posts of logged user
 router.get("/me", auth, async (req, res, next) => {
   try {
     const posts = await Post.find({ user: req.user.id }).sort({ createdAt: -1 }).lean();
     res.json(posts);
-  } catch (err) {
-    next(err);
-  }
-});
-
-// Resolve or unresolve post
-router.patch("/:id/resolve", auth, async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { resolved } = req.body;
-
-    const post = await Post.findById(id);
-    if (!post) throw createError(404, "Post not found");
-    if (post.user.toString() !== req.user.id) throw createError(403, "Forbidden");
-
-    post.resolved = !!resolved;
-    post.resolvedAt = post.resolved ? new Date() : null;
-    await post.save();
-
-    res.json({ ok: true, post });
   } catch (err) {
     next(err);
   }
