@@ -11,11 +11,11 @@ import { charById, colorById } from "../lib/avatarCatalog";
 // API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
-// Categories for filtering
+// UI category labels
 const LF_CATEGORIES = ["Books", "Clothing", "Electronics", "ID", "Wallet", "Water Bottle", "Others"];
 const QUICK_CATEGORIES = ["Books", "Clothing", "Electronics", "ID", "Wallet"];
 
-// decode current user id from JWT (sub | userId | id)
+// Decode current user id 
 function getCurrentUserId() {
 	const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 	if (!token) return null;
@@ -25,6 +25,84 @@ function getCurrentUserId() {
 		return json.sub || json.userId || json.id || null;
 	} catch {
 		return null;
+	}
+}
+
+const norm = (v) => (v ?? "").toString().trim().toLowerCase();
+const nospace = (v) => norm(v).replace(/\s+/g, "");
+
+// Map spellings
+const CANON = {
+	"books": "books", "book": "books",
+	"clothing": "clothing", "clothes": "clothing",
+	"electronics": "electronics", "electronic": "electronics",
+	"id": "id", "student id": "id", "studentid": "id",
+	"wallet": "wallet",
+	"water bottle": "water bottle", "waterbottle": "water bottle", "bottle": "water bottle",
+	"others": "others", "other": "others"
+};
+
+//
+function toCanonKey(label) {
+	const a = norm(label);
+	if (CANON[a]) return CANON[a];
+	const b = nospace(a);
+	if (CANON[b]) return CANON[b];
+	return a;
+}
+
+// Get Post categories
+function getPostCanonCategory(p) {
+	const primary =
+		p?.objectCategory ??
+		p?.category ??
+		p?.categoryName ??
+		p?.cat ??
+		p?.categ ??
+		(Array.isArray(p?.categories) ? p.categories[0] : undefined) ??
+		(Array.isArray(p?.tags) ? p.tags[0] : undefined);
+
+	if (typeof primary === "number") {
+		const label = LF_CATEGORIES[primary];
+		return toCanonKey(label || "");
+	}
+	if (primary && typeof primary === "object") {
+		const maybe = primary.label ?? primary.value ?? primary.name ?? primary.title ?? primary.text ?? primary.id ?? primary.key;
+		return toCanonKey(maybe || "");
+	}
+	if (typeof primary === "string") return toCanonKey(primary);
+
+	const pools = [
+		Array.isArray(p?.categories) ? p.categories : null,
+		Array.isArray(p?.tags) ? p.tags : null
+	].filter(Boolean);
+	for (const arr of pools) {
+		for (const el of arr) {
+			if (typeof el === "string") return toCanonKey(el);
+			if (typeof el === "number") {
+				const label = LF_CATEGORIES[el];
+				return toCanonKey(label || "");
+			}
+			if (el && typeof el === "object") {
+				const maybe = el.label ?? el.value ?? el.name ?? el.title ?? el.text ?? el.id ?? el.key;
+				if (maybe) return toCanonKey(maybe);
+			}
+		}
+	}
+	return "";
+}
+
+function getTime(createdAt) {
+	if (!createdAt) return NaN;
+	if (typeof createdAt === "string" || typeof createdAt === "number") {
+		return new Date(createdAt).getTime();
+	}
+	const numLong = createdAt?.$date?.$numberLong ?? createdAt?.$numberLong ?? createdAt?.$date;
+	if (numLong) return Number(numLong);
+	try {
+		return new Date(createdAt).getTime();
+	} catch {
+		return NaN;
 	}
 }
 
@@ -41,6 +119,12 @@ function LossFind() {
 	const [showCateg, setShowCateg] = useState(false);
 	const [items, setItems] = useState([]);
 	const [loading, setLoading] = useState(true);
+
+	// FILTER STATE
+	const [selectedCats, setSelectedCats] = useState(new Set());
+	const [locationFilter, setLocationFilter] = useState("Any Location");
+	const [dateFilter, setDateFilter] = useState("any"); // "any" | "24h" | "week" | "month"
+	const [sortOrder, setSortOrder] = useState("Most Recent"); // "Most Recent" | "Oldest"
 
 	// Load profile
 	useEffect(() => {
@@ -69,7 +153,7 @@ function LossFind() {
 		(async () => {
 			try {
 				const data = await listPosts({ type: "loss", resolved: false, page: 1, limit: 20 });
-				const onlyLoss = (data?.items || []).filter(p => p?.type === "loss");
+				const onlyLoss = (data?.items || []).filter(p => norm(p?.type) === "loss");
 				if (alive) setItems(onlyLoss);
 			} catch (e) {
 				console.error(e);
@@ -80,11 +164,93 @@ function LossFind() {
 		return () => { alive = false; };
 	}, []);
 
+	// Live insert on create
+	useEffect(() => {
+		function onCreated(e) {
+			const p = e?.detail;
+			if (!p || norm(p.type) !== "loss") return;
+			setItems(prev => {
+				const id = p._id || p.id;
+				const exists = prev.some(x => (x._id || x.id) === id);
+				return exists ? prev : [p, ...prev];
+			});
+		}
+		window.addEventListener("post:created", onCreated);
+		return () => window.removeEventListener("post:created", onCreated);
+	}, []);
+
+	// Live remove on resolve
+	useEffect(() => {
+		function onResolved(e) {
+			const id = e?.detail?.id;
+			if (!id) return;
+			setItems(prev => prev.filter(x => (x._id || x.id) !== id));
+		}
+		window.addEventListener("post:resolved", onResolved);
+		return () => window.removeEventListener("post:resolved", onResolved);
+	}, []);
+
+	// Derived: filtered + sorted items
+	const visibleItems = useMemo(() => {
+		let arr = [...items];
+
+		// Category filter
+		if (selectedCats.size > 0) {
+			arr = arr.filter(p => {
+				const postCat = getPostCanonCategory(p);
+				return selectedCats.has(postCat);
+			});
+		}
+
+		// Location filter
+		if (locationFilter && locationFilter !== "Any Location") {
+			arr = arr.filter(p => norm(p?.location) === norm(locationFilter));
+		}
+
+		// Date posted filter
+		if (dateFilter !== "any") {
+			const now = Date.now();
+			let cutoff = 0;
+			if (dateFilter === "24h") cutoff = now - 24 * 60 * 60 * 1000;
+			if (dateFilter === "week") cutoff = now - 7 * 24 * 60 * 60 * 1000;
+			if (dateFilter === "month") cutoff = now - 30 * 24 * 60 * 60 * 1000;
+			arr = arr.filter(p => {
+				const t = getTime(p?.createdAt);
+				return isFinite(t) && t >= cutoff;
+			});
+		}
+
+		// Sort
+		arr.sort((a, b) => {
+			const ta = getTime(a?.createdAt);
+			const tb = getTime(b?.createdAt);
+			return sortOrder === "Oldest" ? ta - tb : tb - ta;
+		});
+
+		return arr;
+	}, [items, selectedCats, locationFilter, dateFilter, sortOrder]);
+
+	const toggleCategory = (uiLabel) => {
+		const canon = toCanonKey(uiLabel);
+
+		setSelectedCats(prev => {
+			const next = new Set(prev);
+			if (next.has(canon)) next.delete(canon);
+			else next.add(canon);
+			return next;
+		});
+	};
+
+	const quickPick = (uiLabel) => {
+		toggleCategory(uiLabel);
+	};
+
+	//HTML
 	return (
 		<div className="home">
 			{/* Navbar */}
 			<header className="home-navbar">
-                <div className="home-logo">help n seek</div>
+				<div className="home-logo">help n seek</div>
 
 				<nav className="home-top">
 					<input placeholder="Search" className="home-searchbar" />
@@ -135,9 +301,19 @@ function LossFind() {
 
 			<div className="home-second">
 				<div className="home-categ">
-					{QUICK_CATEGORIES.map(c => (
-						<button key={c} className="category">{c}</button>
-					))}
+					{QUICK_CATEGORIES.map(c => {
+						const cCanon = toCanonKey(c);
+						return (
+							<button
+								key={c}
+								className={`category${selectedCats.has(cCanon) ? " is-active" : ""}`}
+								onClick={() => quickPick(c)}
+								aria-pressed={selectedCats.has(cCanon)}
+							>
+								{c}
+							</button>
+						);
+					})}
 					<button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
 				</div>
 				<div className="home-notif">
@@ -153,9 +329,9 @@ function LossFind() {
 				<div className="lf-container">
 					<div className="lf-row">
 						{loading && <div>Loading…</div>}
-						{!loading && items.length === 0 && <div>No active loss posts yet.</div>}
+						{!loading && visibleItems.length === 0 && <div>No posts match your filters.</div>}
 
-						{!loading && items.map(p => {
+						{!loading && visibleItems.map(p => {
 							const me = getCurrentUserId();
 							const postUserId =
 								(p?.user && (p.user._id || p.user.id)) ||
@@ -169,7 +345,7 @@ function LossFind() {
 									className="postC"
 									key={p._id}
 									name={name}
-									date={new Date(p.createdAt).toLocaleDateString()}
+									date={new Date(getTime(p.createdAt)).toLocaleDateString()}
 									title={p.title}
 									location={p.location}
 									desc={p.description}
@@ -184,26 +360,45 @@ function LossFind() {
 
 					<aside className="lf-filter" aria-label="filters">
 						<div className="lf-right">
+							{/* Sort */}
 							<div className="lf-panel">
 								<div className="lf-title">Sort By</div>
-								<select className="lf-select" defaultValue="Most Recent">
+								<select
+									className="lf-select"
+									value={sortOrder}
+									onChange={(e) => setSortOrder(e.target.value)}
+								>
 									<option>Most Recent</option>
 									<option>Oldest</option>
 								</select>
 							</div>
 
+							{/* Category */}
 							<div className="lf-panel">
 								<div className="lf-title">Category</div>
-								{LF_CATEGORIES.map(c => (
-									<label key={c} className="lf-check">
-										<input type="checkbox" /> <span>{c}</span>
-									</label>
-								))}
+								{LF_CATEGORIES.map(c => {
+									const cCanon = toCanonKey(c);
+									return (
+										<label key={c} className="lf-check">
+											<input
+												type="checkbox"
+												checked={selectedCats.has(cCanon)}
+												onChange={() => toggleCategory(c)}
+											/>{" "}
+											<span>{c}</span>
+										</label>
+									);
+								})}
 							</div>
 
+							{/* Location */}
 							<div className="lf-panel">
 								<div className="lf-title">Location</div>
-								<select className="lf-select" defaultValue="Any Location">
+								<select
+									className="lf-select"
+									value={locationFilter}
+									onChange={(e) => setLocationFilter(e.target.value)}
+								>
 									<option>Any Location</option>
 									<option>Center Hall</option>
 									<option>Dining Halls</option>
@@ -225,17 +420,45 @@ function LossFind() {
 								</select>
 							</div>
 
+							{/* Date Posted */}
 							<div className="lf-panel">
 								<div className="lf-title">Date Posted</div>
-								<label className="lf-check"><input type="radio" name="date" /> Last 24 hours</label>
-								<label className="lf-check"><input type="radio" name="date" /> Past Week</label>
-								<label className="lf-check"><input type="radio" name="date" /> Past Month</label>
-							</div>
-
-							<div className="lf-panel">
-								<div className="lf-title">Status</div>
-								<label className="lf-check"><input type="radio" name="status" defaultChecked /> Lost</label>
-								<label className="lf-check"><input type="radio" name="status" disabled /> Found</label>
+								<label className="lf-check">
+									<input
+										type="radio"
+										name="date"
+										checked={dateFilter === "any"}
+										onChange={() => setDateFilter("any")}
+									/>{" "}
+									Any time
+								</label>
+								<label className="lf-check">
+									<input
+										type="radio"
+										name="date"
+										checked={dateFilter === "24h"}
+										onChange={() => setDateFilter("24h")}
+									/>{" "}
+									Last 24 hours
+								</label>
+								<label className="lf-check">
+									<input
+										type="radio"
+										name="date"
+										checked={dateFilter === "week"}
+										onChange={() => setDateFilter("week")}
+									/>{" "}
+									Past Week
+								</label>
+								<label className="lf-check">
+									<input
+										type="radio"
+										name="date"
+										checked={dateFilter === "month"}
+										onChange={() => setDateFilter("month")}
+									/>{" "}
+									Past Month
+								</label>
 							</div>
 						</div>
 					</aside>
