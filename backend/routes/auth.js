@@ -22,7 +22,7 @@ function makeOtp() {
 // Temp signup token
 function signSignupToken({ email, sub }) {
   const payload = { typ: "signup", email: String(email).toLowerCase() };
-  if (sub) payload.sub = sub; // include only if we have it
+  if (sub) payload.sub = sub;
   return jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: "30m" });
 }
 

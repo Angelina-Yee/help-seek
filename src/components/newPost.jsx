@@ -2,64 +2,168 @@ import React, {useEffect, useState, useRef} from "react";
 import {createPortal} from "react-dom";
 import "../styles/newPost.css";
 
-function NewPost({onClose, onBack}) {
-    const dialogRef = useRef(null);
-    
-    const [title, setTitle] = useState("");
-    const [location, setLocation] = useState("");
-    const [category, setCategory] = useState("");
-    const [description, setDescription] = useState("");
-    const [file, setFile] = useState(null);
-    const [preview, setPreview] = useState("");
-    const [error, setError] = useState("");
+// API request URL
+const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
-    //Prevent background scrolling during popup
-    useEffect(() => {
-        const prev = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return() => (document.body.style.overflow = prev);
-    }, []);
+// New Post Popup
+function NewPost({onClose, onBack, postType, initialType}) {
+  const dialogRef = useRef(null);
 
-    //Closing the Popup
-    useEffect(() => {
-        const onKey = (e) => e.key === "Escape" && onClose();
-        window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-    }, [onClose]);
+  const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [typeChoice, setTypeChoice] = useState("");
 
-    const onBackdrop = (e) => {
-        if (dialogRef.current && !dialogRef.current.contains(e.target)) onClose();
-    };
+  const normalize = (v) => {
+    const x = (v ?? "").toString().trim().toLowerCase();
+    return x === "find" || x === "loss" ? x : "";
+  };
 
-    //Preview Images
-    useEffect(() => {
-        if (!(file instanceof Blob)){
-            setPreview("");
-            return;
-        }
-        const url = URL.createObjectURL(file);
-        setPreview(url);
-        return() => URL.revokeObjectURL(url);
-    }, [file]);
+  // Determine type of post
+  useEffect(() => {
+    const fromProp = normalize(postType ?? initialType);
+    if (fromProp) {
+      setTypeChoice(fromProp);
+      return;
+    }
+    let fromGlobal = "";
+    try { fromGlobal = normalize(window.__NEWPOST_TYPE); } catch {}
+    if (fromGlobal) {
+      setTypeChoice(fromGlobal);
+      return;
+    }
+    try {
+      const saved = normalize(sessionStorage.getItem("newpost.type"));
+      if (saved) {
+        setTypeChoice(saved);
+        return;
+      }
+    } catch {}
 
-    const handleFile = (e) => {
-        const f=e.target.files && e.target.files[0];
-        if (f instanceof File && /^image\//.test(f.type)){
-            setFile(f);
-            setError("");
-        }else{
-            setFile(null);
-            setPreview("");
-            setError("Please upload a valid image file.");
-        }
-    };
+    setTypeChoice("");
+  }, [postType, initialType]);
 
-    const onSubmit = (e) => {
-        e.preventDefault();
-        console.log({title, location, description, file});
-        onClose();
-    };
+  //Prevent background scrolling during popup
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return() => (document.body.style.overflow = prev);
+  }, []);
 
+  //Closing the Popup
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  // Click bakcdrop to close popup
+  const onBackdrop = (e) => {
+    if (dialogRef.current && !dialogRef.current.contains(e.target)) onClose();
+  };
+
+  //Preview Images
+  useEffect(() => {
+    if (!(file instanceof Blob)){
+      setPreview("");
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+    return() => URL.revokeObjectURL(url);
+  }, [file]);
+
+  //Handle file input
+  const handleFile = (e) => {
+    const f=e.target.files && e.target.files[0];
+    if (f instanceof File && /^image\//.test(f.type)){
+      setFile(f);
+      setError("");
+    }else{
+      setFile(null);
+      setPreview("");
+      setError("Please upload a valid image file.");
+    }
+  };
+
+  // Resolve type 
+  const resolveType = () => {
+    const fromState = normalize(typeChoice);
+    if (fromState) return fromState;
+
+    const fromProp = normalize(postType ?? initialType);
+    if (fromProp) return fromProp;
+
+    try {
+      const fromGlobal = normalize(window.__NEWPOST_TYPE);
+      if (fromGlobal) return fromGlobal;
+    } catch {}
+
+    try {
+      const saved = normalize(sessionStorage.getItem("newpost.type"));
+      if (saved) return saved;
+    } catch {}
+
+    return "";
+  };
+
+  //Submit new post
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    setSubmitting(true);
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (!token) throw new Error("You are not logged in.");
+
+      const chosen = resolveType();
+
+      const form = new FormData();
+      if (chosen) form.append("type", chosen);
+      form.append("title", title);
+      form.append("location", location);
+      form.append("objectCategory", category);
+      form.append("description", description);
+      if (file) form.append("image", file);
+
+      const url = chosen ? `${API}/api/posts/${chosen}` : `${API}/api/posts`;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        const firstMsg = data?.message || data?.errors?.[0]?.msg;
+        throw new Error(firstMsg || "Failed to create post");
+      }
+
+      // Notify Profile to update
+      window.dispatchEvent(new CustomEvent("post:created", { detail: data }));
+      try {
+        sessionStorage.removeItem("newpost.type");
+        if (window.__NEWPOST_TYPE) delete window.__NEWPOST_TYPE;
+      } catch {}
+
+      // Close popup
+      onClose();
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+      console.error("Create post failed:", err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // HTML 
   return createPortal(
     <div className="np-overlay" onMouseDown={onBackdrop} aria-modal="true" role="dialog">
         <div className="np-dialog" ref={dialogRef} role="document">
@@ -149,17 +253,17 @@ function NewPost({onClose, onBack}) {
                             </div>
                     )}
 
-                    <div className="np-actions">
-                        <button type="button" className="np-back" onClick={onBack}>
-                            Back
-                        </button>
-                        <button type="submit" className="np-submit">
-                            Submit
-                        </button>
-                    </div>
-                </form>
+            <div className="np-actions">
+              <button type="button" className="np-back" onClick={onBack} disabled={submitting}>
+                Back
+              </button>
+              <button type="submit" className="np-submit" disabled={submitting}>
+                {submitting ? "Submitting…" : "Submit"}
+              </button>
             </div>
+          </form>
         </div>
+      </div>
     </div>,
     document.body
   );

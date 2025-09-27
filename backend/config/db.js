@@ -7,3 +7,6 @@ export async function connectDB() {
   await mongoose.connect(uri, { autoIndex: true });
   console.log("MongoDB connected");
 }
+
+//Test
+//test again
