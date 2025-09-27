@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "../styles/forgotPassword.css";
+import "../styles/forgotpassword.css";
 
 // API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
