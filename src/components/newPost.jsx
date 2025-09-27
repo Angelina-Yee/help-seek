@@ -55,7 +55,7 @@ function NewPost({onClose, onBack, postType, initialType}) {
     return() => (document.body.style.overflow = prev);
   }, []);
 
-  //Closing the Popup
+  //Closing Popup
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
