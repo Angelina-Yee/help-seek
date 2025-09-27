@@ -326,6 +326,9 @@ function FindLoss() {
             <section className="lf-hero">
                 <div className="lf-container">
                     <div className="lf-row">
+						<div className="lf-header">
+                            <h2>Finds</h2>
+                        </div>
                     {loading && <div>Loading…</div>}
 						{!loading && visibleItems.length === 0 && <div>No posts match your filters.</div>}
 						{!loading && visibleItems.map(p => {

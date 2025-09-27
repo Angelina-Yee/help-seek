@@ -337,12 +337,11 @@ function LossFind() {
 
             {/*Hero*/}
             <section className="lf-hero">
-                <div className="lf-header">
-                    <h2>Losses</h2>
-                </div>
-
                 <div className="lf-container">
                     <div className="lf-row">
+                        <div className="lf-header">
+                            <h2>Losses</h2>
+                        </div>
                     {loading && <div>Loading…</div>}
 						{!loading && visibleItems.length === 0 && <div>No posts match your filters.</div>}
 
