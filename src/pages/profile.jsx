@@ -156,6 +156,23 @@ function Profile() {
   // Loading state
   if (loading) return <div className="prof">Loading…</div>;
 
+  const AVATAR_OVERRIDE ={
+    bunny: {dx: 20, dy: 35, scale: 0.88},
+    cat: {dx: -2, dy: 5, scale: 0.9},
+    chick: {dx: 20, dy: 10, scale: 0.88},
+    chicken: {dx: 20, dy: 23, scale: 0.88},
+    cow: {dx: 20, dy: 10, scale: 0.95},
+    dog: {dx: 20, dy: 0, scale: 0.95},
+    koala: {dx: 20, dy: 10, scale: 0.88},
+    lion: {dx: 19, dy: 25, scale: 0.85},
+    monkey: {dx: 13, dy: 8, scale: 0.85},
+    turtle: {dx: 20, dy: 0, scale: 0.95},
+    pig: {dx: 20, dy: 0, scale: 0.95},
+    raccoon: {dx: 0, dy: 10, scale: 0.9},
+    sheep: {dx: 20, dy: 20, scale: 0.9},
+    tiger: {dx: 8, dy: 5, scale: 0.9},
+  };
+
   //HTML
   return (
     <div className="prof">
@@ -175,18 +192,28 @@ function Profile() {
         {/*Help image cropping please*/}
         <aside className="prof-stamp" style={{ "--glow": glowColor }}> 
           <div className="stamp-frame">
-            <img
-              className="racc-img"
-              src={activeChar.src}
-              alt="Profile avatar"
-              style={{
-                width: "180px",
-                height: "auto",
-                transform: `translate(${(activeChar.previewX ?? 0) + 20}px, ${(activeChar.previewY ?? 0) + 6}px) scale(${(activeChar.previewScale ?? 1) * 0.92})`,
-                transformOrigin: "center center",
-                filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.15))",
-              }}
-            />
+            {(() => {
+              const over = AVATAR_OVERRIDE[avatarCharId] || {};
+              const tx = (activeChar.previewX ?? 0) + (over.dx ?? 20);
+              const ty = (activeChar.previewY ?? 0) + (over.dy ?? 6);
+              const sc = (activeChar.previewScale ?? 1) * (over.scale ?? 0.9);
+
+              return(
+                <img
+                  className="racc-img"
+                  src={activeChar.src}
+                  alt="Profile avatar"
+                  style={{
+                    width: "180px",
+                    height: "auto",
+                    transform: `translate(${tx}px, ${ty}px) scale(${sc})`,
+                    transformOrigin: "center center",
+                    filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.15))",
+                    objectFit: "contain",
+                  }}
+                />
+              );
+            })()}
           </div>
         </aside>
       </div>
