@@ -11,8 +11,12 @@ const postSchema = new mongoose.Schema(
     description: { type: String, required: true, trim: true },
     imageUrl: { type: String, default: null },
     imagePublicId: { type: String, default: null },
+    resolved: { type: Boolean, default: false },
+    resolvedAt: { type: Date, default: null },
   },
   { timestamps: true, collection: "posts" }
 );
+
+postSchema.index({ type: 1, resolved: 1, createdAt: -1 });
 
 export const Post = mongoose.model("Post", postSchema);

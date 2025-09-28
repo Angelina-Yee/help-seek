@@ -9,7 +9,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: url("../assets/border.png") repeat-x bottom;
   background-size: 100vw 5rem;
   padding: 1.05rem 2rem;
 }
@@ -44,6 +43,7 @@
   color: var(--blue);
   box-sizing: border-box;
   font-family: "Calistoga", serif;
+  z-index: 1;
 }
 
 .inbox-list h1 {

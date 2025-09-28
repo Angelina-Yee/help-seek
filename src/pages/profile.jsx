@@ -1,9 +1,9 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "../styles/profile.css";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import Postcard from "../components/postcard";
 import AccSettings from "../components/accSettings";
-import {charById, colorById} from "../lib/avatarCatalog";
+import { charById, colorById } from "../lib/avatarCatalog";
 
 // API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
@@ -20,7 +20,7 @@ function Profile() {
   const [loading, setLoading] = useState(true);
   const [showAccSettings, setShowAccSettings] = useState(false);
 
-  // real posts state
+  // Real posts state
   const [posts, setPosts] = useState([]);
 
   // Fetch user profile
@@ -50,7 +50,7 @@ function Profile() {
         if (pRes.ok) setPosts(pData);
       } catch {}
 
-      // also load persisted stats (finds/losses/resolved) if available
+      // Load Stats
       try {
         const sRes = await fetch(`${API}/api/posts/stats`, {
           credentials: "include",
@@ -64,10 +64,15 @@ function Profile() {
             losses: Number(sData.losses ?? 0),
           });
         } else {
-          // fallback: derive finds/losses from fetched posts
-          setStatsState(prev => {
-            const finds0 = Array.isArray(posts) ? posts.filter(p => (p.type || "").toLowerCase() === "find").length : 0;
-            const losses0 = Array.isArray(posts) ? posts.filter(p => (p.type || "").toLowerCase() === "loss").length : 0;
+          setStatsState((prev) => {
+            const finds0 = Array.isArray(posts)
+              ? posts.filter((p) => (p.type || "").toLowerCase() === "find")
+                  .length
+              : 0;
+            const losses0 = Array.isArray(posts)
+              ? posts.filter((p) => (p.type || "").toLowerCase() === "loss")
+                  .length
+              : 0;
             return { ...prev, finds: finds0, losses: losses0 };
           });
         }
@@ -77,8 +82,12 @@ function Profile() {
     })();
   }, []);
 
-  // Fake data
-  const [statsState, setStatsState] = useState({ finds: 0, resolved: 0, losses: 0 });
+  // Stats
+  const [statsState, setStatsState] = useState({
+    finds: 0,
+    resolved: 0,
+    losses: 0,
+  });
   const stats = [
     { value: statsState.finds, label: "finds" },
     { value: statsState.resolved, label: "resolved" },
@@ -90,28 +99,32 @@ function Profile() {
     function onCreated(e) {
       const created = e.detail;
       if (created && (created._id || created.id)) {
-        setPosts(prev => [created, ...prev]);
+        setPosts((prev) => [created, ...prev]);
 
-        // normalize type before counting
         const t = (created.type || "").toLowerCase();
         if (t === "find") {
-          setStatsState(s => ({ ...s, finds: s.finds + 1 }));
+          setStatsState((s) => ({ ...s, finds: s.finds + 1 }));
         } else if (t === "loss") {
-          setStatsState(s => ({ ...s, losses: s.losses + 1 }));
+          setStatsState((s) => ({ ...s, losses: s.losses + 1 }));
         }
       } else {
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        const token =
+          localStorage.getItem("token") || sessionStorage.getItem("token");
         fetch(`${API}/api/posts/me`, {
           credentials: "include",
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
-          .then(r => r.json())
-          .then(d => {
+          .then((r) => r.json())
+          .then((d) => {
             if (Array.isArray(d)) {
               setPosts(d);
-              const finds1 = d.filter(p => (p.type || "").toLowerCase() === "find").length;
-              const losses1 = d.filter(p => (p.type || "").toLowerCase() === "loss").length;
-              setStatsState(s => ({ ...s, finds: finds1, losses: losses1 }));
+              const finds1 = d.filter(
+                (p) => (p.type || "").toLowerCase() === "find"
+              ).length;
+              const losses1 = d.filter(
+                (p) => (p.type || "").toLowerCase() === "loss"
+              ).length;
+              setStatsState((s) => ({ ...s, finds: finds1, losses: losses1 }));
             }
           })
           .catch(() => {});
@@ -126,19 +139,18 @@ function Profile() {
     if (!postId) return;
     setResolvingId(postId);
 
-    // optimistic UI update
-    setPosts(prev => prev.filter(p => (p._id || p.id) !== postId));
-    setStatsState(s => ({ ...s, resolved: s.resolved + 1 }));
+    setPosts((prev) => prev.filter((p) => (p._id || p.id) !== postId));
+    setStatsState((s) => ({ ...s, resolved: s.resolved + 1 }));
 
     try {
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
       await fetch(`${API}/api/posts/${postId}`, {
         method: "DELETE",
         credentials: "include",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      // attempt to refresh persisted stats (so resolved survives reloads)
       try {
         const sRes = await fetch(`${API}/api/posts/stats`, {
           credentials: "include",
@@ -160,37 +172,76 @@ function Profile() {
   // Loading state
   if (loading) return <div className="prof">Loading…</div>;
 
+  const AVATAR_OVERRIDE = {
+    bunny: { dx: 20, dy: 35, scale: 0.88 },
+    cat: { dx: -2, dy: 5, scale: 0.9 },
+    chick: { dx: 20, dy: 10, scale: 0.88 },
+    chicken: { dx: 20, dy: 23, scale: 0.88 },
+    cow: { dx: 20, dy: 10, scale: 0.95 },
+    dog: { dx: 20, dy: 0, scale: 0.95 },
+    koala: { dx: 20, dy: 10, scale: 0.88 },
+    lion: { dx: 19, dy: 25, scale: 0.85 },
+    monkey: { dx: 13, dy: 8, scale: 0.85 },
+    turtle: { dx: 20, dy: 0, scale: 0.95 },
+    pig: { dx: 20, dy: 0, scale: 0.95 },
+    raccoon: { dx: 0, dy: 10, scale: 0.9 },
+    sheep: { dx: 20, dy: 20, scale: 0.9 },
+    tiger: { dx: 8, dy: 5, scale: 0.9 },
+  };
+
   //HTML
   return (
     <div className="prof">
-      <header className="navbar"><div className="logo">help n seek</div></header>
+      <header className="navbar">
+        <div className="logo">help n seek</div>
+      </header>
 
       <div className="prof-container">
         <section className="prof-box">
-          <h1 className="prof-title">Hello,<br />{name}</h1>
+          <h1 className="prof-title">
+            Hello,
+            <br />
+            {name}
+          </h1>
           <div className="prof-actions">
-            <Link to="/editProfile" className="prof-link">Edit Profile</Link>
-            <button className="prof-link-settings" aria-label="create" onClick={() => setShowAccSettings(true)}>
+            <Link to="/editProfile" className="prof-link">
+              Edit Profile
+            </Link>
+            <button
+              className="prof-link-settings"
+              aria-label="create"
+              onClick={() => setShowAccSettings(true)}
+            >
               Settings
             </button>
           </div>
         </section>
 
         {/*Help image cropping please*/}
-        <aside className="prof-stamp" style={{ "--glow": glowColor }}> 
+        <aside className="prof-stamp" style={{ "--glow": glowColor }}>
           <div className="stamp-frame">
-            <img
-              className="racc-img"
-              src={activeChar.src}
-              alt="Profile avatar"
-              style={{
-                width: "180px",
-                height: "auto",
-                transform: `translate(${(activeChar.previewX ?? 0) + 20}px, ${(activeChar.previewY ?? 0) + 6}px) scale(${(activeChar.previewScale ?? 1) * 0.92})`,
-                transformOrigin: "center center",
-                filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.15))",
-              }}
-            />
+            {(() => {
+              const over = AVATAR_OVERRIDE[avatarCharId] || {};
+              const tx = (activeChar.previewX ?? 0) + (over.dx ?? 20);
+              const ty = (activeChar.previewY ?? 0) + (over.dy ?? 6);
+              const sc = (activeChar.previewScale ?? 1) * (over.scale ?? 0.9);
+
+              return (
+                <img
+                  className="racc-img"
+                  src={activeChar.src}
+                  alt="Profile avatar"
+                  style={{
+                    width: "180px",
+                    height: "auto",
+                    transform: `translate(${tx}px, ${ty}px) scale(${sc})`,
+                    transformOrigin: "center center",
+                    filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.15))",
+                    objectFit: "contain",
+                  }}
+                />
+              );
+            })()}
           </div>
         </aside>
       </div>
@@ -208,7 +259,9 @@ function Profile() {
       </div>
 
       <section className="prof-posts">
-        <div className="posts-header"><h3>Your posts</h3></div>
+        <div className="posts-header">
+          <h3>Your posts</h3>
+        </div>
         {posts.length === 0 && <div className="empty">No posts yet.</div>}
         {posts.map((p) => (
           <Postcard
@@ -228,7 +281,9 @@ function Profile() {
           />
         ))}
       </section>
-      {showAccSettings && <AccSettings onClose={() => setShowAccSettings(false)} />}
+      {showAccSettings && (
+        <AccSettings onClose={() => setShowAccSettings(false)} />
+      )}
     </div>
   );
 }
