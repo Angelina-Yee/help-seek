@@ -13,14 +13,14 @@ const seedThreads = [
   {
     id: "t1",
     name: "Name0",
-    preview: "Lorem ipsum dolor sit amet...",
+    preview: "message",
     unread: false,
     avatar: "/img/raccoon.png",
   },
   {
     id: "t2",
     name: "Name",
-    preview: "Lorem ipsum dolor sit amet...",
+    preview: "message",
     unread: true,
     avatar: "/img/raccoon.png",
   },
@@ -175,51 +175,56 @@ function Inbox() {
   );
 
   return (
-    <>
-      {/* Home-style Navbar (inline) */}
-      <div className="home">
-        <header className="home-navbar">
-          <div className="home-logo">help n seek</div>
-          <nav className="home-top">
-            <input
-              placeholder="Search"
-              className="home-searchbar"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <button className="home-search" aria-label="search" type="button">
-              ⌕
-            </button>
-            <button
-              className="home-post"
-              aria-label="create"
-              type="button"
-              onClick={() => setModal("choice")}
-            >
-              <span className="new">New Post</span>
-            </button>
-          </nav>
-          <div className="home-prof">
-            <button className="pc-avatar" aria-hidden="true" type="button">
-              <img className="ava-img" src={myAvatar} alt="Profile avatar" />
-            </button>
-          </div>
-        </header>
-      </div>
+    <div className="home">
+      {/* Navbar */}
+      <header className="home-navbar">
+        <div className="home-logo">help n seek</div>
+        <nav className="home-top">
+          <input
+            placeholder="Search"
+            className="home-searchbar"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button className="home-search" aria-label="search" type="button">
+            ⌕
+          </button>
+          <button
+            className="home-post"
+            aria-label="create"
+            type="button"
+            onClick={() => setModal("choice")}
+          >
+            <span className="new">New Post</span>
+          </button>
+        </nav>
+        <div className="home-prof">
+          <button className="pc-avatar" aria-hidden="true" type="button">
+            <img className="ava-img" src={myAvatar} alt="Profile avatar" />
+          </button>
+        </div>
+      </header>
 
-      {/* Main page grid */}
+      {/* Inbox layout now INSIDE .home */}
       <div className="inbox-page">
-        {/* Left: thread list */}
         <aside className="inbox-list">
           <h1>INBOX</h1>
           <div className="thread-list">
             {threads.map((t) => (
-              <ThreadButton key={t.id} thread={t} />
+              <button
+                key={t.id}
+                type="button"
+                className={`thread ${t.id === selectedId ? "active" : ""}`}
+                onClick={() => setSelectedId(t.id)}
+              >
+                <div className="name">{t.name}</div>
+                <div className="preview">{t.preview}</div>
+                {t.unread && <span className="unread-dot" />}
+              </button>
             ))}
           </div>
         </aside>
 
-        {/* Right: chat */}
         <section className="chat">
           <header className="chat-header">
             <div className="chat-title">
@@ -248,17 +253,24 @@ function Inbox() {
                   key={m.id}
                   className={`msg-row ${m.from === "me" ? "me" : "other"}`}
                 >
-                  {m.from !== "me" && <Avatar src={otherAvatar} />}
+                  {m.from !== "me" && (
+                    <div className="avatar">
+                      <img src={otherAvatar} alt="" />
+                    </div>
+                  )}
                   <div className={`bubble ${m.from === "me" ? "me" : "other"}`}>
                     {m.text}
                   </div>
-                  {m.from === "me" && <Avatar src={myAvatar} />}
+                  {m.from === "me" && (
+                    <div className="avatar">
+                      <img src={myAvatar} alt="" />
+                    </div>
+                  )}
                 </div>
               ))
             )}
           </div>
 
-          {/* Composer */}
           <footer className="composer">
             <button
               type="button"
@@ -327,7 +339,7 @@ function Inbox() {
           </div>
         </section>
       </div>
-    </>
+    </div>
   );
 }
 
