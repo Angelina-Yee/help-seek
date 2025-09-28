@@ -21,6 +21,7 @@ import Home from "./pages/home";
 import LossFind from "./pages/lossFind";
 import FindLoss from "./pages/findLoss";
 import CategAll from "./components/categAll";
+import Category from "./pages/category";
 import ForgotPassword3 from "./pages/forgotpassword3";
 import Inbox from "./pages/inbox";
 
@@ -62,6 +63,7 @@ function App() {
           <Route path="/lossFind" element={<LossFind />} />
           <Route path="/findLoss" element={<FindLoss />} />
           <Route path="/categAll" element={<CategAll />} />
+          <Route path="/category" element={<Category />} />
           <Route path="/inbox" element={<Inbox />} />
         </Route>
         <Route path="/login" element={<Login />} />

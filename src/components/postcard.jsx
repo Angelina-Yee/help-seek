@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "../styles/postcard.css";
 import raccoon from "../assets/raccoon.png";
 import PostZoom from "./postZoom";
@@ -15,12 +16,11 @@ export default function Postcard(props = {}) {
     onMessage = () => {},
     avatarSrc,
     avatarBgColorHex,
-
-    // extra props for profile variant
     onResolve = () => {},
     variant = "default",
     postId,
     resolving = false,
+    profileHref,
   } = props;
 
   const [showZoom, setShowZoom] = useState(false);
@@ -30,36 +30,72 @@ export default function Postcard(props = {}) {
     <article className="postcard">
       <header className="pc-head">
         <div className="pc-user">
-          <button
-            className="pc-avatar"
-            aria-hidden
-            style={{
-              backgroundColor: avatarBgColorHex || "transparent",
-              borderRadius: "50%",
-              overflow: "hidden",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 36,
-              height: 36,
-              padding: 0,
-              border: "none",
-            }}
-          >
-            <img
-              className="ava-img"
-              src={avatarSrc || raccoon}
-              alt="Profile avatar"
+          {profileHref ? (
+            <Link
+              to={profileHref}
+              className="pc-avatar"
+              aria-label="Open profile"
               style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-                objectPosition: "center",
-                transform: "translate(-3px, 6px)",
-                display: "block",
+                backgroundColor: avatarBgColorHex || "transparent",
+                borderRadius: "50%",
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                padding: 0,
+                border: "none",
+                textDecoration: "none",
               }}
-            />
-          </button>
+            >
+              <img
+                className="ava-img"
+                src={avatarSrc || raccoon}
+                alt="Profile avatar"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  objectPosition: "center",
+                  transform: "translate(-3px, 6px)",
+                  display: "block",
+                }}
+              />
+            </Link>
+          ) : (
+            <button
+              className="pc-avatar"
+              aria-hidden
+              style={{
+                backgroundColor: avatarBgColorHex || "transparent",
+                borderRadius: "50%",
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                padding: 0,
+                border: "none",
+              }}
+            >
+              <img
+                className="ava-img"
+                src={avatarSrc || raccoon}
+                alt="Profile avatar"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  objectPosition: "center",
+                  transform: "translate(-3px, 6px)",
+                  display: "block",
+                }}
+              />
+            </button>
+          )}
+
           <div className="pc-name">{name}</div>
         </div>
         <div className="pc-date">{date}</div>
@@ -113,14 +149,19 @@ export default function Postcard(props = {}) {
             {resolving ? "Resolving…" : "Resolved"}
           </button>
         ) : (
-          <button className="pc-message" onClick={onMessage}>Message</button>
+          <button className="pc-message" onClick={onMessage}>
+            Message
+          </button>
         )}
       </div>
 
       {showZoom && imageSrc && (
-        <PostZoom src={imageSrc} alt={title || "image"} onClose={() => setShowZoom(false)} />
+        <PostZoom
+          src={imageSrc}
+          alt={title || "image"}
+          onClose={() => setShowZoom(false)}
+        />
       )}
     </article>
   );
 }
-
