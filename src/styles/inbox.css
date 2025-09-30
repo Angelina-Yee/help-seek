@@ -4,11 +4,11 @@
   --orange: #ff7700;
 }
 
-/* NAVBAR — make it visible and above content */
 .inbox-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: url("../assets/border.png") repeat-x bottom;
   background-size: 100vw 5rem;
   padding: 1.05rem 2rem;
 }
@@ -43,7 +43,6 @@
   color: var(--blue);
   box-sizing: border-box;
   font-family: "Calistoga", serif;
-  z-index: 1;
 }
 
 .inbox-list h1 {
@@ -286,4 +285,30 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.thread-search-wrap {
+  margin: 4px 0 10px;
+}
+.thread-search {
+  width: 100%;
+  border: 3px solid var(--blue);
+  border-radius: 6px;
+  background: #fff;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--blue);
+  box-sizing: border-box;
+  outline: none;
+}
+.thread-search:focus {
+  box-shadow: 0 0 0 2px rgba(15, 52, 132, 0.25);
+}
+.thread-empty {
+  padding: 12px 6px;
+  font-size: 13px;
+  color: var(--blue);
+  opacity: 0.75;
+  font-style: italic;
 }

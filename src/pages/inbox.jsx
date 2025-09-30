@@ -7,8 +7,8 @@ import React, {
   useCallback,
 } from "react";
 import "../styles/inbox.css";
+import "../assets/raccoon.png";
 
-// Seed data (front‑end only)
 const seedThreads = [
   {
     id: "t1",
@@ -34,43 +34,43 @@ const seedMessages = {
   t2: [],
 };
 
-// Helper ID generator (avoids globalThis)
 const makeId = () =>
   typeof crypto !== "undefined" && crypto.randomUUID
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2);
 
-function Inbox() {
-  // Thread + message state
+export default function Inbox() {
   const [threads, setThreads] = useState(seedThreads);
   const [selectedId, setSelectedId] = useState(seedThreads[0]?.id || null);
   const [messagesByThread, setMessagesByThread] = useState(seedMessages);
-
-  // Draft
   const [draft, setDraft] = useState("");
+  const [threadSearch, setThreadSearch] = useState(""); // search box text
 
-  // Navbar local state
-  const [query, setQuery] = useState("");
-  const [, setModal] = useState(null); // placeholder for "New Post" action
-
-  // Refs
   const scrollerRef = useRef(null);
   const textareaRef = useRef(null);
   const fileRef = useRef(null);
 
-  // Avatars (both raccoon for now)
   const myAvatar = "/img/raccoon.png";
   const otherAvatar = "/img/raccoon.png";
 
-  // Derived selected thread
   const current = useMemo(
     () => threads.find((t) => t.id === selectedId) || null,
     [threads, selectedId]
   );
 
+  // Filtered thread list (case‑insensitive match on name or preview)
+  const filteredThreads = useMemo(() => {
+    const q = threadSearch.trim().toLowerCase();
+    if (!q) return threads;
+    return threads.filter(
+      (t) =>
+        t.name.toLowerCase().includes(q) ||
+        (t.preview || "").toLowerCase().includes(q)
+    );
+  }, [threads, threadSearch]);
+
   const msgs = messagesByThread[selectedId] || [];
 
-  // Mark selected as read
   useEffect(() => {
     if (!selectedId) return;
     setThreads((prev) =>
@@ -78,32 +78,28 @@ function Inbox() {
     );
   }, [selectedId]);
 
-  // Auto-grow helper (memoized to avoid deps warnings)
   const autoGrow = useCallback((ta) => {
     if (!ta) return;
     const cs = window.getComputedStyle(ta);
     const line = parseFloat(cs.lineHeight) || 20;
     const pad =
       (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
-    const base = line + pad; // one line height
-    ta.style.height = "1px"; // reset
+    const base = line + pad;
+    ta.style.height = "1px";
     const next = Math.min(ta.scrollHeight, 240);
     ta.style.height = Math.max(base, next) + "px";
     ta.style.overflowY = ta.scrollHeight > 240 ? "auto" : "hidden";
   }, []);
 
-  // Grow on draft / thread change
   useLayoutEffect(() => {
     autoGrow(textareaRef.current);
   }, [draft, selectedId, autoGrow]);
 
-  // Scroll to bottom on message changes
   useEffect(() => {
     const el = scrollerRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [selectedId, messagesByThread]);
 
-  // Handlers
   const onSelectThread = (id) => setSelectedId(id);
 
   const onDraftChange = useCallback(
@@ -176,28 +172,8 @@ function Inbox() {
 
   return (
     <div className="home">
-      {/* Navbar */}
       <header className="home-navbar">
         <div className="home-logo">help n seek</div>
-        <nav className="home-top">
-          <input
-            placeholder="Search"
-            className="home-searchbar"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <button className="home-search" aria-label="search" type="button">
-            ⌕
-          </button>
-          <button
-            className="home-post"
-            aria-label="create"
-            type="button"
-            onClick={() => setModal("choice")}
-          >
-            <span className="new">New Post</span>
-          </button>
-        </nav>
         <div className="home-prof">
           <button className="pc-avatar" aria-hidden="true" type="button">
             <img className="ava-img" src={myAvatar} alt="Profile avatar" />
@@ -205,23 +181,36 @@ function Inbox() {
         </div>
       </header>
 
-      {/* Inbox layout now INSIDE .home */}
       <div className="inbox-page">
         <aside className="inbox-list">
           <h1>INBOX</h1>
+          <div className="thread-search-wrap">
+            <input
+              type="text"
+              className="thread-search"
+              placeholder="Search messages..."
+              value={threadSearch}
+              onChange={(e) => setThreadSearch(e.target.value)}
+              aria-label="Search threads"
+            />
+          </div>
           <div className="thread-list">
-            {threads.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                className={`thread ${t.id === selectedId ? "active" : ""}`}
-                onClick={() => setSelectedId(t.id)}
-              >
-                <div className="name">{t.name}</div>
-                <div className="preview">{t.preview}</div>
-                {t.unread && <span className="unread-dot" />}
-              </button>
-            ))}
+            {filteredThreads.length === 0 ? (
+              <div className="thread-empty">No matches</div>
+            ) : (
+              filteredThreads.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={`thread ${t.id === selectedId ? "active" : ""}`}
+                  onClick={() => setSelectedId(t.id)}
+                >
+                  <div className="name">{t.name}</div>
+                  <div className="preview">{t.preview}</div>
+                  {t.unread && <span className="unread-dot" />}
+                </button>
+              ))
+            )}
           </div>
         </aside>
 
@@ -342,5 +331,3 @@ function Inbox() {
     </div>
   );
 }
-
-export default Inbox;
