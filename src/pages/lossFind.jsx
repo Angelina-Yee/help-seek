@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState} from "react";
 import "../styles/lossFind.css";
-import raccoon from "../assets/raccoon.png";
 import Postcard from "../components/postcard";
 import Choice from "../components/choice";
 import NewPost from "../components/newPost";
@@ -8,6 +7,7 @@ import CategAll from "../components/categAll";
 import { listPosts } from "../api";
 import { Link } from "react-router-dom";
 import { charById, colorById } from "../lib/avatarCatalog";
+import Notif from "../components/notif";
 
 
 // API request URL
@@ -285,8 +285,8 @@ function LossFind() {
 							backgroundColor: glowColor || "transparent",
 							borderRadius: "50%",
 							overflow: "hidden",
-							width: 36,
-							height: 36,
+							width: 40,
+							height: 40,
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "center",
@@ -330,9 +330,16 @@ function LossFind() {
 
 					<button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
 				</div>
-                <div className="home-notif">
-                    <button className="home-noti">🔔</button>
-                </div>
+                <Notif
+						notifications={[
+						{id: "n1", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+						{id: "n2", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+						{id: "n1", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+						{id: "n2", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+						{id: "n1", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+						{id: "n2", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+					]}
+				/>
             </div>
 
             {/*Hero*/}

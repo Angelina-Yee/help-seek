@@ -23,6 +23,7 @@ import FindLoss from "./pages/findLoss";
 import CategAll from "./components/categAll";
 import ForgotPassword3 from "./pages/forgotpassword3";
 import Inbox from "./pages/inbox";
+import Notif from "./components/notif";
 
 import { initAuth } from "./api";
 
