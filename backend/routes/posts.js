@@ -59,10 +59,7 @@ async function createPost(req, res, next, forcedType = null) {
 
     let imageUrl, imagePublicId;
     if (req.file?.buffer) {
-      const result = await uploadBufferToCloudinary(
-        req.file.buffer,
-        req.file.originalname
-      );
+      const result = await uploadBufferToCloudinary(req.file.buffer, req.file.originalname);
       imageUrl = result.secure_url;
       imagePublicId = result.public_id;
     }
@@ -96,32 +93,30 @@ async function createPost(req, res, next, forcedType = null) {
     next(err);
   }
 }
-// Find route
+
+// Create routes
 router.post("/find", auth, uploadImage.single("image"), (req, res, next) =>
   createPost(req, res, next, "find")
 );
-
-// Loss route
 router.post("/loss", auth, uploadImage.single("image"), (req, res, next) =>
   createPost(req, res, next, "loss")
 );
-
 router.post("/", auth, uploadImage.single("image"), (req, res, next) =>
   createPost(req, res, next, null)
 );
 
+// List posts
 router.get("/", async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-    const limit = Math.min(
-      50,
-      Math.max(1, parseInt(req.query.limit, 10) || 20)
-    );
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
 
     const q = {};
-    const t = String(req.query.type || "")
-      .toLowerCase()
-      .trim();
+    if (req.query.user) {
+      q.user = String(req.query.user).trim();
+    }
+
+    const t = String(req.query.type || "").toLowerCase().trim();
     if (t === "loss" || t === "find") q.type = t;
 
     const [items, total] = await Promise.all([
@@ -129,7 +124,7 @@ router.get("/", async (req, res, next) => {
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
-        .populate("user", "name avatarCharId avatarColor")
+        .populate("user", "name email avatarCharId avatarColor")
         .lean(),
       Post.countDocuments(q),
     ]);
@@ -146,7 +141,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-// Get posts of logged user
+// Get posts of logged-in user
 router.get("/me", auth, async (req, res, next) => {
   try {
     const posts = await Post.find({ user: req.user.id })
@@ -166,8 +161,7 @@ router.patch("/:id/resolve", auth, async (req, res, next) => {
 
     const post = await Post.findById(id);
     if (!post) throw createError(404, "Post not found");
-    if (post.user.toString() !== req.user.id)
-      throw createError(403, "Forbidden");
+    if (post.user.toString() !== req.user.id) throw createError(403, "Forbidden");
 
     post.resolved = !!resolved;
     post.resolvedAt = post.resolved ? new Date() : null;
@@ -192,6 +186,7 @@ router.delete("/:id", auth, async (req, res, next) => {
           invalidate: true,
         });
       } catch (_) {}
+
     }
 
     await post.deleteOne();
@@ -207,17 +202,23 @@ router.delete("/:id", auth, async (req, res, next) => {
   }
 });
 
-// User stats
 router.get("/stats", auth, async (req, res, next) => {
   try {
-    const [finds, losses] = await Promise.all([
-      Post.countDocuments({ user: req.user.id, type: "find" }),
-      Post.countDocuments({ user: req.user.id, type: "loss" }),
+    const targetUserId =
+      (req.query.user && String(req.query.user)) ||
+      req.user.id;
+
+    const [finds, losses, userDoc] = await Promise.all([
+      Post.countDocuments({ user: targetUserId, type: { $regex: /^find$/i } }),
+      Post.countDocuments({ user: targetUserId, type: { $regex: /^loss$/i } }),
+      User.findById(targetUserId).select("resolvedCount").lean(),
     ]);
-    const user = await User.findById(req.user.id).lean();
-    const resolved = user?.resolvedCount ?? 0;
-    res.json({ finds, losses, resolved });
+
+    const resolved = Number(userDoc?.resolvedCount ?? 0) || 0;
+
+    return res.json({ finds, losses, resolved });
   } catch (err) {
+    console.error("stats error", err);
     next(err);
   }
 });

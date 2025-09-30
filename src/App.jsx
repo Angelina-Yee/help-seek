@@ -61,13 +61,13 @@ function App() {
           <Route path="/lossFind" element={<LossFind />} />
           <Route path="/findLoss" element={<FindLoss />} />
           <Route path="/categAll" element={<CategAll />} />
+          <Route path="/users/:id" element={<Others />} />
+          <Route path="/inbox" element= {<Inbox />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/forgotpassword2" element={<ForgetPassword2 />} />
         <Route path="/forgotpassword3" element={<ForgotPassword3 />} />
-        <Route path="/users/:id" element={<Others />} />
-        <Route path="/inbox" element= {<Inbox />} />
       </Routes>
     </BrowserRouter>
   );

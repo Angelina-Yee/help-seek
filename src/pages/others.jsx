@@ -14,52 +14,97 @@ const toArray = (raw) => {
   }
   return [];
 };
+
 const getUserId = (p) => {
   const u = p?.user;
-  return (u && (u._id || u.id)) || (typeof u === "string" ? u : null) || p?.userId || p?.authorId || null;
+  return (
+    (u && (u._id || u.id)) ||
+    (typeof u === "string" ? u : null) ||
+    p?.userId ||
+    p?.authorId ||
+    null
+  );
 };
 
 const getImg = (p) => {
-    const raw = p?.imageUrl || p?.imageURL || p?.image?.url || p?.image || p?.photoUrl || p?.photoURL;
-    if (!raw) return undefined;
-    return raw[0] === "/" ? `${API}${raw}` : raw;
-  };
+  const raw =
+    p?.imageUrl ||
+    p?.imageURL ||
+    p?.image?.url ||
+    p?.image ||
+    p?.photoUrl ||
+    p?.photoURL;
+  if (!raw) return undefined;
+  return raw[0] === "/" ? `${API}${raw}` : raw;
+};
 
 const sameId = (a, b) => a && b && String(a) === String(b);
+
+const AVATAR_OVERRIDE = {
+  bunny: { dx: 20, dy: 35, scale: 0.88 },
+  cat: { dx: -2, dy: 5, scale: 0.9 },
+  chick: { dx: 20, dy: 10, scale: 0.88 },
+  chicken: { dx: 20, dy: 23, scale: 0.88 },
+  cow: { dx: 20, dy: 10, scale: 0.95 },
+  dog: { dx: 20, dy: 0, scale: 0.95 },
+  koala: { dx: 20, dy: 10, scale: 0.88 },
+  lion: { dx: 19, dy: 25, scale: 0.85 },
+  monkey: { dx: 13, dy: 8, scale: 0.85 },
+  turtle: { dx: 20, dy: 0, scale: 0.95 },
+  pig: { dx: 20, dy: 0, scale: 0.95 },
+  raccoon: { dx: 0, dy: 10, scale: 0.9 },
+  sheep: { dx: 20, dy: 20, scale: 0.9 },
+  tiger: { dx: 8, dy: 5, scale: 0.9 },
+};
 
 function Others() {
   const { id } = useParams();
 
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
-  const [avatarCharId, setAvatarCharId] = useState("");
-  const [avatarColor, setAvatarColor] = useState("");
-
-  const activeChar = useMemo(() => charById(avatarCharId || "raccoon"), [avatarCharId]);
-  const glowColor  = useMemo(() => colorById(avatarColor || "blue"), [avatarColor]);
+  const [avatarCharId, setAvatarCharId] = useState("raccoon");
+  const [avatarColor, setAvatarColor] = useState("blue");
 
   const [posts, setPosts] = useState([]);
-  const [stats, setStats] = useState({ finds: 0, helped: 0, losses: 0 });
+  const [stats, setStats] = useState({ finds: 0, resolved: 0, losses: 0 });
+
+  const activeChar = useMemo(
+    () => charById(avatarCharId || "raccoon"),
+    [avatarCharId]
+  );
+  const glowColor = useMemo(
+    () => colorById(avatarColor || "blue"),
+    [avatarColor]
+  );
 
   useEffect(() => {
     let alive = true;
     (async () => {
       setLoading(true);
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       let prof = null;
       try {
-        const r = await fetch(`${API}/api/users/${id}`, { credentials: "include", headers });
+        const r = await fetch(`${API}/api/users/${id}`, {
+          credentials: "include",
+          headers,
+        });
         if (r.ok) prof = await r.json().catch(() => null);
       } catch {}
       if (!prof) {
         try {
-          const r2 = await fetch(`${API}/api/profile/${id}`, { credentials: "include", headers });
+          const r2 = await fetch(`${API}/api/profile/${id}`, {
+            credentials: "include",
+            headers,
+          });
           if (r2.ok) prof = await r2.json().catch(() => null);
         } catch {}
       }
-      if (alive && prof) {
+
+      if (alive && prof && typeof prof === "object") {
         const displayName =
           (typeof prof.name === "string" && prof.name.trim()) ||
           (typeof prof.displayName === "string" && prof.displayName.trim()) ||
@@ -69,6 +114,24 @@ function Others() {
         if (prof.avatarColor) setAvatarColor(prof.avatarColor);
       }
 
+      try {
+        const sr = await fetch(
+          `${API}/api/posts/stats?user=${encodeURIComponent(id)}`,
+          { credentials: "include", headers }
+        );
+        if (sr.ok) {
+          const sd = await sr.json().catch(() => null);
+          if (alive && sd && typeof sd === "object") {
+            setStats({
+              finds: Number(sd.finds ?? 0) || 0,
+              resolved: Number(sd.resolved ?? 0) || 0,
+              losses: Number(sd.losses ?? 0) || 0,
+            });
+          }
+        }
+      } catch {}
+
+      // Posts of this user
       let mine = [];
       try {
         const pr = await fetch(
@@ -76,17 +139,9 @@ function Others() {
           { credentials: "include", headers }
         );
         if (pr.ok) mine = toArray(await pr.json().catch(() => []));
-        else {
-          const pr2 = await fetch(`${API}/api/users/${id}/posts?includeResolved=1`, {
-            credentials: "include",
-            headers,
-          });
-          if (pr2.ok) mine = toArray(await pr2.json().catch(() => []));
-        }
       } catch {}
 
       mine = mine.filter((p) => sameId(getUserId(p), id));
-      if (alive) setPosts(mine);
 
       if (alive && mine.length > 0) {
         const u = mine[0]?.user || {};
@@ -96,36 +151,31 @@ function Others() {
             (u.email ? String(u.email).split("@")[0] : "");
           if (derived) setName(derived);
         }
-        if (!avatarCharId && u.avatarCharId) setAvatarCharId(u.avatarCharId);
-        if (!avatarColor && u.avatarColor) setAvatarColor(u.avatarColor);
+        if ((!avatarCharId || avatarCharId === "raccoon") && u.avatarCharId) {
+          setAvatarCharId(u.avatarCharId);
+        }
+        if ((!avatarColor || avatarColor === "blue") && u.avatarColor) {
+          setAvatarColor(u.avatarColor);
+        }
       }
 
-      const finds  = mine.filter((p) => String(p?.type).toLowerCase() === "find").length;
-      const losses = mine.filter((p) => String(p?.type).toLowerCase() === "loss").length;
-      const helped = mine.filter((p) => p?.resolved === true || String(p?.status).toLowerCase() === "resolved").length;
-      if (alive) setStats({ finds, helped, losses });
-
+      if (alive) setPosts(mine);
       if (alive) setLoading(false);
     })();
 
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [id]);
 
   if (loading) return <div className="prof">Loading…</div>;
 
-  const OVERRIDE = {
-    bunny:{dx:20,dy:35,scale:0.88}, cat:{dx:-2,dy:5,scale:0.9}, chick:{dx:20,dy:10,scale:0.88},
-    chicken:{dx:20,dy:23,scale:0.88}, cow:{dx:20,dy:10,scale:0.95}, dog:{dx:20,dy:0,scale:0.95},
-    koala:{dx:20,dy:10,scale:0.88}, lion:{dx:19,dy:25,scale:0.85}, monkey:{dx:13,dy:8,scale:0.85},
-    turtle:{dx:20,dy:0,scale:0.95}, pig:{dx:20,dy:0,scale:0.95}, raccoon:{dx:0,dy:10,scale:0.9},
-    sheep:{dx:20,dy:20,scale:0.9}, tiger:{dx:8,dy:5,scale:0.9},
-  };
-  const over = OVERRIDE[avatarCharId || "raccoon"] || {};
+  const over = AVATAR_OVERRIDE[avatarCharId || "raccoon"] || {};
   const tx = (activeChar.previewX ?? 0) + (over.dx ?? 20);
   const ty = (activeChar.previewY ?? 0) + (over.dy ?? 6);
   const sc = (activeChar.previewScale ?? 1) * (over.scale ?? 0.9);
 
-  const safeName  = name || "Friend";
+  const safeName = name || "Friend";
   const firstName = safeName.split(" ")[0];
     
     //HTML
@@ -166,7 +216,7 @@ function Others() {
         </div>
 
             <div className="prof-stats">
-               {[{value:stats.finds,label:"finds"},{value:stats.helped,label:"helped"},{value:stats.losses,label:"losses"}].map((s,i)=>(
+                {[{value:stats.finds,label:"finds"},{value:stats.resolved,label:"resolved"},{value:stats.losses,label:"losses"}].map((s,i)=>(
                     <React.Fragment key={s.label}>
                         <div className="stat">
                             <div className="stat-value">{Number(s.value) || 0}</div>
