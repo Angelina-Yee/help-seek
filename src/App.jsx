@@ -21,7 +21,6 @@ import Home from "./pages/home";
 import LossFind from "./pages/lossFind";
 import FindLoss from "./pages/findLoss";
 import CategAll from "./components/categAll";
-import Category from "./pages/category";
 import ForgotPassword3 from "./pages/forgotpassword3";
 import Inbox from "./pages/inbox";
 import Notif from "./components/notif";
@@ -57,7 +56,6 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/editPP" element={<EditPP />} />
           <Route path="/accSettings" element={<AccSettings />} />
-          <Route path="/others" element={<Others />} />
           <Route path="/home" element={<Home />} />
           <Route path="/newPost" element={<NewPost />} />
           <Route path="/choice" element={<Choice />} />
@@ -72,6 +70,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/forgotpassword2" element={<ForgetPassword2 />} />
         <Route path="/forgotpassword3" element={<ForgotPassword3 />} />
+        <Route path="/users/:id" element={<Others />} />
+        <Route path="/inbox" element= {<Inbox />} />
       </Routes>
     </BrowserRouter>
   );

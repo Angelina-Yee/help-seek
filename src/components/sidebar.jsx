@@ -4,6 +4,7 @@ import "../styles/sidebar.css";
 import { setAccessToken } from "../api";
 import Settings from "../components/settings";
 
+// API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
 function Sidebar({ inboxUnread = 0 }) {
@@ -11,6 +12,7 @@ function Sidebar({ inboxUnread = 0 }) {
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
 
+  // Handle user logout
   async function handleLogout() {
     try {
       await fetch(`${API}/auth/logout`, {
@@ -27,6 +29,7 @@ function Sidebar({ inboxUnread = 0 }) {
     }
   }
 
+  //Sidebar HTML
   return (
     <>
       <aside
@@ -62,7 +65,6 @@ function Sidebar({ inboxUnread = 0 }) {
               Inbox
             </NavLink>
           </div>
-
           <div className="sb-section">
             <div className="sb-title">Browse</div>
             <NavLink to="/lossFind" className="sb-item">
@@ -73,7 +75,6 @@ function Sidebar({ inboxUnread = 0 }) {
             </NavLink>
           </div>
         </nav>
-
         <div className="sb-footer">
           <button className="sb-logout" onClick={handleLogout} type="button">
             log out
@@ -90,7 +91,6 @@ function Sidebar({ inboxUnread = 0 }) {
       >
         <span className="click">{open ? ">" : "<"}</span>
       </button>
-
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}
     </>
   );
