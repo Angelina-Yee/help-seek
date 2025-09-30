@@ -1,10 +1,10 @@
-import React, {useEffect, useState, useRef} from "react";
-import {createPortal} from "react-dom";
+import React, { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import NewPost from "../components/newPost";
 import "../styles/choice.css";
 
 // Choice Popup
-function Choice({onClose, onPick}) {
+function Choice({ onClose, onPick }) {
   const dialogRef = useRef(null);
   const [shownewPost, setShowNewPost] = useState(false);
 
@@ -16,7 +16,7 @@ function Choice({onClose, onPick}) {
     document.body.style.overflow = "hidden";
     return () => (document.body.style.overflow = prev);
   }, []);
-  
+
   // Closing the Settings Popup
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -29,7 +29,9 @@ function Choice({onClose, onPick}) {
   };
 
   const pick = (type) => {
-    const norm = String(type || "").trim().toLowerCase();
+    const norm = String(type || "")
+      .trim()
+      .toLowerCase();
     if (norm !== "find" && norm !== "loss") return;
     if (onPick) onPick(norm);
     try {
@@ -43,14 +45,29 @@ function Choice({onClose, onPick}) {
 
   // HTML
   return createPortal(
-    <div className="choice-overlay" onMouseDown={onBackdrop} aria-modal="true" role="dialog">
+    <div
+      className="choice-overlay"
+      onMouseDown={onBackdrop}
+      aria-modal="true"
+      role="dialog"
+    >
       <div className="choice-dialog" ref={dialogRef} role="document">
-        <button className="choice-close" onClick={onClose} aria-label="Close">X</button>
+        <button className="choice-close" onClick={onClose} aria-label="Close">
+          X
+        </button>
         <div className="choice-actions">
-          <button className="choice-btn" aria-label="create" onClick={() => pick("loss")}>
+          <button
+            className="choice-btn"
+            aria-label="create"
+            onClick={() => pick("loss")}
+          >
             Loss
           </button>
-          <button className="choice-btn" aria-label="create" onClick={() => pick("find")}>
+          <button
+            className="choice-btn"
+            aria-label="create"
+            onClick={() => pick("find")}
+          >
             Find
           </button>
         </div>
