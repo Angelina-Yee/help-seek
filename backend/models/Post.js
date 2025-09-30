@@ -11,8 +11,8 @@ const postSchema = new mongoose.Schema(
     description: { type: String, required: true, trim: true },
     imageUrl: { type: String, default: null },
     imagePublicId: { type: String, default: null },
-    resolved: {type: Boolean, default: false},
-    resolvedAt: {type: Date, default: null},
+    resolved: { type: Boolean, default: false },
+    resolvedAt: { type: Date, default: null },
   },
   { timestamps: true, collection: "posts" }
 );

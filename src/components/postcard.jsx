@@ -32,10 +32,10 @@ export default function Postcard(props = {}) {
         <div className="pc-user">
           {profileHref ? (
             <Link
-                to={profileHref}
-                className="pc-avatar"
-                aria-label="Open profile"
-                style={{
+              to={profileHref}
+              className="pc-avatar"
+              aria-label="Open profile"
+              style={{
                 backgroundColor: avatarBgColorHex || "transparent",
                 borderRadius: "50%",
                 overflow: "hidden",
@@ -47,28 +47,27 @@ export default function Postcard(props = {}) {
                 padding: 0,
                 border: "none",
                 textDecoration: "none",
-                }}
-             >
-
-                <img
+              }}
+            >
+              <img
                 className="ava-img"
                 src={avatarSrc || raccoon}
                 alt="Profile avatar"
                 style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                    objectPosition: "center",
-                    transform: "translate(-3px, 6px)",
-                    display: "block",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  objectPosition: "center",
+                  transform: "translate(-3px, 6px)",
+                  display: "block",
                 }}
-            />
-          </Link>
-        ):(
-          <button
-            className="pc-avatar"
-            aria-hidden
-            style={{
+              />
+            </Link>
+          ) : (
+            <button
+              className="pc-avatar"
+              aria-hidden
+              style={{
                 backgroundColor: avatarBgColorHex || "transparent",
                 borderRadius: "50%",
                 overflow: "hidden",
@@ -79,23 +78,23 @@ export default function Postcard(props = {}) {
                 height: 36,
                 padding: 0,
                 border: "none",
-            }}
-           >
-            <img
+              }}
+            >
+              <img
                 className="ava-img"
                 src={avatarSrc || raccoon}
                 alt="Profile avatar"
                 style={{
-                    width: "100%", 
-                    height: "100%",
-                    objectFit: "contain", 
-                    objectPosition: "center",
-                    transform: "translate(-3px, 6px)",
-                    display: "block",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  objectPosition: "center",
+                  transform: "translate(-3px, 6px)",
+                  display: "block",
                 }}
-            />
-           </button>
-        )}
+              />
+            </button>
+          )}
 
           <div className="pc-name">{name}</div>
         </div>
@@ -150,14 +149,19 @@ export default function Postcard(props = {}) {
             {resolving ? "Resolving…" : "Resolved"}
           </button>
         ) : (
-          <button className="pc-message" onClick={onMessage}>Message</button>
+          <button className="pc-message" onClick={onMessage}>
+            Message
+          </button>
         )}
       </div>
 
       {showZoom && imageSrc && (
-        <PostZoom src={imageSrc} alt={title || "image"} onClose={() => setShowZoom(false)} />
+        <PostZoom
+          src={imageSrc}
+          alt={title || "image"}
+          onClose={() => setShowZoom(false)}
+        />
       )}
     </article>
   );
 }
-

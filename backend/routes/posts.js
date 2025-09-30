@@ -12,9 +12,15 @@ const router = express.Router();
 // Upload to Cloudinary
 function uploadBufferToCloudinary(buffer, originalname) {
   return new Promise((resolve, reject) => {
-    const publicIdBase = originalname ? originalname.replace(/\.[^.]+$/, "") : `post_${Date.now()}`;
+    const publicIdBase = originalname
+      ? originalname.replace(/\.[^.]+$/, "")
+      : `post_${Date.now()}`;
     const stream = cloudinary.uploader.upload_stream(
-      { folder: "help-seek/posts", resource_type: "image", public_id: publicIdBase },
+      {
+        folder: "help-seek/posts",
+        resource_type: "image",
+        public_id: publicIdBase,
+      },
       (err, result) => (err ? reject(err) : resolve(result))
     );
     streamifier.createReadStream(buffer).pipe(stream);
@@ -35,24 +41,28 @@ async function createPost(req, res, next, forcedType = null) {
     const type =
       forcedType ??
       norm(
-        (req.body?.type ??
+        req.body?.type ??
           req.body?.postType ??
           req.body?.kind ??
           req.query?.type ??
           req.query?.postType ??
-          "")
+          ""
       );
 
     const { title, location, objectCategory, description } = req.body;
 
-    if (!type) throw createError(400, "Invalid or missing post 'type' (loss | find)");
+    if (!type)
+      throw createError(400, "Invalid or missing post 'type' (loss | find)");
     if (!title || !location || !objectCategory || !description) {
       throw createError(400, "Missing required fields");
     }
 
     let imageUrl, imagePublicId;
     if (req.file?.buffer) {
-      const result = await uploadBufferToCloudinary(req.file.buffer, req.file.originalname);
+      const result = await uploadBufferToCloudinary(
+        req.file.buffer,
+        req.file.originalname
+      );
       imageUrl = result.secure_url;
       imagePublicId = result.public_id;
     }
@@ -71,7 +81,12 @@ async function createPost(req, res, next, forcedType = null) {
     // Debug: verifying saved type post
     console.log(
       "[POST /api/posts*]",
-      { forcedType, bodyType: req.body?.type, postType: req.body?.postType, queryType: req.query?.type },
+      {
+        forcedType,
+        bodyType: req.body?.type,
+        postType: req.body?.postType,
+        queryType: req.query?.type,
+      },
       "=> saved:",
       post.type
     );
@@ -97,11 +112,16 @@ router.post("/", auth, uploadImage.single("image"), (req, res, next) =>
 
 router.get("/", async (req, res, next) => {
   try {
-    const page  = Math.max(1, parseInt(req.query.page, 10)  || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(req.query.limit, 10) || 20)
+    );
 
     const q = {};
-    const t = String(req.query.type || "").toLowerCase().trim();
+    const t = String(req.query.type || "")
+      .toLowerCase()
+      .trim();
     if (t === "loss" || t === "find") q.type = t;
 
     const [items, total] = await Promise.all([
@@ -129,7 +149,9 @@ router.get("/", async (req, res, next) => {
 // Get posts of logged user
 router.get("/me", auth, async (req, res, next) => {
   try {
-    const posts = await Post.find({ user: req.user.id }).sort({ createdAt: -1 }).lean();
+    const posts = await Post.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .lean();
     res.json(posts);
   } catch (err) {
     next(err);
@@ -144,7 +166,8 @@ router.patch("/:id/resolve", auth, async (req, res, next) => {
 
     const post = await Post.findById(id);
     if (!post) throw createError(404, "Post not found");
-    if (post.user.toString() !== req.user.id) throw createError(403, "Forbidden");
+    if (post.user.toString() !== req.user.id)
+      throw createError(403, "Forbidden");
 
     post.resolved = !!resolved;
     post.resolvedAt = post.resolved ? new Date() : null;
@@ -164,12 +187,19 @@ router.delete("/:id", auth, async (req, res, next) => {
 
     if (post.imagePublicId) {
       try {
-        await cloudinary.uploader.destroy(post.imagePublicId, { resource_type: "image", invalidate: true });
+        await cloudinary.uploader.destroy(post.imagePublicId, {
+          resource_type: "image",
+          invalidate: true,
+        });
       } catch (_) {}
     }
 
     await post.deleteOne();
-    await User.updateOne({ _id: req.user.id }, { $inc: { resolvedCount: 1 } }, { upsert: false });
+    await User.updateOne(
+      { _id: req.user.id },
+      { $inc: { resolvedCount: 1 } },
+      { upsert: false }
+    );
 
     res.json({ ok: true });
   } catch (err) {

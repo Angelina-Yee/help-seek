@@ -48,12 +48,13 @@ function ForgotPassword() {
     <div className="forgot-page">
       <header className="navbar">
         <div className="logo">help n seek</div>
-        <nav><Link to="/instructions">how it works</Link></nav>
+        <nav>
+          <Link to="/instructions">how it works</Link>
+        </nav>
       </header>
 
       <div className="forgot-container">
         <section className="forgot-box">
-
           <div className="forgot-header">
             <h2>forgot password</h2>
           </div>
