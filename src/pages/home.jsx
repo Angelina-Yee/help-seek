@@ -3,10 +3,11 @@ import "../styles/home.css";
 import HomePostcard from "../components/homePostcard";
 import Choice from "../components/choice";
 import NewPost from "../components/newPost";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CategAll from "../components/categAll";
 import { listPosts } from "../api";
 import { charById, colorById } from "../lib/avatarCatalog";
+import Notif from "../components/notif";
 
 //API reqeust URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
@@ -94,6 +95,7 @@ function getAuthorName(p) {
 function Home() {
     const [modal, setModal] = useState(null);
     const [showCateg, setShowCateg] = useState(false);
+	const navigate = useNavigate();
 
     const [meProfile, setMeProfile] = useState({
 		id: getCurrentUserId(),
@@ -309,8 +311,8 @@ function Home() {
 							backgroundColor: glowColor || "transparent",
 							borderRadius: "50%",
 							overflow: "hidden",
-							width: 36,
-							height: 36,
+							width: 40,
+							height: 40,
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "center",
@@ -339,13 +341,20 @@ function Home() {
             <div className="home-second">
                 <div className="home-categ">
                     {categories.map((c) => (
-                        <button key={c} className="category">{c}</button>
+                        <button key={c} className="category" onClick={() => navigate("/category")}>{c}</button>
                     ))}
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
-                <div className="home-notif">
-                    <button className="home-noti">🔔</button>
-                </div>
+				<Notif
+					notifications={[
+						{id: "n1", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+						{id: "n2", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+						{id: "n1", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+						{id: "n2", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+						{id: "n1", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+						{id: "n2", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
+					]}
+				/>
             </div>
 
             {/*Recent Losses*/}
