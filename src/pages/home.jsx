@@ -264,7 +264,7 @@ function Home() {
                         avatarSrc={avatarSrc}
                         avatarBgColorHex={avatarBgColorHex}
                         profileHref={href}
-                        type={type} // "loss" or "find"
+                        type={type}
                         />
                     );
                 })}
@@ -272,7 +272,7 @@ function Home() {
             <button
                 className="home-carousel prev"
                 onClick={carousel.prev}
-                disabled={carousel.canPrev}
+                disabled={!carousel.canPrev}
                 aria-label="previoius"
             >
                 〈
@@ -373,7 +373,7 @@ function Home() {
 					renderRail(findItems, "find", finds)
 				)}
             </section>
-
+            
             {modal === "choice" && (
                 <Choice
                     onClose={() => setModal(null)}
