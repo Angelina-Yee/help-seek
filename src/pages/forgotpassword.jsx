@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "../styles/forgotPassword.css";
+import "../styles/forgotpassword.css";
 
-// API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
-// Request password reset code in email
 function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -14,7 +12,6 @@ function ForgotPassword() {
   const cleaned = email.trim().toLowerCase();
   const isUCSDEmail = cleaned.endsWith("@ucsd.edu");
 
-  // Send reset code request
   const onSendReset = async (e) => {
     e.preventDefault();
     if (!isUCSDEmail) {
@@ -33,7 +30,6 @@ function ForgotPassword() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to send reset code");
 
-      // Save email temporarily
       sessionStorage.setItem("forgotEmail", cleaned);
       navigate("/forgotpassword2");
     } catch (err) {
@@ -43,7 +39,6 @@ function ForgotPassword() {
     }
   };
 
-  // HTML
   return (
     <div className="forgot-page">
       <header className="navbar">

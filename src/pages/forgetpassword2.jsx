@@ -1,12 +1,10 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import {useNavigate, Link} from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "../styles/signup2.css";
 
-// API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 const CODE_LEN = 5;
 
-// Verify email code
 function ForgetPassword2() {
   const navigate = useNavigate();
   const email = sessionStorage.getItem("forgotEmail");
@@ -15,7 +13,6 @@ function ForgetPassword2() {
   const [cooldown, setCooldown] = useState(0);
   const inputsRef = useRef([]);
 
-  // Redirect back if no email
   useEffect(() => {
     if (!email) {
       navigate("/forgot-password", { replace: true });
@@ -24,14 +21,12 @@ function ForgetPassword2() {
     inputsRef.current?.[0]?.focus();
   }, [email, navigate]);
 
-  // Cooldown timer for resending code  
   useEffect(() => {
     if (cooldown <= 0) return;
     const id = setInterval(() => setCooldown((c) => c - 1), 1000);
     return () => clearInterval(id);
   }, [cooldown]);
 
-  // Check if code is complete
   const isCodeComplete = useMemo(() => code.every((d) => d !== ""), [code]);
 
   const handleCodeChange = (index, value) => {
@@ -44,18 +39,22 @@ function ForgetPassword2() {
     }
   };
 
-  //backspace to go back
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
       inputsRef.current?.[index - 1]?.focus();
     }
   };
 
-  // Paste event
   const handlePaste = (e) => {
-    const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, CODE_LEN);
+    const text = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, CODE_LEN);
     if (!text) return;
-    const next = text.split("").concat(Array(CODE_LEN).fill("")).slice(0, CODE_LEN);
+    const next = text
+      .split("")
+      .concat(Array(CODE_LEN).fill(""))
+      .slice(0, CODE_LEN);
     setCode(next);
     const lastFilled = Math.min(text.length, CODE_LEN) - 1;
     inputsRef.current?.[lastFilled]?.focus();
@@ -80,14 +79,14 @@ function ForgetPassword2() {
 
       if (!res.ok) {
         if (res.status === 401) {
-          alert ("You entered the wrong code.");
+          alert("You entered the wrong code.");
           setCode(Array(CODE_LEN).fill(""));
           inputsRef.current?.[0]?.focus();
           return;
+        }
+        alert(data.message || "Invalid or expired code");
+        return;
       }
-      alert(data.message || "Invalid or expired code");
-      return;
-    }
 
       sessionStorage.setItem("resetToken", data.resetToken);
       navigate("/forgotpassword3");
@@ -98,7 +97,6 @@ function ForgetPassword2() {
     }
   };
 
-  //Resend code
   const onResendCode = async () => {
     if (cooldown > 0) return;
     try {
@@ -114,18 +112,19 @@ function ForgetPassword2() {
       alert("A new code has been sent to your email.");
       setCode(Array(CODE_LEN).fill(""));
       inputsRef.current?.[0]?.focus();
-      setCooldown(30); // 30s resend cooldown
+      setCooldown(30);
     } catch (err) {
       alert(err.message);
     }
   };
 
-  //HTML
   return (
     <div className="su2">
       <header className="navbar">
         <div className="logo">help n seek</div>
-        <nav><Link to="/instructions">how it works</Link></nav>
+        <nav>
+          <Link to="/instructions">how it works</Link>
+        </nav>
       </header>
 
       <div className="signup-container2">
@@ -137,10 +136,7 @@ function ForgetPassword2() {
           <p className="auth-text">please enter the code sent to your email.</p>
 
           <form className="signup-form2" onSubmit={onConfirm}>
-            <div
-              className="code-inputs"
-              onPaste={handlePaste}
-            >
+            <div className="code-inputs" onPaste={handlePaste}>
               {code.map((d, i) => (
                 <input
                   key={i}
@@ -164,7 +160,9 @@ function ForgetPassword2() {
               onClick={onResendCode}
               disabled={cooldown > 0}
               aria-disabled={cooldown > 0}
-              title={cooldown > 0 ? `wait ${cooldown}s to resend` : "resend code"}
+              title={
+                cooldown > 0 ? `wait ${cooldown}s to resend` : "resend code"
+              }
             >
               {cooldown > 0 ? `resend in ${cooldown}s` : "resend code"}
             </button>
