@@ -5,7 +5,7 @@ import Choice from "../components/choice";
 import NewPost from "../components/newPost";
 import CategAll from "../components/categAll";
 import { listPosts } from "../api";
-import { Link } from "react-router-dom"; 
+import { Link, useNavigate} from "react-router-dom"; 
 import { charById, colorById } from "../lib/avatarCatalog";
 import Notif from "../components/notif";
 
@@ -130,6 +130,12 @@ function FindLoss() {
 	const [showCateg, setShowCateg] = useState(false);
 	const [items, setItems] = useState([]);
 	const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+
+	const goToCategoryPage = (label) => {
+		navigate(`/category?c=${encodeURIComponent(label)}`);
+	};
+
 
 	// FILTER STATE
 	const [selectedCats, setSelectedCats] = useState(new Set());
@@ -302,19 +308,16 @@ function FindLoss() {
             {/*Categories*/}
             <div className="home-second">
                 <div className="home-categ">
-                    {categories.map(c => {
-						const cCanon = toCanonKey(c);
-						return (
-							<button
-								key={c}
-								className={`category${selectedCats.has(cCanon) ? " is-active" : ""}`}
-								onClick={() => quickPick(c)}
-								aria-pressed={selectedCats.has(cCanon)}
-							>
-								{c}
-							</button>
-						);
-					})}
+                {categories.map(c => (
+                        <button
+                            key={c}
+                            className="category"
+                            onClick={() => goToCategoryPage(c)}
+                            aria-pressed={false}
+                        >
+                            {c}
+                        </button>
+				))}
 
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
