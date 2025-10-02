@@ -97,6 +97,10 @@ function Home() {
     const [showCateg, setShowCateg] = useState(false);
 	const navigate = useNavigate();
 
+    const goToCategoryPage = (label) => {
+        navigate(`/category?c=${encodeURIComponent(label)}`);
+    };
+
     const [meProfile, setMeProfile] = useState({
 		id: getCurrentUserId(),
 		name: "",
@@ -341,7 +345,14 @@ function Home() {
             <div className="home-second">
                 <div className="home-categ">
                     {categories.map((c) => (
-                        <button key={c} className="category" onClick={() => navigate("/category")}>{c}</button>
+                        <button 
+                            key={c} 
+                            className="category" 
+                            onClick={() => goToCategoryPage(c)}
+                            aria-pressed={false}
+                        >
+                            {c}
+                        </button>
                     ))}
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>

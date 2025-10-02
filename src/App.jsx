@@ -23,6 +23,7 @@ import FindLoss from "./pages/findLoss";
 import CategAll from "./components/categAll";
 import ForgotPassword3 from "./pages/forgotpassword3";
 import Inbox from "./pages/inbox";
+import Category from "./pages/category";
 import Notif from "./components/notif";
 
 import { initAuth } from "./api";
@@ -64,6 +65,7 @@ function App() {
           <Route path="/categAll" element={<CategAll />} />
           <Route path="/users/:id" element={<Others />} />
           <Route path="/inbox" element= {<Inbox />} />
+          <Route path="/category" element = {<Category />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
