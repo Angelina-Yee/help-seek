@@ -6,7 +6,6 @@ import { setAccessToken } from "../api";
 //API request URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
-// Login Page
 function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -16,18 +15,15 @@ function Login() {
 
   const togglePasswordVisibility = () => setShowPassword((v) => !v);
 
-  // Input change handler
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setErrMsg("");
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Form validation
   const isFormValid =
     formData.email.trim() !== "" && formData.password.trim() !== "";
 
-  // login submission
   const onLogin = async (e) => {
     e.preventDefault();
     if (!isFormValid || loading) return;
@@ -50,7 +46,9 @@ function Login() {
 
       if (!res.ok) {
         if (res.status === 401) {
-          setErrMsg("Your password is incorrect or this account does not exist.");
+          setErrMsg(
+            "Your password is incorrect or this account does not exist."
+          );
         } else if (res.status === 403) {
           setErrMsg("Please verify your email before logging in.");
         } else {
@@ -77,13 +75,11 @@ function Login() {
     }
   };
 
-  // Navigate to forgot password page
   const onForgotPassword = () => navigate("/forgot-password");
 
-  // HTML
   return (
     <div className="login-page">
-      {/* Navbar */}
+      {}
       <header className="navbar">
         <div className="logo">help n seek</div>
         <nav>
@@ -91,7 +87,7 @@ function Login() {
         </nav>
       </header>
 
-      {/* Main Content */}
+      {}
       <div className="login-container">
         <section className="login-box">
           <div className="login-header">
@@ -150,9 +146,17 @@ function Login() {
               forgot password?
             </button>
 
-            {errMsg && <div className="error-message" role="alert">{errMsg}</div>}
+            {errMsg && (
+              <div className="error-message" role="alert">
+                {errMsg}
+              </div>
+            )}
 
-            <button type="submit" className="login-btn" disabled={!isFormValid || loading}>
+            <button
+              type="submit"
+              className="login-btn"
+              disabled={!isFormValid || loading}
+            >
               {loading ? "signing in..." : "confirm"}
             </button>
           </form>

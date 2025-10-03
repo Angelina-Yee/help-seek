@@ -8,6 +8,10 @@ import React, {
 } from "react";
 import "../styles/inbox.css";
 import "../assets/raccoon.png";
+import sendArrow from "../assets/send-arrow.png";
+
+// (Optional) base API if you later upload to server:
+// const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
 const seedThreads = [
   {
@@ -135,21 +139,64 @@ export default function Inbox() {
   const pickImage = () => fileRef.current?.click();
 
   const onFile = (e) => {
-    const f = e.target.files?.[0];
-    if (!f || !selectedId) return;
+    const file = e.target.files?.[0];
+    if (!file || !selectedId) return;
+
+    // Local preview URL
+    const objectUrl = URL.createObjectURL(file);
     const id = makeId();
-    const newMsg = { id, from: "me", text: "[image attached]" };
+
+    // Image message object
+    const newMsg = {
+      id,
+      from: "me",
+      kind: "image",
+      url: objectUrl,
+      name: file.name,
+      uploaded: false, // will flip true after real upload (stub)
+    };
+
     setMessagesByThread((prev) => ({
       ...prev,
       [selectedId]: [...(prev[selectedId] || []), newMsg],
     }));
+
+    // Update thread preview
     setThreads((prev) =>
-      prev.map((t) =>
-        t.id === selectedId ? { ...t, preview: "[image attached]" } : t
-      )
+      prev.map((t) => (t.id === selectedId ? { ...t, preview: "Image" } : t))
     );
+
     e.target.value = "";
+
+    // Optional: upload to backend (uncomment & implement endpoint)
+    // uploadImage(file, id, selectedId);
   };
+
+  // OPTIONAL upload stub
+  /*
+  const uploadImage = async (file, tempId, threadId) => {
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${API}/upload`, {
+        method: "POST",
+        body: form,
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.url) {
+        setMessagesByThread((prev) => ({
+          ...prev,
+          [threadId]: prev[threadId].map((m) =>
+            m.id === tempId ? { ...m, url: data.url, uploaded: true } : m
+          ),
+        }));
+      }
+    } catch (err) {
+      console.error("Image upload failed:", err);
+    }
+  };
+  */
 
   // Components
   const ThreadButton = ({ thread }) => (
@@ -237,26 +284,47 @@ export default function Inbox() {
                   : "Choose a conversation."}
               </div>
             ) : (
-              msgs.map((m) => (
-                <div
-                  key={m.id}
-                  className={`msg-row ${m.from === "me" ? "me" : "other"}`}
-                >
-                  {m.from !== "me" && (
-                    <div className="avatar">
-                      <img src={otherAvatar} alt="" />
-                    </div>
-                  )}
-                  <div className={`bubble ${m.from === "me" ? "me" : "other"}`}>
-                    {m.text}
+              msgs.map((m) => {
+                const mine = m.from === "me";
+                return (
+                  <div
+                    key={m.id}
+                    className={`msg-row ${mine ? "me" : "other"}`}
+                  >
+                    {!mine && (
+                      <div className="avatar">
+                        <img src={otherAvatar} alt="" />
+                      </div>
+                    )}
+
+                    {m.kind === "image" ? (
+                      <div
+                        className={`bubble image ${mine ? "me" : "other"}`}
+                        title={m.name || "image"}
+                      >
+                        <img
+                          src={m.url}
+                          alt={m.name || "sent image"}
+                          draggable="false"
+                        />
+                        {!m.uploaded && (
+                          <span className="uploading-badge">uploading...</span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className={`bubble ${mine ? "me" : "other"}`}>
+                        {m.text}
+                      </div>
+                    )}
+
+                    {mine && (
+                      <div className="avatar">
+                        <img src={myAvatar} alt="" />
+                      </div>
+                    )}
                   </div>
-                  {m.from === "me" && (
-                    <div className="avatar">
-                      <img src={myAvatar} alt="" />
-                    </div>
-                  )}
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -304,11 +372,7 @@ export default function Inbox() {
               onClick={send}
               aria-label="Send"
             >
-              <img
-                className="send-arrow"
-                src="/img/send-arrow.png"
-                alt="Send"
-              />
+              <img className="send-arrow" src={sendArrow} alt="" />
             </button>
 
             <input
@@ -322,8 +386,8 @@ export default function Inbox() {
 
           <div className="composer-note">
             <strong>
-              Messages are being monitored for user safety and the purpose of
-              this site.
+              **Messages are being monitored for user safety and the purpose of
+              this site.**
             </strong>
           </div>
         </section>
