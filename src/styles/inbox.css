@@ -120,6 +120,35 @@
   background: #eef4ff;
 }
 
+/* Image message bubble */
+.bubble.image {
+  padding: 0;
+  border: none;
+  background: transparent;
+  max-width: 320px; /* adjust if you want a larger limit */
+  box-shadow: none;
+}
+
+.bubble.image img {
+  display: block;
+  max-width: 100%;
+  max-height: 220px; /* tweak height limit */
+  object-fit: cover;
+  border-radius: 12px; /* keep rounded corners (change or remove) */
+}
+
+.uploading-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  background: rgba(15, 52, 132, 0.8);
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
 .msg-row {
   display: grid;
   grid-template-columns: 40px 1fr;
@@ -195,24 +224,16 @@
 
 .send-arrow-btn {
   all: unset;
-  width: 48px;
+  cursor: pointer;
+  width: 48px; /* keep button size */
   height: 48px;
   display: grid;
   place-items: center;
-  cursor: pointer;
-  margin-top: 3px;
+  padding: 0;
 }
 
-.send-arrow-btn {
-  all: unset;
-  width: 48px;
-  height: 48px;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
 .send-arrow {
-  width: 32px;
+  width: 42px; /* was 34px – enlarge just the graphic */
   height: auto;
   display: block;
 }
