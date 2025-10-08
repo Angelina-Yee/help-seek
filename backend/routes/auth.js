@@ -59,7 +59,7 @@ router.post(
       }
 
       const code = makeOtp();
-      const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+      const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
       await Otp.findOneAndUpdate(
         { email, type: "SIGNUP" },

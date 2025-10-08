@@ -15,6 +15,9 @@ import authRoutes from "./routes/auth.js";
 import profileRouter from "./routes/profile.js";
 import postsRouter from "./routes/posts.js";
 
+import threadsRouter from "./routes/threads.js"
+import uploadRouter from "./routes/upload.js"
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -54,6 +57,8 @@ app.use("/auth", authRoutes);
 app.use("/api/profile", profileRouter);
 app.use("/users", profileRouter);
 app.use("/api/posts", postsRouter);
+app.use("/api/threads", threadsRouter);
+app.use("/api/upload", uploadRouter);
 
 // 404 and error handler
 app.use((_req, _res, next) => next(createError(404, "Not found")));

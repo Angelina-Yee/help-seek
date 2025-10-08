@@ -69,38 +69,35 @@
   font-weight: normal;
 }
 
-/* Form styles */
 .login-form {
   display: flex;
   flex-direction: column;
-  min-height: 300px; /* Ensure consistent internal height */
+  min-height: 300px;
 }
 
 .login-form label {
   color: var(--blue);
   font-size: 16px;
   margin-bottom: 8px;
-  margin-top: 15px; /* Increased from 15px to match signup spacing */
+  margin-top: 15px;
 }
 
 .login-form input {
-  padding: 15px; /* Increased padding to match signup inputs */
+  padding: 15px;
   border: 4px solid var(--blue);
   border-radius: 5px;
   font-size: 16px;
   background-color: transparent;
   color: var(--blue);
-  margin-bottom: 15px; /* Increased from 15px */
+  margin-bottom: 15px;
 }
 
 .login-form input[type="password"],
 .password-container input {
-  /* same exact rules as your normal inputs + right padding for icon */
   padding-right: 40px;
   box-sizing: border-box;
 }
 
-/* Forgot password button */
 .forgot-btn {
   background: none;
   border: none;
@@ -142,7 +139,6 @@
   opacity: 0.6;
 }
 
-/* Password input container for positioning the eye icon */
 .password-container {
   position: relative;
   display: block;

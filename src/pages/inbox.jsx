@@ -6,74 +6,357 @@ import React, {
   useLayoutEffect,
   useCallback,
 } from "react";
+import { Link, useLocation, useSearchParams} from "react-router-dom"
 import "../styles/inbox.css";
 import "../assets/raccoon.png";
 import sendArrow from "../assets/send-arrow.png";
+import { charById, colorById } from "../lib/avatarCatalog";
 
-// (Optional) base API if you later upload to server:
-// const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
-
-const seedThreads = [
-  {
-    id: "t1",
-    name: "Name0",
-    preview: "message",
-    unread: false,
-    avatar: "/img/raccoon.png",
-  },
-  {
-    id: "t2",
-    name: "Name",
-    preview: "message",
-    unread: true,
-    avatar: "/img/raccoon.png",
-  },
-];
-
-const seedMessages = {
-  t1: [
-    { id: "m1", from: "other", text: "Hello! Is this still available?" },
-    { id: "m2", from: "me", text: "Yes, it is." },
-  ],
-  t2: [],
-};
+const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
+const STORAGE_KEY = "helpnseek-inbox-state-v3";
 
 const makeId = () =>
   typeof crypto !== "undefined" && crypto.randomUUID
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2);
 
-export default function Inbox() {
-  const [threads, setThreads] = useState(seedThreads);
-  const [selectedId, setSelectedId] = useState(seedThreads[0]?.id || null);
-  const [messagesByThread, setMessagesByThread] = useState(seedMessages);
+function buildAvatarFromIds(charId, colorId) {
+  const c = charById(charId || "raccoon");
+  const col = colorById(colorId || "blue");
+  return {
+    avatarSrc: c?.src || "/img/raccoon.png",
+    avatarBg: col || "transparent",
+  };
+}
+
+const api = {
+  async me() {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const res = await fetch(`${API}/api/profile/me`, {
+      credentials: "include",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error("me failed");
+    return await res.json();
+  },
+  async getUser(userId) {
+    const res = await fetch(`${API}/users/${encodeURIComponent(userId)}`, {
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("getUser failed");
+    return await res.json();
+  },
+  async getThread(threadId) {
+    const res = await fetch(`${API}/api/threads/${encodeURIComponent(threadId)}`, {
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("getThread failed");
+    return await res.json();
+  },
+  async openThreadWith(userId) {
+    const res = await fetch(`${API}/api/threads/open`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ userId }),
+    });
+    if (!res.ok) throw new Error("open thread failed");
+    return await res.json();
+  },
+  async sendMessage(threadId, body) {
+    const res = await fetch(`${API}/api/threads/${threadId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error("Send failed");
+    return await res.json();
+  },
+  async uploadImage(file) {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch(`${API}/api/upload`, {
+      method: "POST",
+      body: fd,
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Upload failed");
+    return await res.json();
+  },
+};
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+function save(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {}
+}
+
+function getProfileHref(userId, me) {
+  const myId = me?._id || me?.id || me?.sub || null;
+  if (!userId) return null;
+  return myId && String(myId) === String(userId) ? "/profile" : `/users/${userId}`;
+}
+
+function TimeOutside({ ts }) {
+  if (!ts) return null;
+  const d = new Date(ts);
+  const hh = d.getHours().toString().padStart(2, "0");
+  const mm = d.getMinutes().toString().padStart(2, "0");
+  return <span className="msg-time-outside">{hh}:{mm}</span>;
+}
+
+function PcAvatar({ src, bg, as = "div", to, title, className = "" }) {
+  const cls = `pc-avatar ${className}`.trim();
+  const style = { backgroundColor: bg || "transparent" };
+  if (as === "link" && to) {
+    return (
+      <Link to={to} className={cls} style={style} title={title}>
+        <img src={src} alt="" />
+      </Link>
+    );
+  }
+  return (
+    <div className={cls} style={style} title={title}>
+      <img src={src} alt="" />
+    </div>
+  );
+}
+
+async function hydratePeerAvatar(thread, setThreads) {
+  if (!thread?.peerId) return;
+  try {
+    const peer = await api.getUser(thread.peerId);
+    const bundle = buildAvatarFromIds(peer?.avatarCharId, peer?.avatarColor);
+    setThreads((prev) =>
+      prev.map((t) =>
+        t.id === thread.id
+          ? {
+              ...t,
+              name: (peer?.name || t.name || "User").trim(),
+              avatarSrc: bundle.avatarSrc,
+              avatarBg: bundle.avatarBg,
+            }
+          : t
+      )
+    );
+  } catch (e) {
+    console.warn("peer avatar hydrate failed", e);
+  }
+}
+
+function ensureThreadShell(meta, setThreads) {
+  const base = {
+    id: meta.id,
+    name: (meta.name || "User").trim(),
+    preview: meta.preview || "",
+    unread: false,
+    avatarSrc: meta.avatarSrc || "/img/raccoon.png",
+    avatarBg: meta.avatarBg || "transparent",
+    peerId: meta.peerId || null,
+  };
+  setThreads((prev) => {
+    const exists = prev.find((t) => t.id === base.id);
+    if (exists) return prev.map((t) => (t.id === base.id ? { ...t, ...base } : t));
+    return [base, ...prev];
+  });
+}
+
+function Inbox() {
+  const [me, setMe] = useState(null);
+  const myAvatarBundle = useMemo(
+    () => buildAvatarFromIds(me?.avatarCharId, me?.avatarColor),
+    [me]
+  );
+  const myAvatar = myAvatarBundle.avatarSrc;
+
+  const persisted = load();
+  const [threads, setThreads] = useState(() => persisted.threads || []);
+  const [selectedId, setSelectedId] = useState(() => persisted.selectedId || null);
+  const [messagesByThread, setMessagesByThread] = useState(() => persisted.messagesByThread || {});
   const [draft, setDraft] = useState("");
-  const [threadSearch, setThreadSearch] = useState(""); // search box text
+  const [threadSearch, setThreadSearch] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const scrollerRef = useRef(null);
   const textareaRef = useRef(null);
   const fileRef = useRef(null);
+  const hydratedRef = useRef(new Set());
+  const endRef = useRef(null);
 
-  const myAvatar = "/img/raccoon.png";
-  const otherAvatar = "/img/raccoon.png";
+  const scrollToBottom = useCallback(() => {
+    requestAnimationFrame(() => {
+      endRef.current?.scrollIntoView({ block: "end" });
+    });
+  }, []);
 
   const current = useMemo(
     () => threads.find((t) => t.id === selectedId) || null,
     [threads, selectedId]
   );
 
-  // Filtered thread list (case‑insensitive match on name or preview)
-  const filteredThreads = useMemo(() => {
-    const q = threadSearch.trim().toLowerCase();
-    if (!q) return threads;
-    return threads.filter(
-      (t) =>
-        t.name.toLowerCase().includes(q) ||
-        (t.preview || "").toLowerCase().includes(q)
-    );
-  }, [threads, threadSearch]);
-
+  const otherAvatar = current?.avatarSrc || "/img/raccoon.png";
+  const otherAvatarBg = current?.avatarBg || "transparent";
   const msgs = messagesByThread[selectedId] || [];
+  const otherProfileHref = useMemo(
+    () => getProfileHref(current?.peerId, me),
+    [current?.peerId, me]
+  );
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await api.me();
+        setMe(data || null);
+      } catch (e) {
+        console.warn("me failed", e);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    const stateUserId = location.state?.userId || null;
+    const queryUserId = searchParams.get("user");
+    const queryThreadId = searchParams.get("thread");
+    const userId = stateUserId || queryUserId;
+
+    if (queryThreadId) {
+      ensureThreadShell({ id: queryThreadId }, setThreads);
+      setSelectedId(queryThreadId);
+
+      (async () => {
+        try {
+          const meta = await api.getThread(queryThreadId);
+          const peer =
+            meta?.peer ||
+            (meta?.peerId ? await api.getUser(meta.peerId) : null);
+
+          const bundle = buildAvatarFromIds(
+            peer?.avatarCharId,
+            peer?.avatarColor
+          );
+
+          setThreads((prev) =>
+            prev.map((t) =>
+              t.id === queryThreadId
+                ? {
+                    ...t,
+                    peerId: meta?.peerId ?? t.peerId ?? null,
+                    name: (peer?.name || t.name || "User").trim(),
+                    avatarSrc: bundle.avatarSrc,
+                    avatarBg: bundle.avatarBg,
+                  }
+                : t
+            )
+          );
+        } catch (e) {
+          console.warn("thread meta hydrate failed", e);
+        }
+      })();
+
+      return;
+    }
+
+    if (!userId) return;
+
+    const myId = me?._id || me?.id || me?.sub || null;
+    if (myId && String(myId) === String(userId)) return;
+
+    const tempId = `u:${userId}`;
+    ensureThreadShell(
+      {
+        id: tempId,
+        name: "User",
+        avatarSrc: "/img/raccoon.png",
+        avatarBg: "transparent",
+        peerId: userId,
+      },
+      setThreads
+    );
+    setSelectedId(tempId);
+
+    (async () => {
+      try {
+        const peerRaw = await api.getUser(userId).catch(() => null);
+        const finalName = (peerRaw?.name || "User").trim();
+        const finalBundle = buildAvatarFromIds(
+          peerRaw?.avatarCharId,
+          peerRaw?.avatarColor
+        );
+
+        const { id: realThreadId } = await api.openThreadWith(userId);
+
+        setThreads((prev) => {
+          const without = prev.filter(
+            (t) => t.id !== tempId && t.id !== realThreadId
+          );
+          return [
+            {
+              id: realThreadId,
+              name: finalName,
+              preview: "",
+              unread: false,
+              avatarSrc: finalBundle.avatarSrc,
+              avatarBg: finalBundle.avatarBg,
+              peerId: userId,
+            },
+            ...without,
+          ];
+        });
+        setSelectedId(realThreadId);
+      } catch (e) {
+        console.error("Inbox hydrate/open failed; keeping shell:", e);
+      }
+    })();
+  }, [location.state, searchParams, me]);
+
+  useEffect(() => {
+    const missingPeer = (threads || []).filter((t) => !t.peerId);
+    if (missingPeer.length === 0) return;
+
+    (async () => {
+      for (const t of missingPeer) {
+        try {
+          const meta = await api.getThread(t.id).catch(() => null);
+          if (!meta?.peerId) continue;
+
+          const peer =
+            meta?.peer || (await api.getUser(meta.peerId).catch(() => null));
+          const bundle = buildAvatarFromIds(
+            peer?.avatarCharId,
+            peer?.avatarColor
+          );
+
+          setThreads((prev) =>
+            prev.map((x) =>
+              x.id === t.id
+                ? {
+                    ...x,
+                    peerId: meta.peerId,
+                    name: (peer?.name || x.name || "User").trim(),
+                    avatarSrc: bundle.avatarSrc,
+                    avatarBg: bundle.avatarBg,
+                  }
+                : x
+            )
+          );
+        } catch (e) {
+          console.warn("repair peerId failed for thread", t.id, e);
+        }
+      }
+    })();
+  }, [threads.map((t) => t.id).join("|")]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -95,6 +378,10 @@ export default function Inbox() {
     ta.style.overflowY = ta.scrollHeight > 240 ? "auto" : "hidden";
   }, []);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [selectedId, msgs.length, scrollToBottom]);
+
   useLayoutEffect(() => {
     autoGrow(textareaRef.current);
   }, [draft, selectedId, autoGrow]);
@@ -104,7 +391,46 @@ export default function Inbox() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [selectedId, messagesByThread]);
 
-  const onSelectThread = (id) => setSelectedId(id);
+  useEffect(() => {
+    save({ threads, selectedId, messagesByThread });
+  }, [threads, selectedId, messagesByThread]);
+
+  useEffect(() => {
+    const toFill = (threads || []).filter(
+      (t) =>
+        t.peerId &&
+        (!t.avatarSrc || t.avatarSrc.includes("/img/raccoon") || !t.avatarBg) &&
+        !hydratedRef.current.has(t.id)
+    );
+    if (toFill.length === 0) return;
+    (async () => {
+      for (const t of toFill) {
+        hydratedRef.current.add(t.id);
+        await hydratePeerAvatar(t, setThreads);
+      }
+    })();
+  }, [threads, setThreads]);
+
+  const filteredThreads = useMemo(() => {
+    const q = threadSearch.trim().toLowerCase();
+    if (!q) return threads;
+
+    const out = [];
+    for (const t of threads) {
+      const nameHit = (t.name || "").toLowerCase().includes(q);
+
+      let msgHit = false;
+      const list = messagesByThread[t.id] || [];
+      for (let i = 0; i < list.length && !msgHit; i++) {
+        const m = list[i];
+        if (m.kind === "text" && (m.text || "").toLowerCase().includes(q)) {
+          msgHit = true;
+        }
+      }
+      if (nameHit || msgHit) out.push(t);
+    }
+    return out;
+  }, [threadSearch, threads, messagesByThread]);
 
   const onDraftChange = useCallback(
     (e) => {
@@ -114,19 +440,38 @@ export default function Inbox() {
     [autoGrow]
   );
 
-  const send = () => {
+  const send = async () => {
     const text = draft.trim();
     if (!text || !selectedId) return;
-    const id = makeId();
-    const newMsg = { id, from: "me", text };
+
+    const optimistic = {
+      id: makeId(),
+      from: "me",
+      kind: "text",
+      text,
+      ts: Date.now(),
+    }
+
     setMessagesByThread((prev) => ({
       ...prev,
-      [selectedId]: [...(prev[selectedId] || []), newMsg],
+      [selectedId]: [...(prev[selectedId] || []), optimistic],
     }));
     setThreads((prev) =>
       prev.map((t) => (t.id === selectedId ? { ...t, preview: text } : t))
     );
     setDraft("");
+
+    try {
+      const saved = await api.sendMessage(selectedId, { text });
+      setMessagesByThread(prev => {
+        const list = prev[selectedId] || [];
+        const idx = list.findIndex((m) => m.id === optimistic.id);
+        if (idx >= 0) list[idx] = { ...list[idx], ...saved };
+        return { ...prev, [selectedId]: list };
+      });
+    } catch (err) {
+      console.error("send failed", err);
+    }
   };
 
   const onKeyDown = (e) => {
@@ -140,92 +485,119 @@ export default function Inbox() {
 
   const onFile = (e) => {
     const file = e.target.files?.[0];
-    if (!file || !selectedId) return;
+    if (file) handleImageFiles([file]);
+    e.target.value = "";
+  };
 
-    // Local preview URL
-    const objectUrl = URL.createObjectURL(file);
-    const id = makeId();
+  const onPaste = (e) => {
+    if (!e.clipboardData) return;
+    const files = [...e.clipboardData.files].filter((f) =>
+      f.type.startsWith("image/")
+    );
+    if (files.length) {
+      e.preventDefault();
+      handleImageFiles(files);
+    }
+  }
 
-    // Image message object
-    const newMsg = {
-      id,
+  const onDragOver = (e) => {
+    if ([...e.dataTransfer.items].some((i) => i.kind === "file"))
+      e.preventDefault();
+  };
+  const onDrop = (e) => {
+    e.preventDefault();
+    const files = [...(e.dataTransfer?.files || [])].filter((f) =>
+      f.type.startsWith("image/")
+    );
+    if (files.length) handleImageFiles(files);
+  };
+
+  async function handleImageFiles(files) {
+    if (!selectedId || !files.length) return;
+    setIsUploading(true);
+
+    const optimisticMsgs = files.map((file) => ({
+      id: makeId(),
       from: "me",
       kind: "image",
-      url: objectUrl,
+      url: URL.createObjectURL(file),
       name: file.name,
-      uploaded: false, // will flip true after real upload (stub)
-    };
+      uploaded: false,
+      ts: Date.now(),
+    }));
 
     setMessagesByThread((prev) => ({
       ...prev,
-      [selectedId]: [...(prev[selectedId] || []), newMsg],
+      [selectedId]: [...(prev[selectedId] || []), ...optimisticMsgs],
     }));
-
-    // Update thread preview
     setThreads((prev) =>
       prev.map((t) => (t.id === selectedId ? { ...t, preview: "Image" } : t))
     );
 
-    e.target.value = "";
-
-    // Optional: upload to backend (uncomment & implement endpoint)
-    // uploadImage(file, id, selectedId);
-  };
-
-  // OPTIONAL upload stub
-  /*
-  const uploadImage = async (file, tempId, threadId) => {
     try {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await fetch(`${API}/upload`, {
-        method: "POST",
-        body: form,
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (data.url) {
-        setMessagesByThread((prev) => ({
-          ...prev,
-          [threadId]: prev[threadId].map((m) =>
-            m.id === tempId ? { ...m, url: data.url, uploaded: true } : m
-          ),
-        }));
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const optimistic = optimisticMsgs[i];
+
+        const uploaded = await api.uploadImage(f);
+        const saved = await api.sendMessage(selectedId, {
+          imageUrl: uploaded.url,
+          name: f.name,
+        });
+
+        setMessagesByThread((prev) => {
+          const list = prev[selectedId] || [];
+          const idx = list.findIndex((m) => m.id === optimistic.id);
+          if (idx >= 0) {
+            list[idx] = {
+              ...list[idx],
+              url: uploaded.url,
+              uploaded: true,
+              ts: saved.ts ?? list[idx].ts,
+              id: saved.id ?? list[idx].id,
+            };
+          }
+          return { ...prev, [selectedId]: list };
+        });
       }
     } catch (err) {
-      console.error("Image upload failed:", err);
+      console.error("image upload/send failed", err);
+    } finally {
+      setIsUploading(false);
     }
-  };
-  */
+  }
 
   // Components
   const ThreadButton = ({ thread }) => (
     <button
       type="button"
       className={`thread ${thread.id === selectedId ? "active" : ""}`}
-      onClick={() => onSelectThread(thread.id)}
+      onClick={() => setSelectedId(thread.id)}
     >
-      <div className="name">{thread.name}</div>
-      <div className="preview">{thread.preview}</div>
+      <PcAvatar 
+        src={thread.avatarSrc || "/img/raccoon.png"}
+        bg={thread.avatarBg}
+      />
+      <div className="thread-info">
+        <div className="name">{thread.name}</div>
+        <div className="preview">{thread.preview}</div>
+      </div>
       {thread.unread && <span className="unread-dot" />}
     </button>
   );
 
-  const Avatar = ({ src }) => (
-    <div className="avatar">
-      <img src={src} alt="" />
-    </div>
-  );
-
   return (
-    <div className="home">
-      <header className="home-navbar">
-        <div className="home-logo">help n seek</div>
-        <div className="home-prof">
-          <button className="pc-avatar" aria-hidden="true" type="button">
-            <img className="ava-img" src={myAvatar} alt="Profile avatar" />
-          </button>
-        </div>
+    <div className="home inbox-root">
+      <header className="home-navbar inbox-navbar">
+        <div className="home-logo inbox-logo">help n seek</div>
+
+        <PcAvatar
+          as="link"
+          to={me?._id ? `/profile/${me._id}` : "/profile"}
+          src={myAvatar}
+          bg={myAvatarBundle.avatarBg}
+          title={me?.name || "My profile"}
+        />
       </header>
 
       <div className="inbox-page">
@@ -238,25 +610,14 @@ export default function Inbox() {
               placeholder="Search messages..."
               value={threadSearch}
               onChange={(e) => setThreadSearch(e.target.value)}
-              aria-label="Search threads"
+              aria-label="Search threads by name or message"
             />
           </div>
           <div className="thread-list">
             {filteredThreads.length === 0 ? (
               <div className="thread-empty">No matches</div>
             ) : (
-              filteredThreads.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`thread ${t.id === selectedId ? "active" : ""}`}
-                  onClick={() => setSelectedId(t.id)}
-                >
-                  <div className="name">{t.name}</div>
-                  <div className="preview">{t.preview}</div>
-                  {t.unread && <span className="unread-dot" />}
-                </button>
-              ))
+              filteredThreads.map((t) => <ThreadButton key={t.id} thread={t} />)
             )}
           </div>
         </aside>
@@ -264,19 +625,26 @@ export default function Inbox() {
         <section className="chat">
           <header className="chat-header">
             <div className="chat-title">
-              <div className="chat-title-avatar">
-                <img
-                  src={otherAvatar}
-                  alt={`${current?.name || "User"} avatar`}
-                />
-              </div>
+              <PcAvatar
+                as={otherProfileHref ? "link" : "div"}
+                to={otherProfileHref || undefined}
+                src={otherAvatar}
+                bg={otherAvatarBg}
+                title={current?.name ? `View ${current.name}'s profile` : "Profile"}
+              />
               <div className="chat-title-name">
                 {current?.name || "Select a chat"}
               </div>
             </div>
           </header>
 
-          <div className="chat-body" ref={scrollerRef}>
+          <div 
+            className={`chat-body ${isUploading ? "is-uploading" : ""}`} 
+            ref={scrollerRef}
+            onPaste={onPaste}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
+          >
             {msgs.length === 0 ? (
               <div className="empty">
                 {current
@@ -292,35 +660,33 @@ export default function Inbox() {
                     className={`msg-row ${mine ? "me" : "other"}`}
                   >
                     {!mine && (
-                      <div className="avatar">
-                        <img src={otherAvatar} alt="" />
-                      </div>
+                      <PcAvatar
+                        as={otherProfileHref ? "link" : "div"}
+                        to={otherProfileHref || undefined}
+                        src={otherAvatar}
+                        bg={otherAvatarBg}
+                        title={current?.name ? `View ${current.name}'s profile` : "Profile"}
+                      />
                     )}
-
-                    {m.kind === "image" ? (
-                      <div
-                        className={`bubble image ${mine ? "me" : "other"}`}
-                        title={m.name || "image"}
-                      >
-                        <img
-                          src={m.url}
-                          alt={m.name || "sent image"}
-                          draggable="false"
-                        />
-                        {!m.uploaded && (
-                          <span className="uploading-badge">uploading...</span>
-                        )}
-                      </div>
-                    ) : (
-                      <div className={`bubble ${mine ? "me" : "other"}`}>
-                        {m.text}
-                      </div>
-                    )}
+                    <div className="bubble-stack">
+                      {m.kind === "image" ? (
+                        <div className={`bubble image ${mine ? "me" : "other"}`} title={m.name || "image"}>
+                          <img src={m.url} alt={m.name || "sent image"} draggable="false" onLoad={scrollToBottom}/>
+                        </div>
+                      ) : (
+                        <div className={`bubble ${mine ? "me" : "other"}`}>
+                          {m.text}
+                        </div>
+                      )}
+                      <TimeOutside ts={m.ts} />
+                    </div>
 
                     {mine && (
-                      <div className="avatar">
-                        <img src={myAvatar} alt="" />
-                      </div>
+                      <PcAvatar
+                        src={myAvatar}
+                        bg={myAvatarBundle.avatarBg}
+                        title="My avatar"
+                      />  
                     )}
                   </div>
                 );
@@ -333,7 +699,7 @@ export default function Inbox() {
               type="button"
               className="icon-btn"
               aria-label="Attach image"
-              onClick={pickImage}
+              onClick={() => fileRef.current?.click()}
             >
               <svg viewBox="0 0 24 24" width="26" height="26">
                 <rect
@@ -394,4 +760,6 @@ export default function Inbox() {
       </div>
     </div>
   );
-}
+};
+
+export default Inbox;

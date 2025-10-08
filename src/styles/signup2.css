@@ -28,7 +28,6 @@
   color: var(--blue);
 }
 
-/*Hero*/
 .signup-container2 {
   display: flex;
   justify-content: center;
@@ -105,7 +104,6 @@
   box-shadow: 0 0 5px rgba(15, 52, 132, 0.3);
 }
 
-/* Resend button */
 .resend-btn {
   background: none;
   border: none;
@@ -123,7 +121,6 @@
   opacity: 0.8;
 }
 
-/* Copy confirm button styles (same as verify button) */
 .confirm-btn {
   background: none;
   border: none;
