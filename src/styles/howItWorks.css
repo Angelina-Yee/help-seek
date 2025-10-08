@@ -1,0 +1,285 @@
+:root {
+  --bg: #fdf8ec;
+  --blue: #0f3484;
+  --orange: #ff7700;
+  --white: #ffffff;
+  --light-gray: #f5f5f5;
+  --dark-gray: #666;
+}
+
+.how-it-works-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--blue);
+}
+
+/* Navbar (same as login page) */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: var(--bg);
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+.navbar nav {
+  display: flex;
+  gap: 32px;
+}
+
+.navbar nav a {
+  color: var(--blue);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navbar nav a:hover {
+  color: var(--orange);
+}
+
+/* Main content */
+.how-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px 80px;
+}
+
+.hero-section {
+  text-align: center;
+  padding: 60px 0 80px;
+}
+
+.hero-section h1 {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--blue);
+  margin: 0 0 20px;
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  color: var(--dark-gray);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Steps */
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-bottom: 80px;
+}
+
+.step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  background: var(--white);
+  padding: 32px;
+  border-radius: 12px;
+  border: 3px solid var(--blue);
+  box-shadow: 0 2px 8px rgba(15, 52, 132, 0.1);
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: var(--orange);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.step-content h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--blue);
+  margin: 0 0 12px;
+}
+
+.step-content p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--dark-gray);
+  margin: 0;
+}
+
+/* Tips section */
+.tips-section {
+  margin-bottom: 80px;
+}
+
+.tips-section h2 {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--blue);
+  text-align: center;
+  margin: 0 0 40px;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.tip-card {
+  background: var(--white);
+  padding: 24px;
+  border-radius: 8px;
+  border: 2px solid var(--blue);
+  text-align: center;
+}
+
+.tip-card h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--blue);
+  margin: 0 0 12px;
+}
+
+.tip-card p {
+  font-size: 14px;
+  color: var(--dark-gray);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cta-section {
+  text-align: center;
+  background: var(--white);
+  padding: 60px 40px;
+  border-radius: 12px;
+  border: 3px solid var(--blue);
+  margin-bottom: 60px;
+}
+
+.cta-section h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--blue);
+  margin: 0 0 16px;
+}
+
+.cta-section p {
+  font-size: 18px;
+  color: var(--dark-gray);
+  margin: 0 0 32px;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 12px 32px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.2s;
+  border: 2px solid var(--blue);
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background: var(--orange);
+  border-color: var(--orange);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--blue);
+}
+
+.btn-secondary:hover {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.page-footer {
+  background: var(--blue);
+  color: var(--white);
+  padding: 40px 0;
+  text-align: center;
+}
+
+.footer-content .logo {
+  color: var(--white);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.footer-content p {
+  margin: 0;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 16px 20px;
+  }
+
+  .navbar nav {
+    gap: 20px;
+  }
+
+  .how-content {
+    padding: 0 20px 60px;
+  }
+
+  .hero-section {
+    padding: 40px 0 60px;
+  }
+
+  .hero-section h1 {
+    font-size: 36px;
+  }
+
+  .step-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .tips-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-section {
+    padding: 40px 20px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 200px;
+  }
+}

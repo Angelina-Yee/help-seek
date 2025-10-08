@@ -25,6 +25,7 @@ import ForgotPassword3 from "./pages/forgotpassword3";
 import Inbox from "./pages/inbox";
 import Category from "./pages/category";
 import Notif from "./components/notif";
+import HowItWorks from "./pages/howItWorks";
 
 import { initAuth } from "./api";
 
@@ -48,7 +49,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/instructions" element={<Instructions />} />
+        <Route path="/instructions" element={<HowItWorks />} />
         <Route path="/signup1" element={<Signup1 />} />
         <Route path="/signup2" element={<Signup2 />} />
         <Route path="/signup3" element={<Signup3 />} />
@@ -64,8 +65,8 @@ function App() {
           <Route path="/findLoss" element={<FindLoss />} />
           <Route path="/categAll" element={<CategAll />} />
           <Route path="/users/:id" element={<Others />} />
-          <Route path="/inbox" element= {<Inbox />} />
-          <Route path="/category" element = {<Category />} />
+          <Route path="/inbox" element={<Inbox />} />
+          <Route path="/category" element={<Category />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
