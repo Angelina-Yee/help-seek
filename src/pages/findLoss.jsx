@@ -367,6 +367,10 @@ function FindLoss() {
 									avatarSrc={avatarSrc}
 									avatarBgColorHex={avatarBgColorHex}
 									profileHref={href}
+                                    ownerId={postUserId}
+                                    currentUserId={me}
+                                    ownerAvatarCharId={p?.user?.avatarCharId}
+      						        ownerAvatarColor={p?.user?.avatarColor}
 								/>
 							);
                         })}

@@ -119,14 +119,13 @@
   color: var(--blue);
   margin-top: 6px;
   line-height: 1.2;
-  min-height: 14px; /* keeps layout steady */
+  min-height: 14px;
 }
 
 .name-field .name-hint.error {
-  color: #e74c3c; /* red for alert */
+  color: #e74c3c;
 }
 
-/* Regular input styles */
 .signup-form3 label {
   color: var(--blue);
   font-size: 16px;
@@ -141,17 +140,15 @@
   color: var(--blue);
 }
 
-/* Password input container (same spacing as other inputs) */
 .password-container {
   position: relative;
   display: block;
   width: 100%;
-  margin-bottom: 15px; /* match other inputs */
+  margin-bottom: 15px;
 }
 
-/* One definitive rule so size never changes when type toggles */
 .password-container > input {
-  padding: 12px 40px 12px 12px; /* room for eye, consistent with others */
+  padding: 12px 40px 12px 12px;
   border: 4px solid var(--blue);
   border-radius: 5px;
   font-size: 16px;

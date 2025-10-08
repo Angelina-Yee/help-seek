@@ -10,7 +10,6 @@
   padding: 0;
 }
 
-/*NavBar*/
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -42,7 +41,6 @@
   color: var(--blue);
 }
 
-/*Hero*/
 .signup-container1 {
   display: flex;
   justify-content: center;
