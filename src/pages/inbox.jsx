@@ -6,7 +6,7 @@ import React, {
   useLayoutEffect,
   useCallback,
 } from "react";
-import { Link, useLocation, useSearchParams} from "react-router-dom"
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import "../styles/inbox.css";
 import "../assets/raccoon.png";
 import sendArrow from "../assets/send-arrow.png";
@@ -29,50 +29,89 @@ function buildAvatarFromIds(charId, colorId) {
   };
 }
 
+function authHeaders() {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 const api = {
   async me() {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     const res = await fetch(`${API}/api/profile/me`, {
       credentials: "include",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: { ...authHeaders() },
     });
     if (!res.ok) throw new Error("me failed");
     return await res.json();
   },
+  
   async getUser(userId) {
     const res = await fetch(`${API}/users/${encodeURIComponent(userId)}`, {
       credentials: "include",
+      headers: { ...authHeaders() },
     });
     if (!res.ok) throw new Error("getUser failed");
     return await res.json();
   },
+
+  async listThreads() {
+    const res = await fetch(`${API}/api/threads`, {
+      credentials: "include",
+      headers: { ...authHeaders() },
+    });
+    if (!res.ok) throw new Error("listThreads failed");
+    return await res.json(); // { threads: [...] }
+  },
+
   async getThread(threadId) {
     const res = await fetch(`${API}/api/threads/${encodeURIComponent(threadId)}`, {
       credentials: "include",
+      headers: { ...authHeaders() },
     });
     if (!res.ok) throw new Error("getThread failed");
-    return await res.json();
+    return await res.json(); // { id, participants, peerId, peer, ... }
   },
+
   async openThreadWith(userId) {
     const res = await fetch(`${API}/api/threads/open`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...authHeaders() },
       credentials: "include",
       body: JSON.stringify({ userId }),
     });
     if (!res.ok) throw new Error("open thread failed");
     return await res.json();
   },
+
+  async getMessages(threadId, limit = 50) {
+    const res = await fetch(
+      `${API}/api/threads/${encodeURIComponent(threadId)}/messages?limit=${limit}`,
+      { credentials: "include", headers: { ...authHeaders() } }
+    );
+    if (!res.ok) throw new Error("getMessages failed");
+    return await res.json();
+  },
+
+  async seen(threadId) {
+    const res = await fetch(`${API}/api/threads/${encodeURIComponent(threadId)}/seen`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { ...authHeaders() },
+    });
+    if (!res.ok) throw new Error("seen failed");
+    return await res.json();
+  },
+
   async sendMessage(threadId, body) {
     const res = await fetch(`${API}/api/threads/${threadId}/messages`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...authHeaders() },
       credentials: "include",
       body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error("Send failed");
     return await res.json();
   },
+
   async uploadImage(file) {
     const fd = new FormData();
     fd.append("file", file);
@@ -80,6 +119,7 @@ const api = {
       method: "POST",
       body: fd,
       credentials: "include",
+      headers: { ...authHeaders() },
     });
     if (!res.ok) throw new Error("Upload failed");
     return await res.json();
@@ -158,7 +198,7 @@ function ensureThreadShell(meta, setThreads) {
     id: meta.id,
     name: (meta.name || "User").trim(),
     preview: meta.preview || "",
-    unread: false,
+    unread: Boolean(meta.unread) || false,
     avatarSrc: meta.avatarSrc || "/img/raccoon.png",
     avatarBg: meta.avatarBg || "transparent",
     peerId: meta.peerId || null,
@@ -198,6 +238,8 @@ function Inbox() {
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
       endRef.current?.scrollIntoView({ block: "end" });
+      const el = scrollerRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
     });
   }, []);
 
@@ -214,6 +256,16 @@ function Inbox() {
     [current?.peerId, me]
   );
 
+  const mergeMessages = useCallback((threadId, incoming) => {
+    setMessagesByThread((prev) => {
+      const existing = prev[threadId] || [];
+      const byId = new Map(existing.map((m) => [m.id, m]));
+      for (const m of incoming) byId.set(m.id, m);
+      const merged = Array.from(byId.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      return { ...prev, [threadId]: merged };
+    });
+  }, []);
+
   useEffect(() => {
     (async () => {
       try {
@@ -223,6 +275,118 @@ function Inbox() {
         console.warn("me failed", e);
       }
     })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { threads: list } = await api.listThreads();
+        list.forEach((t) => {
+          ensureThreadShell(
+            {
+              id: t.id,
+              name: "User",
+              preview: t.lastPreview || "",
+              peerId: null,
+              unread: t.unread,
+            },
+            setThreads
+          );
+        });
+
+        for (const t of list) {
+          try {
+            const meta = await api.getThread(t.id);
+            const peer =
+              meta?.peer ||
+              (meta?.peerId ? await api.getUser(meta.peerId).catch(() => null) : null);
+
+            const bundle = buildAvatarFromIds(peer?.avatarCharId, peer?.avatarColor);
+
+            setThreads((prev) =>
+              prev.map((x) =>
+                x.id === t.id
+                  ? {
+                      ...x,
+                      peerId: meta?.peerId ?? x.peerId ?? null,
+                      name: (peer?.name || x.name || "User").trim(),
+                      avatarSrc: bundle.avatarSrc,
+                      avatarBg: bundle.avatarBg,
+                      preview: t.lastPreview || x.preview || "",
+                      unread: Boolean(t.unread),
+                    }
+                  : x
+              )
+            );
+          } catch {
+          }
+        }
+      } catch (e) {
+        console.warn("listThreads failed", e);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedId && threads.length > 0) {
+      setSelectedId(threads[0].id);
+    }
+  }, [selectedId, threads]);
+
+  useEffect(() => {
+    let stop = false;
+    let timer = null;
+
+    const tick = async () => {
+      try {
+        const { threads: fresh } = await api.listThreads();
+        if (stop) return;
+
+        setThreads((prev) => {
+          const map = new Map(prev.map((t) => [t.id, t]));
+          for (const f of fresh) {
+            const existing = map.get(f.id);
+            if (existing) {
+              map.set(f.id, {
+                ...existing,
+                preview: f.lastPreview || existing.preview || "",
+                unread: Boolean(f.unread),
+              });
+            } else {
+              map.set(f.id, {
+                id: f.id,
+                name: "User",
+                preview: f.lastPreview || "",
+                unread: Boolean(f.unread),
+                avatarSrc: "/img/raccoon.png",
+                avatarBg: "transparent",
+                peerId: null,
+              });
+            }
+          }
+
+          const ordered = [];
+          for (const f of fresh) {
+            const item = map.get(f.id);
+            if (item) ordered.push(item);
+          }
+          for (const [id, item] of map) {
+            if (!ordered.find((x) => x.id === id)) ordered.push(item);
+          }
+          return ordered;
+        });
+      } catch (e) {
+        console.warn("thread refresh failed", e);
+      } finally {
+        if (!stop) timer = setTimeout(tick, 3000);
+      }
+    };
+
+    tick();
+    return () => {
+      stop = true;
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   useEffect(() => {
@@ -242,10 +406,7 @@ function Inbox() {
             meta?.peer ||
             (meta?.peerId ? await api.getUser(meta.peerId) : null);
 
-          const bundle = buildAvatarFromIds(
-            peer?.avatarCharId,
-            peer?.avatarColor
-          );
+          const bundle = buildAvatarFromIds(peer?.avatarCharId, peer?.avatarColor);
 
           setThreads((prev) =>
             prev.map((t) =>
@@ -378,18 +539,9 @@ function Inbox() {
     ta.style.overflowY = ta.scrollHeight > 240 ? "auto" : "hidden";
   }, []);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [selectedId, msgs.length, scrollToBottom]);
-
   useLayoutEffect(() => {
     autoGrow(textareaRef.current);
   }, [draft, selectedId, autoGrow]);
-
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [selectedId, messagesByThread]);
 
   useEffect(() => {
     save({ threads, selectedId, messagesByThread });
@@ -411,27 +563,35 @@ function Inbox() {
     })();
   }, [threads, setThreads]);
 
-  const filteredThreads = useMemo(() => {
-    const q = threadSearch.trim().toLowerCase();
-    if (!q) return threads;
+  useEffect(() => {
+    if (!selectedId) return;
 
-    const out = [];
-    for (const t of threads) {
-      const nameHit = (t.name || "").toLowerCase().includes(q);
+    let stop = false;
+    let timer = null;
 
-      let msgHit = false;
-      const list = messagesByThread[t.id] || [];
-      for (let i = 0; i < list.length && !msgHit; i++) {
-        const m = list[i];
-        if (m.kind === "text" && (m.text || "").toLowerCase().includes(q)) {
-          msgHit = true;
-        }
+    const pump = async () => {
+      try {
+        const { messages } = await api.getMessages(selectedId, 50);
+        if (stop) return;
+        mergeMessages(selectedId, messages);
+        await api.seen(selectedId);
+        scrollToBottom();
+      } catch (e) {
+        console.warn("fetch messages failed", e);
+      } finally {
+        if (!stop) timer = setTimeout(pump, 3000);
       }
-      if (nameHit || msgHit) out.push(t);
-    }
-    return out;
-  }, [threadSearch, threads, messagesByThread]);
+    };
 
+    pump();
+
+    return () => {
+      stop = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [selectedId, mergeMessages, scrollToBottom]);
+
+  // draft handlers
   const onDraftChange = useCallback(
     (e) => {
       setDraft(e.target.value);
@@ -450,7 +610,7 @@ function Inbox() {
       kind: "text",
       text,
       ts: Date.now(),
-    }
+    };
 
     setMessagesByThread((prev) => ({
       ...prev,
@@ -463,12 +623,13 @@ function Inbox() {
 
     try {
       const saved = await api.sendMessage(selectedId, { text });
-      setMessagesByThread(prev => {
+      setMessagesByThread((prev) => {
         const list = prev[selectedId] || [];
         const idx = list.findIndex((m) => m.id === optimistic.id);
         if (idx >= 0) list[idx] = { ...list[idx], ...saved };
         return { ...prev, [selectedId]: list };
       });
+      scrollToBottom();
     } catch (err) {
       console.error("send failed", err);
     }
@@ -481,6 +642,7 @@ function Inbox() {
     }
   };
 
+  // image attach
   const pickImage = () => fileRef.current?.click();
 
   const onFile = (e) => {
@@ -498,7 +660,7 @@ function Inbox() {
       e.preventDefault();
       handleImageFiles(files);
     }
-  }
+  };
 
   const onDragOver = (e) => {
     if ([...e.dataTransfer.items].some((i) => i.kind === "file"))
@@ -560,6 +722,7 @@ function Inbox() {
           return { ...prev, [selectedId]: list };
         });
       }
+      scrollToBottom();
     } catch (err) {
       console.error("image upload/send failed", err);
     } finally {
@@ -567,17 +730,14 @@ function Inbox() {
     }
   }
 
-  // Components
+  // UI bits
   const ThreadButton = ({ thread }) => (
     <button
       type="button"
       className={`thread ${thread.id === selectedId ? "active" : ""}`}
       onClick={() => setSelectedId(thread.id)}
     >
-      <PcAvatar 
-        src={thread.avatarSrc || "/img/raccoon.png"}
-        bg={thread.avatarBg}
-      />
+      <PcAvatar src={thread.avatarSrc || "/img/raccoon.png"} bg={thread.avatarBg} />
       <div className="thread-info">
         <div className="name">{thread.name}</div>
         <div className="preview">{thread.preview}</div>
@@ -614,11 +774,26 @@ function Inbox() {
             />
           </div>
           <div className="thread-list">
-            {filteredThreads.length === 0 ? (
-              <div className="thread-empty">No matches</div>
-            ) : (
-              filteredThreads.map((t) => <ThreadButton key={t.id} thread={t} />)
-            )}
+            {(() => {
+              const q = threadSearch.trim().toLowerCase();
+              const source = q
+                ? threads.filter((t) => {
+                    const nameHit = (t.name || "").toLowerCase().includes(q);
+                    let msgHit = false;
+                    const list = messagesByThread[t.id] || [];
+                    for (let i = 0; i < list.length && !msgHit; i++) {
+                      const m = list[i];
+                      if (m.kind === "text" && (m.text || "").toLowerCase().includes(q)) {
+                        msgHit = true;
+                      }
+                    }
+                    return nameHit || msgHit;
+                  })
+                : threads;
+
+              if (source.length === 0) return <div className="thread-empty">No matches</div>;
+              return source.map((t) => <ThreadButton key={t.id} thread={t} />);
+            })()}
           </div>
         </aside>
 
@@ -638,8 +813,8 @@ function Inbox() {
             </div>
           </header>
 
-          <div 
-            className={`chat-body ${isUploading ? "is-uploading" : ""}`} 
+          <div
+            className={`chat-body ${isUploading ? "is-uploading" : ""}`}
             ref={scrollerRef}
             onPaste={onPaste}
             onDragOver={onDragOver}
@@ -655,10 +830,7 @@ function Inbox() {
               msgs.map((m) => {
                 const mine = m.from === "me";
                 return (
-                  <div
-                    key={m.id}
-                    className={`msg-row ${mine ? "me" : "other"}`}
-                  >
+                  <div key={m.id} className={`msg-row ${mine ? "me" : "other"}`}>
                     {!mine && (
                       <PcAvatar
                         as={otherProfileHref ? "link" : "div"}
@@ -671,7 +843,12 @@ function Inbox() {
                     <div className="bubble-stack">
                       {m.kind === "image" ? (
                         <div className={`bubble image ${mine ? "me" : "other"}`} title={m.name || "image"}>
-                          <img src={m.url} alt={m.name || "sent image"} draggable="false" onLoad={scrollToBottom}/>
+                          <img
+                            src={m.url}
+                            alt={m.name || "sent image"}
+                            draggable="false"
+                            onLoad={scrollToBottom}
+                          />
                         </div>
                       ) : (
                         <div className={`bubble ${mine ? "me" : "other"}`}>
@@ -679,14 +856,11 @@ function Inbox() {
                         </div>
                       )}
                       <TimeOutside ts={m.ts} />
+                      <div ref={endRef} />
                     </div>
 
                     {mine && (
-                      <PcAvatar
-                        src={myAvatar}
-                        bg={myAvatarBundle.avatarBg}
-                        title="My avatar"
-                      />  
+                      <PcAvatar src={myAvatar} bg={myAvatarBundle.avatarBg} title="My avatar" />
                     )}
                   </div>
                 );
@@ -699,7 +873,7 @@ function Inbox() {
               type="button"
               className="icon-btn"
               aria-label="Attach image"
-              onClick={() => fileRef.current?.click()}
+              onClick={pickImage}
             >
               <svg viewBox="0 0 24 24" width="26" height="26">
                 <rect
@@ -732,12 +906,7 @@ function Inbox() {
               rows={1}
             />
 
-            <button
-              className="send-arrow-btn"
-              type="button"
-              onClick={send}
-              aria-label="Send"
-            >
+            <button className="send-arrow-btn" type="button" onClick={send} aria-label="Send">
               <img className="send-arrow" src={sendArrow} alt="" />
             </button>
 
@@ -760,6 +929,6 @@ function Inbox() {
       </div>
     </div>
   );
-};
+}
 
 export default Inbox;
