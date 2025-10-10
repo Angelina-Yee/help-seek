@@ -6,28 +6,54 @@ import { User, USER_ENUMS } from "../models/User.js";
 
 const router = express.Router();
 
+function getAccessToken(req) {
+  const hdr = req.headers.authorization || "";
+  const bearer = hdr.startsWith("Bearer ") ? hdr.slice(7).trim() : null;
+  if (bearer) return bearer;
+
+  const cookieHeader = req.headers.cookie || "";
+  if (!cookieHeader) return null;
+
+  const cookies = Object.fromEntries(
+    cookieHeader
+      .split(";")
+      .map((c) => {
+        const i = c.indexOf("=");
+        if (i === -1) return [c.trim(), ""];
+        return [c.slice(0, i).trim(), decodeURIComponent(c.slice(i + 1))];
+      })
+      .filter(([k]) => k)
+  );
+  return cookies.access_token || cookies.token || null;
+}
+
 // Get user id from Bearer token
 function getUserIdFromAuth(req) {
-  const hdr = req.headers.authorization || "";
-  const token = hdr.startsWith("Bearer ") ? hdr.slice(7).trim() : null;
+  const token = getAccessToken(req);
   if (!token) throw createError(401, "Missing token");
-  const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+
+  let payload;
+  try {
+    payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+  } catch {
+    throw createError(401, "Invalid or expired token");
+  }
+
   const userId = payload.sub || payload.userId || payload.id;
   if (!userId) throw createError(401, "Invalid token");
-
   return userId;
 }
 
 //Get user's prfile info
 router.get("/me", async (req, res, next) => {
   try {
-    //Fetch user from DB
     const userId = getUserIdFromAuth(req);
     const user = await User.findById(userId).lean();
     if (!user) throw createError(404, "User not found");
 
     //Return profile info
     res.json({
+      id: String(user._id),
       name: user.name || "",
       email: user.email,
       college: user.college || null,
@@ -54,7 +80,8 @@ router.patch(
   async (req, res, next) => {
     try {
       const errors = validationResult(req);
-      if (!errors.isEmpty()) throw createError(400, { errors: errors.array() });
+      if (!errors.isEmpty()) 
+        throw createError(400, { errors: errors.array() });
 
       const userId = getUserIdFromAuth(req);
 
@@ -77,10 +104,13 @@ router.patch(
       // Return updated profile info
       res.json({
         message: "Profile updated",
+        id: String(user._id),
         name: user.name || "",
         email: user.email,
         college: user.college || null,
         year: user.year || null,
+        avatarCharId: user.avatarCharId || "raccoon",
+        avatarColor: user.avatarColor || "blue",
       });
     } catch (err) {
       next(err);
@@ -120,5 +150,29 @@ router.patch(
   }
 );
 
+router.get("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid user id" });
+    }
+
+    const user = await User.findById(id)
+      .select("_id name avatarCharId avatarColor")
+      .lean();
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json({
+      id: String(user._id),
+      name: user.name || "User",
+      avatarCharId: user.avatarCharId || "raccoon",
+      avatarColor: user.avatarColor || "blue",
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 export default router;
