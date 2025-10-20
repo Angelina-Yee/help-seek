@@ -124,6 +124,17 @@ const api = {
     if (!res.ok) throw new Error("Upload failed");
     return await res.json();
   },
+
+  async cleanupThreads() {
+    const res = await fetch(`${API}/api/threads/cleanup`, {
+      method: "POST",
+      credentials: "include",
+      headers: { ...authHeaders() },
+    });
+    if (!res.ok) throw new Error("Cleanup failed");
+    return await res.json();
+  },
+
 };
 
 function load() {
@@ -390,16 +401,16 @@ function Inbox() {
   }, []);
 
   useEffect(() => {
-    const stateUserId = location.state?.userId || null;
-    const queryUserId = searchParams.get("user");
-    const queryThreadId = searchParams.get("thread");
-    const userId = stateUserId || queryUserId;
+    (async () => {
+      const stateUserId = location.state?.userId || null;
+      const queryUserId = searchParams.get("user");
+      const queryThreadId = searchParams.get("thread");
+      const userId = stateUserId || queryUserId;
 
-    if (queryThreadId) {
-      ensureThreadShell({ id: queryThreadId }, setThreads);
-      setSelectedId(queryThreadId);
+      if (queryThreadId) {
+        ensureThreadShell({ id: queryThreadId }, setThreads);
+        setSelectedId(queryThreadId);
 
-      (async () => {
         try {
           const meta = await api.getThread(queryThreadId);
           const peer =
@@ -424,30 +435,67 @@ function Inbox() {
         } catch (e) {
           console.warn("thread meta hydrate failed", e);
         }
-      })();
 
-      return;
-    }
+        return;
+      }
 
-    if (!userId) return;
+      if (!userId) return;
 
-    const myId = me?._id || me?.id || me?.sub || null;
-    if (myId && String(myId) === String(userId)) return;
+      const myId = me?._id || me?.id || me?.sub || null;
+      if (myId && String(myId) === String(userId)) return;
 
-    const tempId = `u:${userId}`;
-    ensureThreadShell(
-      {
-        id: tempId,
-        name: "User",
-        avatarSrc: "/img/raccoon.png",
-        avatarBg: "transparent",
-        peerId: userId,
-      },
-      setThreads
-    );
-    setSelectedId(tempId);
+      const existingThread = threads.find(t => t.peerId === userId);
+      if (existingThread) {
+        setSelectedId(existingThread.id);
+        return;
+      }
+      const { threads: serverThreads } = await api.listThreads().catch(() => ({ threads: [] }));
+      const serverThreadWithUser = serverThreads.find(t => {
+        return t.participants && t.participants.some(p => String(p) === String(userId));
+      });
+      
+      if (serverThreadWithUser) {
+        try {
+          const meta = await api.getThread(serverThreadWithUser.id);
+          const peer = meta?.peer || (meta?.peerId ? await api.getUser(meta.peerId).catch(() => null) : null);
+          const bundle = buildAvatarFromIds(peer?.avatarCharId, peer?.avatarColor);
+          
+          setThreads((prev) => {
+            const exists = prev.find(t => t.id === serverThreadWithUser.id);
+            if (exists) {
+              return prev.map(t => t.id === serverThreadWithUser.id ? { ...t, name: peer?.name || t.name } : t);
+            } else {
+              return [{
+                id: serverThreadWithUser.id,
+                name: peer?.name || "User",
+                preview: serverThreadWithUser.lastPreview || "",
+                unread: Boolean(serverThreadWithUser.unread),
+                avatarSrc: bundle.avatarSrc,
+                avatarBg: bundle.avatarBg,
+                peerId: userId,
+              }, ...prev];
+            }
+          });
+          setSelectedId(serverThreadWithUser.id);
+          return;
+        } catch (e) {
+          console.warn('Failed to load existing server thread:', e);
+        }
+      }
 
-    (async () => {
+      const tempId = `u:${userId}`;
+      ensureThreadShell(
+        {
+          id: tempId,
+          name: "User",
+          avatarSrc: "/img/raccoon.png",
+          avatarBg: "transparent",
+          peerId: userId,
+        },
+        setThreads
+      );
+      setSelectedId(tempId);
+
       try {
         const peerRaw = await api.getUser(userId).catch(() => null);
         const finalName = (peerRaw?.name || "User").trim();
@@ -459,21 +507,35 @@ function Inbox() {
         const { id: realThreadId } = await api.openThreadWith(userId);
 
         setThreads((prev) => {
-          const without = prev.filter(
-            (t) => t.id !== tempId && t.id !== realThreadId
-          );
-          return [
-            {
-              id: realThreadId,
-              name: finalName,
-              preview: "",
-              unread: false,
-              avatarSrc: finalBundle.avatarSrc,
-              avatarBg: finalBundle.avatarBg,
-              peerId: userId,
-            },
-            ...without,
-          ];
+          const withoutTemp = prev.filter((t) => t.id !== tempId);
+          const existingThread = withoutTemp.find((t) => t.id === realThreadId);
+          
+          if (existingThread) {
+            return withoutTemp.map((t) =>
+              t.id === realThreadId
+                ? {
+                    ...t,
+                    name: finalName,
+                    avatarSrc: finalBundle.avatarSrc,
+                    avatarBg: finalBundle.avatarBg,
+                    peerId: userId,
+                  }
+                : t
+            );
+          } else {
+            return [
+              {
+                id: realThreadId,
+                name: finalName,
+                preview: "",
+                unread: false,
+                avatarSrc: finalBundle.avatarSrc,
+                avatarBg: finalBundle.avatarBg,
+                peerId: userId,
+              },
+              ...withoutTemp,
+            ];
+          }
         });
         setSelectedId(realThreadId);
       } catch (e) {
@@ -573,7 +635,20 @@ function Inbox() {
       try {
         const { messages } = await api.getMessages(selectedId, 50);
         if (stop) return;
-        mergeMessages(selectedId, messages);
+        setMessagesByThread((prev) => {
+          const existing = prev[selectedId] || [];
+          const optimisticOnly = existing.filter((m) => {
+            if (m?.uploaded === false) return true;
+            const id = String(m?.id || "");
+            return id.length !== 24;
+          });
+          const byId = new Map(messages.map((m) => [m.id, m]));
+          for (const m of optimisticOnly) {
+            if (!byId.has(m.id)) byId.set(m.id, m);
+          }
+          const merged = Array.from(byId.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+          return { ...prev, [selectedId]: merged };
+        });
         await api.seen(selectedId);
         scrollToBottom();
       } catch (e) {
@@ -625,9 +700,18 @@ function Inbox() {
       const saved = await api.sendMessage(selectedId, { text });
       setMessagesByThread((prev) => {
         const list = prev[selectedId] || [];
-        const idx = list.findIndex((m) => m.id === optimistic.id);
-        if (idx >= 0) list[idx] = { ...list[idx], ...saved };
-        return { ...prev, [selectedId]: list };
+        const withoutTemp = list.filter((m) => m.id !== optimistic.id);
+        const byId = new Map(withoutTemp.map((m) => [m.id, m]));
+        const finalMsg = {
+          ...optimistic,
+          ...saved,
+          from: "me",
+          kind: "text",
+          text,
+        };
+        byId.set(finalMsg.id, finalMsg);
+        const merged = Array.from(byId.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+        return { ...prev, [selectedId]: merged };
       });
       scrollToBottom();
     } catch (err) {
@@ -709,17 +793,18 @@ function Inbox() {
 
         setMessagesByThread((prev) => {
           const list = prev[selectedId] || [];
-          const idx = list.findIndex((m) => m.id === optimistic.id);
-          if (idx >= 0) {
-            list[idx] = {
-              ...list[idx],
-              url: uploaded.url,
-              uploaded: true,
-              ts: saved.ts ?? list[idx].ts,
-              id: saved.id ?? list[idx].id,
-            };
-          }
-          return { ...prev, [selectedId]: list };
+          const without = list.filter((m) => m.id !== optimistic.id && m.id !== saved.id);
+          const finalMsg = {
+            ...optimistic,
+            id: saved.id ?? optimistic.id,
+            url: uploaded.url,
+            uploaded: true,
+            ts: saved.ts ?? optimistic.ts,
+            from: "me",
+            kind: "image",
+          };
+          const merged = [...without, finalMsg].sort((a, b) => (a.ts || 0) - (b.ts || 0));
+          return { ...prev, [selectedId]: merged };
         });
       }
       scrollToBottom();
@@ -811,6 +896,24 @@ function Inbox() {
                 {current?.name || "Select a chat"}
               </div>
             </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className="icon-btn cleanup-btn"
+                title="Keep only the most recent valid thread"
+                onClick={async () => {
+                  try {
+                    const result = await api.cleanupThreads();
+                    alert(`Cleanup complete! Removed ${result.totalRemoved} threads. ${result.keptThread ? 'Kept 1 valid thread.' : 'No valid threads found.'}`);
+                    window.location.reload();
+                  } catch (e) {
+                    alert('Cleanup failed. Please try again.');
+                  }
+                }}
+              >
+                Cleanup
+              </button>
+            </div>
           </header>
 
           <div
@@ -823,7 +926,7 @@ function Inbox() {
             {msgs.length === 0 ? (
               <div className="empty">
                 {current
-                  ? `${current.name} has sent a message regarding your post.`
+                  ? `Start a conversation with ${current.name}.`
                   : "Choose a conversation."}
               </div>
             ) : (

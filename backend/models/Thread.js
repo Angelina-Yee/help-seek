@@ -15,5 +15,12 @@ ThreadSchema.index({ updatedAt: -1 });
 
 ThreadSchema.index({ participants: 1 });
 
+ThreadSchema.index({ participants: 1 }, { 
+  unique: true, 
+  partialFilterExpression: { 
+    participants: { $size: 2 }
+  }
+});
+
 const Thread = model("Thread", ThreadSchema);
 export default Thread;

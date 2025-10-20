@@ -10,7 +10,27 @@ router.get("/", requireAuth, async (req, res, next) => {
   try {
     const me = String(req.user.id);
     const threads = await Thread.find({ participants: me }).sort({ updatedAt: -1 }).lean();
-    const data = threads.map((t) => {
+    
+    const validThreads = threads.filter((t) => {
+      const participants = t.participants || [];
+      return participants.length === 2 && 
+             participants.every(p => p && String(p).length === 24);
+    });
+    
+    const threadMap = new Map();
+    validThreads.forEach(thread => {
+      const participants = (thread.participants || []).sort().join(',');
+      if (!threadMap.has(participants) || 
+          new Date(thread.updatedAt) > new Date(threadMap.get(participants).updatedAt)) {
+        threadMap.set(participants, thread);
+      }
+    });
+    
+    const uniqueThreads = Array.from(threadMap.values()).sort((a, b) => 
+      new Date(b.updatedAt) - new Date(a.updatedAt)
+    );
+    
+    const data = uniqueThreads.map((t) => {
       const unreadCount =
         (t.unreadByUser?.get && t.unreadByUser.get(me)) ??
         t.unreadByUser?.[me] ??
@@ -152,14 +172,95 @@ router.post("/open", requireAuth, async (req, res, next) => {
     const { userId } = req.body;
     if (!userId) return res.status(400).json({ error: "userId required" });
 
-    const participants = [me, String(userId)].sort();
-    let thread = await Thread.findOne({ participants });
-
-    if (!thread) {
-      thread = await Thread.create({ participants, lastPreview: "" });
+    const otherUserId = String(userId);
+    
+    const allThreads = await Thread.find({ 
+      participants: { $all: [me, otherUserId] }
+    });
+    
+    let thread;
+    if (allThreads.length === 0) {
+      const participants = [me, otherUserId].sort();
+      try {
+        thread = await Thread.create({ participants, lastPreview: "" });
+      } catch (error) {
+        if (error.code === 11000) {
+          thread = await Thread.findOne({ participants });
+        } else {
+          throw error;
+        }
+      }
+    } else {
+      thread = allThreads.reduce((latest, current) => 
+        new Date(current.updatedAt) > new Date(latest.updatedAt) ? current : latest
+      );
+      
+      const duplicateIds = allThreads
+        .filter(t => t._id.toString() !== thread._id.toString())
+        .map(t => t._id);
+      
+      if (duplicateIds.length > 0) {
+        await Thread.deleteMany({ _id: { $in: duplicateIds } });
+        await Message.deleteMany({ thread: { $in: duplicateIds } });
+      }
     }
     res.json({ id: String(thread._id) });
   } catch (e) { next(e); }
 });
+
+router.post("/cleanup", requireAuth, async (req, res, next) => {
+  try {
+    const me = String(req.user.id);
+    
+    const allThreads = await Thread.find({ participants: me }).lean();
+    
+    if (allThreads.length === 0) {
+      return res.json({ 
+        message: "No threads found to clean up.",
+        totalRemoved: 0
+      });
+    }
+    
+    const validThreads = allThreads.filter((t) => {
+      const participants = t.participants || [];
+      return participants.length === 2 && 
+             participants.every(p => p && String(p).length === 24);
+    });
+    
+    let threadToKeep = null;
+    if (validThreads.length > 0) {
+      threadToKeep = validThreads.reduce((latest, current) => 
+        new Date(current.updatedAt) > new Date(latest.updatedAt) ? current : latest
+      );
+    }
+    
+    const threadsToDelete = allThreads.filter(t => 
+      !threadToKeep || t._id.toString() !== threadToKeep._id.toString()
+    );
+    
+    if (threadsToDelete.length > 0) {
+      const deleteIds = threadsToDelete.map(t => t._id);
+      await Thread.deleteMany({ _id: { $in: deleteIds } });
+    }
+    
+    if (threadToKeep) {
+      const orphanedMessages = await Message.find({ 
+        thread: { $nin: [threadToKeep._id] }
+      });
+      if (orphanedMessages.length > 0) {
+        await Message.deleteMany({ 
+          thread: { $nin: [threadToKeep._id] }
+        });
+      }
+    }
+    
+    res.json({ 
+      message: `Aggressive cleanup complete. Removed ${threadsToDelete.length} threads. ${threadToKeep ? 'Kept 1 valid thread.' : 'No valid threads found.'}`,
+      totalRemoved: threadsToDelete.length,
+      keptThread: threadToKeep ? String(threadToKeep._id) : null
+    });
+  } catch (e) { next(e); }
+});
+
 
 export default router;
