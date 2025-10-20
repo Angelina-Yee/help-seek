@@ -49,7 +49,6 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/instructions" element={<HowItWorks />} />
         <Route path="/signup1" element={<Signup1 />} />
         <Route path="/signup2" element={<Signup2 />} />
         <Route path="/signup3" element={<Signup3 />} />
@@ -66,6 +65,7 @@ function App() {
           <Route path="/categAll" element={<CategAll />} />
           <Route path="/users/:id" element={<Others />} />
           <Route path="/inbox" element={<Inbox />} />
+          <Route path="/instructions" element={<HowItWorks />} />
           <Route path="/category" element={<Category />} />
         </Route>
         <Route path="/login" element={<Login />} />

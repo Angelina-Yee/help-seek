@@ -64,6 +64,10 @@ function Sidebar({ inboxUnread = 0 }) {
             <NavLink to="/inbox" className="sb-item">
               Inbox
             </NavLink>
+
+            <NavLink to="/instructions" className="sb-item">
+              Guide
+            </NavLink>
           </div>
           <div className="sb-section">
             <div className="sb-title">Browse</div>
