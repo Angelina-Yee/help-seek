@@ -60,7 +60,6 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.get("/health", (_req, res) => res.json({ ok: true }));
 app.use("/auth", authRoutes);
 app.use("/api/profile", profileRouter);
-app.use("/users", profileRouter);
 app.use("/api/posts", postsRouter);
 app.use("/api/threads", threadsRouter);
 app.use("/api/upload", uploadRouter);

@@ -1,8 +1,13 @@
 import express from "express";
 import createError from "http-errors";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 import { body, validationResult } from "express-validator";
 import { User, USER_ENUMS } from "../models/User.js";
+import { Post } from "../models/Post.js";
+import Thread from "../models/Thread.js";
+import Message from "../models/Message.js";
 
 const router = express.Router();
 
@@ -143,6 +148,45 @@ router.patch(
       res.json({
         avatarCharId: user.avatarCharId,
         avatarColor: user.avatarColor,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.delete(
+  "/me",
+  body("password").isString().isLength({ min: 1 }),
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        throw createError(400, "Password is required");
+      }
+
+      const userId = getUserIdFromAuth(req);
+      const { password } = req.body;
+      
+      const user = await User.findById(userId);
+      if (!user) throw createError(404, "User not found");
+
+      const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isPasswordValid) {
+        throw createError(401, "Incorrect password");
+      }
+
+      await Post.deleteMany({ user: userId });
+      await Thread.deleteMany({ participants: userId });
+      await Message.deleteMany({ sender: userId });
+      await User.findByIdAndDelete(userId);
+
+      res.clearCookie("access_token");
+      res.clearCookie("token");
+
+      res.json({ 
+        message: "Account deleted successfully",
+        deletedAt: new Date().toISOString()
       });
     } catch (err) {
       next(err);
