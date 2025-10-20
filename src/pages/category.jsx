@@ -6,6 +6,7 @@ import Choice from "../components/choice";
 import NewPost from "../components/newPost";
 import CategAll from "../components/categAll";
 import Notif from "../components/notif";
+import { useMessageNotifications } from "../hooks/useMessageNotifications";
 import { listPosts } from "../api";
 import { charById, colorById } from "../lib/avatarCatalog";
 
@@ -315,12 +316,7 @@ function Category() {
                     })} 
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
-                <Notif
-                    notifications={[
-                        { id: "n1", title: "New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString() },
-                        { id: "n2", title: "New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString() }
-                    ]}
-                />
+                <Notif notifications={useMessageNotifications()} />
             </div>
 
             {/*Hero*/}

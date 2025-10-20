@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { renderVerificationEmail, renderSignupEmail, renderForgotEmail } from "./emails.js";
+import { renderVerificationEmail, renderSignupEmail, renderForgotEmail, renderMessageEmail } from "./emails.js";
 
 //Config from .env
 const host = process.env.SMTP_HOST;
@@ -61,4 +61,9 @@ export async function sendSignupCode({ to, name = "", code, replyTo }) {
 export async function sendForgotCode({ to, name = "", code, replyTo }) {
   const { subject, html, text } = renderForgotEmail({ name, code });
   return sendEmail({ to, subject, html, text, replyTo });
+}
+
+export async function sendMessageNotification({ to, recipientName = "", senderName = "", preview = "", threadUrl = "" }) {
+  const { subject, html, text } = renderMessageEmail({ recipientName, senderName, preview, threadUrl });
+  return sendEmail({ to, subject, html, text });
 }

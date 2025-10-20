@@ -274,3 +274,98 @@ export function renderVerificationEmail({ kind, name, code }) {
     ? renderForgotEmail({ name, code })
     : renderSignupEmail({ name, code });
 }
+
+function messageFrame({ subject, subheading, heading, name, lead }) {
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>${subject}</title>
+    ${headFonts()}
+  </head>
+  <body>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="wrap">
+      <tr>
+        <td align="center">
+          <table role="presentation" cellspacing="0" cellpadding="0" class="card">
+            <tr>
+              <td class="px pt" style="background: transparent; padding-bottom: 30px;">
+                <table role= "presentation" width="100%" cellspacing= "0" cellpadding= "0">
+                  <tr>
+                    <td align="left">
+                      <div style="
+                          font-family:'Calistoga', Georgia, 'Times New Roman', serif;
+                          color:${THEME.blue};
+                          font-size:24px;
+                          font-weight:bold;">
+                        help n seek
+                      </div>
+                    </td>
+                    <td align="right">
+                      <div style="
+                          font-family:'Calistoga', Georgia, 'Times New Roman', serif;
+                          color:${THEME.blue};
+                          font-size:18px;
+                          font-weight:400;">
+                        ${subheading}
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="px">
+                <h1 class="h1" style="margin:0; color:${THEME.blue}; font-weight:400;
+                    font-family:'Calistoga', Georgia, 'Times New Roman', serif;">
+                  ${heading}
+                </h1>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="px" style="padding-top:10px;">
+                <p class="lh" style="margin:0; color:${THEME.blue}; font-size:16px;
+                    font-family:'Lato', Arial, Helvetica, sans-serif;">
+                  Hi ${name || "there"},
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td class="px" style="padding-top:8px; padding-bottom:24px;">
+                <p class="lh" style="margin:0; color:${THEME.blue}; font-size:16px;
+                    font-family:'Lato', Arial, Helvetica, sans-serif;">
+                  ${lead}
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="px pb" style="border-top:${THEME.borderWidth} solid ${THEME.blue};">
+                <p class="lh" style="margin:0; color:${THEME.meta}; font-size:14px;
+                    font-family:'Lato', Arial, Helvetica, sans-serif; padding-top:20px;">
+                  Help N Seek team<br />
+                  <a href="mailto:helpnseek@gmail.com" style="color:${THEME.blue};">helpnseek@gmail.com</a>
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>`;
+}
+
+export function renderMessageEmail({ recipientName, senderName }) {
+  const subject = "Help N Seek - New Message";
+  const subheading = "New Message";
+  const heading = "You've got new message";
+  const lead = `A user sent you a message on Help N Seek.`;
+  const html = messageFrame({ subject, subheading, heading, name: recipientName || "there", lead });
+  const text = `${subject}\n\n${heading}\n\nHi ${recipientName || "there"},\n\n${lead}\n\nHelp N Seek team\nhelpnseek@gmail.com`;
+  return { subject, html, text };
+}

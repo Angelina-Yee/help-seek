@@ -52,3 +52,10 @@ export function listPosts({ type, resolved = false, page = 1, limit = 20 }) {
 export function resolvePost(postId, resolved = true) {
   return putJson(`/api/posts/${postId}/resolve`, { resolved });
 }
+
+export async function listThreads() {
+  const res = await apiFetch(`/api/threads`, { method: "GET" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || "Request failed");
+  return data;
+}

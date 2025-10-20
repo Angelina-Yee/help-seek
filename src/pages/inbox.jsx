@@ -59,7 +59,7 @@ const api = {
       headers: { ...authHeaders() },
     });
     if (!res.ok) throw new Error("listThreads failed");
-    return await res.json(); // { threads: [...] }
+    return await res.json();
   },
 
   async getThread(threadId) {
@@ -68,7 +68,7 @@ const api = {
       headers: { ...authHeaders() },
     });
     if (!res.ok) throw new Error("getThread failed");
-    return await res.json(); // { id, participants, peerId, peer, ... }
+    return await res.json();
   },
 
   async openThreadWith(userId) {
@@ -290,9 +290,9 @@ function Inbox() {
 
   useEffect(() => {
     (async () => {
-      try {
-        const { threads: list } = await api.listThreads();
-        list.forEach((t) => {
+        try {
+          const { threads: list } = await api.listThreads();
+          list.forEach((t) => {
           ensureThreadShell(
             {
               id: t.id,
@@ -449,6 +449,7 @@ function Inbox() {
         setSelectedId(existingThread.id);
         return;
       }
+
       const { threads: serverThreads } = await api.listThreads().catch(() => ({ threads: [] }));
       const serverThreadWithUser = serverThreads.find(t => {
         return t.participants && t.participants.some(p => String(p) === String(userId));
@@ -666,7 +667,6 @@ function Inbox() {
     };
   }, [selectedId, mergeMessages, scrollToBottom]);
 
-  // draft handlers
   const onDraftChange = useCallback(
     (e) => {
       setDraft(e.target.value);
@@ -726,7 +726,6 @@ function Inbox() {
     }
   };
 
-  // image attach
   const pickImage = () => fileRef.current?.click();
 
   const onFile = (e) => {
@@ -815,7 +814,6 @@ function Inbox() {
     }
   }
 
-  // UI bits
   const ThreadButton = ({ thread }) => (
     <button
       type="button"

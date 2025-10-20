@@ -5,9 +5,10 @@ import Choice from "../components/choice";
 import NewPost from "../components/newPost";
 import { Link, useNavigate } from "react-router-dom";
 import CategAll from "../components/categAll";
-import { listPosts } from "../api";
+import { listPosts, listThreads } from "../api";
 import { charById, colorById } from "../lib/avatarCatalog";
 import Notif from "../components/notif";
+import { useMessageNotifications } from "../hooks/useMessageNotifications";
 
 //API reqeust URL
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
@@ -118,6 +119,37 @@ function Home() {
 
 	const losses = useCarousel();
 	const finds = useCarousel();
+
+    function useMessageNotifications() {
+        const [items, setItems] = useState([]);
+        useEffect(() => {
+            let mounted = true;
+            let timer;
+            const fetchOnce = async () => {
+                try {
+                    const data = await listThreads();
+                    const threads = data?.threads || [];
+                    const mapped = threads
+                        .filter(t => t.unread)
+                        .slice(0, 10)
+                        .map(t => ({
+                            id: t.id,
+                            title: "New reply",
+                            body: t.lastPreview || "New message",
+                            createdAt: t.updatedAt || new Date().toISOString(),
+                        }));
+                    if (mounted) setItems(mapped);
+                } catch {}
+            };
+            const loop = async () => {
+                await fetchOnce();
+                timer = setTimeout(loop, 8000);
+            };
+            loop();
+            return () => { mounted = false; if (timer) clearTimeout(timer); };
+        }, []);
+        return items;
+    }
 
     useEffect(() => {
 		(async () => {
@@ -356,16 +388,7 @@ function Home() {
                     ))}
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
-				<Notif
-					notifications={[
-						{id: "n1", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
-						{id: "n2", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
-						{id: "n1", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
-						{id: "n2", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
-						{id: "n1", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
-						{id: "n2", title:"New reply", body: "Jane Doe: I'll be at PC in 20 minutes", createdAt: new Date().toISOString()},
-					]}
-				/>
+                <Notif notifications={useMessageNotifications()} />
             </div>
 
             {/*Recent Losses*/}

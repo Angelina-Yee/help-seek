@@ -70,7 +70,21 @@ function NewPost({ onClose, onBack, postType, initialType }) {
   };
 
   const resolveType = () => {
-    return "lost";
+    const fromState = normalize(typeChoice);
+    if (fromState) return fromState;
+
+    const fromProps = normalize(postType ?? initialType);
+    if (fromProps) return fromProps;
+
+    try {
+      const fromSession = normalize(sessionStorage.getItem("newpost.type"));
+      if (fromSession) return fromSession;
+    } catch {}
+
+    const fromWindow = normalize(typeof window !== "undefined" ? window.__NEWPOST_TYPE : "");
+    if (fromWindow) return fromWindow;
+
+    return "";
   };
 
   const onSubmit = async (e) => {
@@ -83,6 +97,9 @@ function NewPost({ onClose, onBack, postType, initialType }) {
       if (!token) throw new Error("You are not logged in.");
 
       const chosen = resolveType();
+      if (!chosen) {
+        throw new Error("Please choose Loss or Find first.");
+      }
       const form = new FormData();
       if (chosen) form.append("type", chosen);
       form.append("title", title);
@@ -91,7 +108,7 @@ function NewPost({ onClose, onBack, postType, initialType }) {
       form.append("description", description);
       if (file) form.append("image", file);
 
-      const url = `${API}/api/posts`;
+      const url = chosen === "find" || chosen === "loss" ? `${API}/api/posts/${chosen}` : `${API}/api/posts`;
       const res = await fetch(url, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },

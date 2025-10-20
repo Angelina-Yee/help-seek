@@ -2,6 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import Thread from "../models/Thread.js";
 import Message from "../models/Message.js";
+import { User } from "../models/User.js";
+import { sendMessageNotification } from "../utils/sendEmail.js";
 import requireAuth from "../middleware/auth.js";
 
 const router = express.Router();
@@ -146,6 +148,20 @@ router.post("/:id/messages", requireAuth, async (req, res, next) => {
         ...(Object.keys(inc).length ? { $inc: inc } : {}),
       }
     );
+
+  try {
+    const recipients = await User.find({ _id: { $in: others } }).select("email name").lean();
+    for (const r of recipients) {
+      if (!r?.email) continue;
+      await sendMessageNotification({
+        to: r.email,
+        recipientName: r.name || "",
+        senderName: req.user?.name || "A user",
+        preview,
+        threadUrl: `${process.env.FRONTEND_URL || "http://localhost:3000"}/inbox`,
+      });
+    }
+  } catch {}
 
     res.json({ id: String(msg._id), ts: msg.createdAt.getTime(), seen: false });
   } catch (e) { next(e); }
