@@ -116,7 +116,7 @@ function getAuthorAvatar(p) {
     return { avatarSrc: char?.src, avatarBgColorHex: color || "transparent" };
 }
 
-function Category() {
+function Search() {
 
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -494,4 +494,4 @@ function Category() {
     );
 }
 
-export default Category;
+export default Search;

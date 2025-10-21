@@ -50,8 +50,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
+
 .signup-header3 h2 {
   color: var(--blue);
   font-size: 32px;
@@ -98,13 +99,18 @@
 }
 
 .name-field input {
-  padding: 12px;
+  width: 100%;
+  padding: 15px;
   border: 4px solid var(--blue);
-  border-radius: 5px;
+  border-radius: 8px;
+  background-color: var(--bg);
   font-size: 16px;
-  width: 10rem;
-  background-color: transparent;
+  margin-bottom: 30px;
+  box-sizing: border-box;
   color: var(--blue);
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-style: normal;
 }
 
 .name-field input:focus {
@@ -127,10 +133,13 @@
 }
 
 .signup-form3 label {
+  display: block;
   color: var(--blue);
-  font-size: 16px;
-  margin-bottom: 8px;
-  margin-top: 15px;
+  font-size: 18px;
+  margin-bottom: 10px;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .signup-form3 input:focus {
@@ -140,23 +149,24 @@
   color: var(--blue);
 }
 
-.password-container {
+.password-contain {
   position: relative;
-  display: block;
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 7px;
 }
 
-.password-container > input {
-  padding: 12px 40px 12px 12px;
-  border: 4px solid var(--blue);
-  border-radius: 5px;
-  font-size: 16px;
-  background-color: transparent;
-  color: var(--blue);
+.password-contain input {
   width: 100%;
+  padding: 15px;
+  border: 4px solid var(--blue);
+  border-radius: 8px;
+  background-color: var(--bg);
+  font-size: 16px;
   box-sizing: border-box;
-  margin-bottom: 0;
+  color: var(--blue);
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-style: normal;
 }
 
 .password-toggle {
@@ -231,7 +241,7 @@
   font-style: normal;
   cursor: pointer;
   display: block;
-  margin-top: 12px;
+  margin-top: 18px;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 0px;

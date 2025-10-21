@@ -2,15 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/howItWorks.css";
 
-function HowItWorks() {
+function HowItWorks2() {
   return (
     <div className="how-it-works-page">
       <header className="navbar">
         <div className="logo">help n seek</div>
-        <nav>
-          <Link to="/">home</Link>
-          <Link to="/signup1">sign in</Link>
-        </nav>
       </header>
 
       <main className="how-content">
@@ -110,21 +106,6 @@ function HowItWorks() {
             </div>
           </div>
         </div>
-
-        <div className="cta-section">
-          <h2>Ready to Get Started?</h2>
-          <p>
-            Join our community and help reunite people with their belongings.
-          </p>
-          <div className="cta-buttons">
-            <Link to="/signup1" className="btn-primary">
-              Sign Up Now
-            </Link>
-            <Link to="/login" className="btn-secondary">
-              Login
-            </Link>
-          </div>
-        </div>
       </main>
 
       <footer className="page-footer">
@@ -137,4 +118,4 @@ function HowItWorks() {
   );
 }
 
-export default HowItWorks;
+export default HowItWorks2;

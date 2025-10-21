@@ -24,8 +24,9 @@ import CategAll from "./components/categAll";
 import ForgotPassword3 from "./pages/forgotpassword3";
 import Inbox from "./pages/inbox";
 import Category from "./pages/category";
-import Notif from "./components/notif";
 import HowItWorks from "./pages/howItWorks";
+import HowItWorks2 from "./pages/howItWorks2";
+import Search from "./pages/search";
 
 import { initAuth } from "./api";
 
@@ -65,13 +66,15 @@ function App() {
           <Route path="/categAll" element={<CategAll />} />
           <Route path="/users/:id" element={<Others />} />
           <Route path="/inbox" element={<Inbox />} />
-          <Route path="/instructions" element={<HowItWorks />} />
+          <Route path="/howitworks" element={<HowItWorks2 />} />
           <Route path="/category" element={<Category />} />
+          <Route path="/search" element={<Search />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/forgotpassword2" element={<ForgetPassword2 />} />
         <Route path="/forgotpassword3" element={<ForgotPassword3 />} />
+        <Route path="/instructions" element={<HowItWorks />} />
       </Routes>
     </BrowserRouter>
   );

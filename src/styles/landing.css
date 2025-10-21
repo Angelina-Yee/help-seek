@@ -17,8 +17,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: url("../assets/border.png") repeat-x bottom;
-  background-size: 100vw 5rem;
   padding: 1.5rem 2rem;
 }
 
@@ -69,4 +67,47 @@
 .hero span {
   display: block;
   margin-top: 0.5rem;
+}
+
+.how-section{
+  display: none;
+}
+
+@media (max-width: 480px){
+  .navbar{
+    padding: 1rem;
+  }
+
+  .logo{
+    font-size: 20px;
+  }
+
+  .navbar a{
+    font-size: 20px;
+    margin: 0 0.5rem;
+  }
+
+  .navbar .how-link{
+    display: none;
+  }
+
+  .hero{
+    padding: 1rem;
+    height: 80vh;
+    text-align: left;
+    justify-content: flex-end;
+  }
+
+  .hero h1{
+    font-size: 3rem;
+  }
+
+  .hero span{
+    font-size: 3rem;
+  }
+
+  .how-section{
+    display: block;
+    padding: 4.5rem 0;
+  }
 }

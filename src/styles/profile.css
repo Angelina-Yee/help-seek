@@ -56,7 +56,7 @@ html, body{
     gap: 16px;
     flex-direction: column;
     align-items: left;
-    margin-top: -40px;
+    margin-top: -20px;
 }
 
 .prof-link, .prof-link-settings, .prof-link-third{

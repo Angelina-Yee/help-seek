@@ -16,8 +16,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: url("../assets/border.png") repeat-x bottom;
-  background-size: 100vw 5rem;
   padding: 1.05rem 2rem;
 }
 

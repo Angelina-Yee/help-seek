@@ -110,7 +110,7 @@ function Login() {
             />
 
             <label htmlFor="password">password</label>
-            <div className="password-container">
+            <div className="password-cont">
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"

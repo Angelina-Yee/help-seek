@@ -100,7 +100,8 @@
 }
 
 .settings-confirm-dialog {
-    width: min(400px, 90vw);
+    width: min(500px, 90vw);
+    padding: 50px;
     text-align: center;
 }
 
@@ -109,7 +110,7 @@
     color: var(--blue);
     font-family: "Lato", sans-serif;
     font-weight: 700;
-    font-size: 24px;
+    font-size: 28px;
 }
 
 .settings-confirm-message {
@@ -148,7 +149,7 @@
 .settings-password-input {
     width: 100%;
     padding: 12px 15px;
-    border: 2px solid #ddd;
+    border: 3px solid var(--blue);
     border-radius: 8px;
     font-family: "Lato", sans-serif;
     font-size: 16px;
@@ -159,8 +160,9 @@
 
 .settings-password-input:focus {
     outline: none;
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px rgba(15, 52, 132, 0.1);
+    border: 4px solid var(--blue);
+    box-shadow: 0 0 5px rgba(15, 52, 132, 0.3);
+    color: var(--blue);
 }
 
 .settings-password-input.error {
@@ -179,4 +181,3 @@
     font-size: 14px;
     font-weight: 500;
 }
-

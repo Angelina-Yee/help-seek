@@ -1,5 +1,6 @@
 import React from "react";
 import "../styles/landing.css";
+import HowItWorks from "./howItWorks";
 
 function landing() {
   return (
@@ -8,7 +9,7 @@ function landing() {
       <header className="navbar">
         <div className="logo">help n seek</div>
         <nav>
-          <a href="/instructions">how it works</a>
+          <a href="/instructions" className="how-link">how it works</a>
           <a href="/signup1">sign in</a>
         </nav>
       </header>
@@ -20,6 +21,10 @@ function landing() {
           <span>to the digital lost &amp; found</span>
         </h1>
       </section>
+      <section className="how-section">
+        <HowItWorks/>
+      </section>
+
     </div>
   );
 }

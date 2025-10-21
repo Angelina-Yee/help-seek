@@ -24,10 +24,10 @@
 .inbox-root .inbox-page {
   background: var(--bg);
   min-height: calc(90vh - 64px);
-  padding: 24px 28px;
+  padding: 24px 8rem;
   display: grid;
   grid-template-columns: 360px 1fr;
-  gap: 32px;
+  gap: 40px;
   color: var(--blue);
   box-sizing: border-box;
   font-family: "Calistoga", serif;
@@ -114,7 +114,9 @@
 }
 
 .inbox-root .chat-title-name {
+  font-family: "Lato", sans-serif;
   font-weight: 700;
+  font-style: normal;
   font-size: 18px;
   letter-spacing: 0.3px;
 }
@@ -122,6 +124,7 @@
 .inbox-root .chat-body {
   padding: 16px;
   overflow-y: auto;
+  scrollbar-width: thin;
   display: flex;
   flex-direction: column;
   scroll-behavior: smooth;
@@ -218,6 +221,9 @@
 
 .inbox-root .composer-note {
   font-size: 12px;
+  font-family: "Lato", sans-serif;
+  font-weight: 500;
+  font-style: normal;
   line-height: 1.25;
   color: var(--blue);
   margin: 4px 16px 12px;
@@ -284,7 +290,9 @@
   border-radius: 6px;
   background: #fff;
   padding: 6px 12px;
-  font-family: inherit;
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-style: normal;
   font-size: 16px;
   color: var(--blue);
   outline: none;

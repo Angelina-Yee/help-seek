@@ -1,6 +1,7 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import { createPortal } from "react-dom";
 import "../styles/notif.css";
+import { MdNotificationsNone } from 'react-icons/md';
 
 function timeAgo(iso){
     const diff = Date.now() - Date.parse(iso);
@@ -77,7 +78,7 @@ export default function Notif({notifications = []}){
                 aria-expanded = {open ? "true" : "false"}
                 onClick={() => (open ? toggleOff() : toggle())}
             >
-                🔔
+                <MdNotificationsNone/>
                 {unreadCount>0 && (
                     <span className="notif-badge">
                         {unreadCount>99 ? "99+": unreadCount}
@@ -89,7 +90,7 @@ export default function Notif({notifications = []}){
                     <div className="notif-overlay" onMouseDown={toggleOff} aria-hidden="true"/>
                     <div ref={popRef} className="notif-popup" role="dialog" aria-label="Notifications" onMouseDown={(e) => e.stopPropagation()} style={{"--notif-top":`${pos.top}px`, "--notif-left": `${pos.left}px`, "--notif-minw": `${pos.minWidth}px`,}}>
                         <div className="notif-head">
-                            <h3>Notifications 🔔</h3>
+                            <h3>Notifications</h3>
                             <button className="notif-clear" 
                                 onClick={() => {
                                 const now=Date.now();

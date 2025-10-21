@@ -65,7 +65,7 @@ function Sidebar({ inboxUnread = 0 }) {
               Inbox
             </NavLink>
 
-            <NavLink to="/instructions" className="sb-item">
+            <NavLink to="/howitworks" className="sb-item">
               Guide
             </NavLink>
           </div>

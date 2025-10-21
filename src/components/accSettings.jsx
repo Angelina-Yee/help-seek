@@ -102,7 +102,7 @@ function AccSettings({onClose}) {
                     
                     <div className="settings-password-section">
                         <label htmlFor="delete-password" className="settings-password-label">
-                            Enter your password to confirm:
+                            Enter Password to Confirm:
                         </label>
                         <input
                             id="delete-password"
@@ -113,7 +113,7 @@ function AccSettings({onClose}) {
                                 setPassword(e.target.value);
                                 if (passwordError) setPasswordError("");
                             }}
-                            placeholder="Your current password"
+                            placeholder="Current password..."
                             disabled={isDeleting}
                             autoComplete="current-password"
                         />

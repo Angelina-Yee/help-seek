@@ -247,7 +247,7 @@ function Signup3() {
             </div>
 
             <label htmlFor="newPassword">new password</label>
-            <div className="password-container">
+            <div className="password-contain">
               <input
                 type={showNewPassword ? "text" : "password"}
                 id="newPassword"
@@ -277,7 +277,7 @@ function Signup3() {
               </button>
             </div>
 
-            {/* strength indicator (fixed height so no layout jump) */}
+            {/* strength indicator*/}
             <div className="pw-strength" aria-live="polite">
               <div className="pw-track">
                 <div
@@ -289,7 +289,7 @@ function Signup3() {
             </div>
 
             <label htmlFor="confirmPassword">confirm password</label>
-            <div className="password-container">
+            <div className="password-contain">
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 id="confirmPassword"

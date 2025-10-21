@@ -1022,8 +1022,8 @@ function Inbox() {
 
           <div className="composer-note">
             <strong>
-              **Messages are being monitored for user safety and the purpose of
-              this site.**
+              *Messages are being monitored for user safety and for the purpose of
+              this site.*
             </strong>
           </div>
         </section>
