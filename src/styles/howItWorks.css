@@ -84,7 +84,7 @@
   display: flex;
   align-items: flex-start;
   gap: 24px;
-  background: var(--white);
+  background: var(#fdf8ec);
   padding: 32px;
   border-radius: 12px;
   border: 3px solid var(--blue);
@@ -96,7 +96,7 @@
   width: 48px;
   height: 48px;
   background: var(--orange);
-  color: var(--white);
+  color: var(#fdf8ec);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -139,7 +139,7 @@
 }
 
 .tip-card {
-  background: var(--white);
+  background: var(#fdf8ec);
   padding: 24px;
   border-radius: 8px;
   border: 3px solid var(--blue);
@@ -162,7 +162,7 @@
 
 .cta-section {
   text-align: center;
-  background: var(--white);
+  background: var(#fdf8ec);
   padding: 60px 40px;
   border-radius: 12px;
   border: 3px solid var(--blue);

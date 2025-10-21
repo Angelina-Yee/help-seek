@@ -27,6 +27,8 @@ import Category from "./pages/category";
 import HowItWorks from "./pages/howItWorks";
 import HowItWorks2 from "./pages/howItWorks2";
 import Search from "./pages/search";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 import { initAuth } from "./api";
 
@@ -75,6 +77,10 @@ function App() {
         <Route path="/forgotpassword2" element={<ForgetPassword2 />} />
         <Route path="/forgotpassword3" element={<ForgotPassword3 />} />
         <Route path="/instructions" element={<HowItWorks />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       </Routes>
     </BrowserRouter>
   );
