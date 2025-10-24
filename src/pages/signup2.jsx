@@ -94,10 +94,14 @@ function Signup2() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
+
       const data = await res.json();
+
       if (!res.ok) throw new Error(data.message || "Failed to resend code");
+
       alert("A new code has been sent to your email.");
       setCode(["", "", "", "", ""]);
+      
       document.getElementById("code-0")?.focus();
     } catch (er) {
       setErr(er.message || "Could not resend code.");

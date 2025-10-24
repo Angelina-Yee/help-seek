@@ -213,11 +213,24 @@ function ensureThreadShell(meta, setThreads) {
     avatarSrc: meta.avatarSrc || "/img/raccoon.png",
     avatarBg: meta.avatarBg || "transparent",
     peerId: meta.peerId || null,
+    updatedAt: meta.updatedAt,
   };
   setThreads((prev) => {
     const exists = prev.find((t) => t.id === base.id);
-    if (exists) return prev.map((t) => (t.id === base.id ? { ...t, ...base } : t));
-    return [base, ...prev];
+    if (exists) {
+      const updated = prev.map((t) => (t.id === base.id ? { ...t, ...base } : t));
+      return updated.sort((a, b) => {
+        const aTime = new Date(a.updatedAt || 0).getTime();
+        const bTime = new Date(b.updatedAt || 0).getTime();
+        return bTime - aTime;
+      });
+    }
+    const newThreads = [base, ...prev];
+    return newThreads.sort((a, b) => {
+      const aTime = new Date(a.updatedAt || 0).getTime();
+      const bTime = new Date(b.updatedAt || 0).getTime();
+      return bTime - aTime;
+    });
   });
 }
 
@@ -300,6 +313,7 @@ function Inbox() {
               preview: t.lastPreview || "",
               peerId: null,
               unread: t.unread,
+              updatedAt: t.updatedAt,
             },
             setThreads
           );
@@ -362,6 +376,7 @@ function Inbox() {
                 ...existing,
                 preview: f.lastPreview || existing.preview || "",
                 unread: Boolean(f.unread),
+                updatedAt: f.updatedAt || existing.updatedAt,
               });
             } else {
               map.set(f.id, {
@@ -372,6 +387,7 @@ function Inbox() {
                 avatarSrc: "/img/raccoon.png",
                 avatarBg: "transparent",
                 peerId: null,
+                updatedAt: f.updatedAt,
               });
             }
           }
@@ -384,7 +400,12 @@ function Inbox() {
           for (const [id, item] of map) {
             if (!ordered.find((x) => x.id === id)) ordered.push(item);
           }
-          return ordered;
+          
+          return ordered.sort((a, b) => {
+            const aTime = new Date(a.updatedAt || 0).getTime();
+            const bTime = new Date(b.updatedAt || 0).getTime();
+            return bTime - aTime;
+          });
         });
       } catch (e) {
         console.warn("thread refresh failed", e);
@@ -692,7 +713,12 @@ function Inbox() {
       [selectedId]: [...(prev[selectedId] || []), optimistic],
     }));
     setThreads((prev) =>
-      prev.map((t) => (t.id === selectedId ? { ...t, preview: text } : t))
+      prev.map((t) => (t.id === selectedId ? { ...t, preview: text, updatedAt: Date.now() } : t))
+        .sort((a, b) => {
+          const aTime = new Date(a.updatedAt || 0).getTime();
+          const bTime = new Date(b.updatedAt || 0).getTime();
+          return bTime - aTime;
+        })
     );
     setDraft("");
 
@@ -776,7 +802,12 @@ function Inbox() {
       [selectedId]: [...(prev[selectedId] || []), ...optimisticMsgs],
     }));
     setThreads((prev) =>
-      prev.map((t) => (t.id === selectedId ? { ...t, preview: "Image" } : t))
+      prev.map((t) => (t.id === selectedId ? { ...t, preview: "Image", updatedAt: Date.now() } : t))
+        .sort((a, b) => {
+          const aTime = new Date(a.updatedAt || 0).getTime();
+          const bTime = new Date(b.updatedAt || 0).getTime();
+          return bTime - aTime;
+        })
     );
 
     try {

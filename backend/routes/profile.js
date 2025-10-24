@@ -194,6 +194,62 @@ router.delete(
   }
 );
 
+router.get("/search", async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
+    const searchQuery = String(req.query.q || "").trim();
+
+    if (!searchQuery) {
+      return res.json({
+        items: [],
+        page,
+        limit,
+        total: 0,
+        hasMore: false,
+        searchQuery: "",
+      });
+    }
+
+    const searchRegex = new RegExp(searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+
+    const searchConditions = {
+      $or: [
+        { name: searchRegex },
+        { email: searchRegex },
+      ],
+    };
+
+    const [items, total] = await Promise.all([
+      User.find(searchConditions)
+        .select("_id name avatarCharId avatarColor")
+        .sort({ name: 1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      User.countDocuments(searchConditions),
+    ]);
+
+    const users = items.map(user => ({
+      id: String(user._id),
+      name: user.name || "User",
+      avatarCharId: user.avatarCharId || "raccoon",
+      avatarColor: user.avatarColor || "blue",
+    }));
+
+    res.json({
+      items: users,
+      page,
+      limit,
+      total,
+      hasMore: page * limit < total,
+      searchQuery,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;

@@ -1,4 +1,3 @@
-// theme colors and styles for email
 const THEME = {
   bg: "#fdf8ec",
   blue: "#0f3484",
@@ -11,7 +10,6 @@ const THEME = {
   meta: "#516183",
 };
 
-// CSS for email
 function baseCss() {
   return `
     body, table, td, p { margin:0; padding:0; }
@@ -65,7 +63,6 @@ function baseCss() {
   `;
 }
 
-// Google Fonts
 function headFonts() {
   return `
     <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Lato:wght@400;700&display=swap" rel="stylesheet" />
@@ -73,7 +70,6 @@ function headFonts() {
   `;
 }
 
-// Code tile component
 function codeTile(code) {
   return `
     <!--[if mso]><center><![endif]-->
@@ -220,7 +216,6 @@ function frame({ subject, heading, subheading, name, lead, code, disclaimer }) {
 </html>`;
 }
 
-// Plain text version
 function plain({ subject, heading, name, lead, code, disclaimer }) {
   return `${subject}
 
@@ -239,7 +234,6 @@ Help N Seek team
 helpnseek@gmail.com`;
 }
 
-// Signup verification email template
 export function renderSignupEmail({ name, code }) {
   const subject = "Help N Seek verification code";
   const subheading = "Verification Code";
@@ -253,7 +247,6 @@ export function renderSignupEmail({ name, code }) {
   return { subject, html, text };
 }
 
-// Forgot password verification email template
 export function renderForgotEmail({ name, code }) {
   const subject = "Help N Seek verification code";
   const subheading = "Verification Code";
@@ -268,7 +261,6 @@ export function renderForgotEmail({ name, code }) {
   return { subject, html, text };
 }
 
-// Send correct eamil based on different verifications
 export function renderVerificationEmail({ kind, name, code }) {
   return kind === "forgot"
     ? renderForgotEmail({ name, code })

@@ -143,7 +143,7 @@ function TermsOfService() {
             <h2>11. Contact Information</h2>
             <p>
               If you have any questions about these Terms of Service, please
-              contact us at support@helpnseek.com.
+              contact us at helpnseek@gmail.com.
             </p>
           </section>
 

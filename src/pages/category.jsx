@@ -6,6 +6,7 @@ import Choice from "../components/choice";
 import NewPost from "../components/newPost";
 import CategAll from "../components/categAll";
 import Notif from "../components/notif";
+import SearchBar from "../components/SearchBar";
 import { useMessageNotifications } from "../hooks/useMessageNotifications";
 import { listPosts } from "../api";
 import { charById, colorById } from "../lib/avatarCatalog";
@@ -256,8 +257,7 @@ function Category() {
             <header className="home-navbar">
                 <div className="home-logo">help n seek</div>
                 <nav className="home-top">
-                    <input placeholder="Search" className="home-searchbar"/>
-                    <button className="home-search" aria-label="search">⌕</button>
+                    <SearchBar />
                     <button className="home-post" aria-label="create" onClick={() => setModal("choice")}>
                         <span className="new">New Post</span>
                     </button>
@@ -355,6 +355,11 @@ function Category() {
                             avatarSrc={avatarSrc}
                             avatarBgColorHex={avatarBgColorHex}
                             profileHref={href}
+                            ownerId={postUserId}
+                            currentUserId={me}
+                            postId={p._id || p.id}
+                            ownerAvatarCharId={p?.user?.avatarCharId}
+                            ownerAvatarColor={p?.user?.avatarColor}
                             />
                         );
                         })}

@@ -5,9 +5,10 @@ import Choice from "../components/choice";
 import NewPost from "../components/newPost";
 import { Link, useNavigate } from "react-router-dom";
 import CategAll from "../components/categAll";
-import { listPosts, listThreads } from "../api";
+import { listPosts } from "../api";
 import { charById, colorById } from "../lib/avatarCatalog";
 import Notif from "../components/notif";
+import SearchBar from "../components/SearchBar";
 import { useMessageNotifications } from "../hooks/useMessageNotifications";
 
 //API reqeust URL
@@ -119,37 +120,6 @@ function Home() {
 
 	const losses = useCarousel();
 	const finds = useCarousel();
-
-    function useMessageNotifications() {
-        const [items, setItems] = useState([]);
-        useEffect(() => {
-            let mounted = true;
-            let timer;
-            const fetchOnce = async () => {
-                try {
-                    const data = await listThreads();
-                    const threads = data?.threads || [];
-                    const mapped = threads
-                        .filter(t => t.unread)
-                        .slice(0, 10)
-                        .map(t => ({
-                            id: t.id,
-                            title: "New reply",
-                            body: t.lastPreview || "New message",
-                            createdAt: t.updatedAt || new Date().toISOString(),
-                        }));
-                    if (mounted) setItems(mapped);
-                } catch {}
-            };
-            const loop = async () => {
-                await fetchOnce();
-                timer = setTimeout(loop, 8000);
-            };
-            loop();
-            return () => { mounted = false; if (timer) clearTimeout(timer); };
-        }, []);
-        return items;
-    }
 
     useEffect(() => {
 		(async () => {
@@ -332,8 +302,7 @@ function Home() {
             <header className="home-navbar">
                 <div className="home-logo">help n seek</div>
                 <nav className="home-top">
-                    <input placeholder="Search" className="home-searchbar"/>
-                    <button className="home-search" aria-label="search">⌕</button>
+                    <SearchBar />
                     <button className="home-post" aria-label="create" onClick={() => setModal("choice")}>
                         <span className="new">New Post</span>
                     </button>
@@ -388,7 +357,7 @@ function Home() {
                     ))}
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
-                <Notif notifications={useMessageNotifications()} />
+				<Notif notifications={useMessageNotifications()} />
             </div>
 
             {/*Recent Losses*/}

@@ -157,7 +157,7 @@ function PrivacyPolicy() {
             <h2>12. Contact Us</h2>
             <p>
               If you have questions about this Privacy Policy or our data
-              practices, please contact us at privacy@helpnseek.com.
+              practices, please contact us at helpnseek@gmail.com.
             </p>
           </section>
 

@@ -8,6 +8,7 @@ import { listPosts } from "../api";
 import { Link, useNavigate} from "react-router-dom";
 import { charById, colorById } from "../lib/avatarCatalog";
 import Notif from "../components/notif";
+import SearchBar from "../components/SearchBar";
 import { useMessageNotifications } from "../hooks/useMessageNotifications";
 
 
@@ -275,8 +276,7 @@ function LossFind() {
             <header className="home-navbar">
                 <div className="home-logo">help n seek</div>
                 <nav className="home-top">
-                    <input placeholder="Search" className="home-searchbar"/>
-                    <button className="home-search" aria-label="search">⌕</button>
+                    <SearchBar />
                     <button className="home-post" aria-label="create" onClick={() => setModal("choice")}>
                         <span className="new">New Post</span>
                     </button>

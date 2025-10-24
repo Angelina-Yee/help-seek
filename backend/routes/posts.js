@@ -75,18 +75,6 @@ async function createPost(req, res, next, forcedType = null) {
       imagePublicId,
     });
 
-    // Debug: verifying saved type post
-    console.log(
-      "[POST /api/posts*]",
-      {
-        forcedType,
-        bodyType: req.body?.type,
-        postType: req.body?.postType,
-        queryType: req.query?.type,
-      },
-      "=> saved:",
-      post.type
-    );
 
     res.status(201).json(post);
   } catch (err) {
@@ -135,6 +123,87 @@ router.get("/", async (req, res, next) => {
       limit,
       total,
       hasMore: page * limit < total,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Search posts
+router.get("/search", async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
+    const searchQuery = String(req.query.q || "").trim();
+
+    if (!searchQuery) {
+      return res.json({
+        items: [],
+        page,
+        limit,
+        total: 0,
+        hasMore: false,
+        searchQuery: "",
+      });
+    }
+
+    // Create search regex for case-insensitive search
+    const searchRegex = new RegExp(searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+
+    // Build search query across multiple fields
+    const searchConditions = {
+      $or: [
+        { title: searchRegex },
+        { description: searchRegex },
+        { location: searchRegex },
+        { objectCategory: searchRegex },
+      ],
+    };
+
+    // Add additional filters if provided
+    const q = { ...searchConditions };
+    if (req.query.user) {
+      q.user = String(req.query.user).trim();
+    }
+
+    const t = String(req.query.type || "").toLowerCase().trim();
+    if (t === "loss" || t === "find") q.type = t;
+
+    const resolved = String(req.query.resolved || "").toLowerCase().trim();
+    if (resolved === "true" || resolved === "false") {
+      q.resolved = resolved === "true";
+    }
+
+    const usersWithMatchingNames = await User.find({
+      name: searchRegex
+    }).select("_id").lean();
+
+    const userIds = usersWithMatchingNames.map(user => user._id);
+
+    if (userIds.length > 0) {
+      q.$or = [
+        ...q.$or,
+        { user: { $in: userIds } }
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      Post.find(q)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .populate("user", "name email avatarCharId avatarColor")
+        .lean(),
+      Post.countDocuments(q),
+    ]);
+
+    res.json({
+      items,
+      page,
+      limit,
+      total,
+      hasMore: page * limit < total,
+      searchQuery,
     });
   } catch (err) {
     next(err);

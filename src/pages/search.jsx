@@ -6,8 +6,9 @@ import Choice from "../components/choice";
 import NewPost from "../components/newPost";
 import CategAll from "../components/categAll";
 import Notif from "../components/notif";
+import SearchBar from "../components/SearchBar";
 import { useMessageNotifications } from "../hooks/useMessageNotifications";
-import { listPosts } from "../api";
+import { listPosts, searchPosts, searchUsers } from "../api";
 import { charById, colorById } from "../lib/avatarCatalog";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
@@ -122,6 +123,7 @@ function Search() {
     const navigate = useNavigate();
 
     const [selectedCat, setSelectedCat] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
 
     const [name, setUserName] = useState("");
     const [avatarCharId, setAvatarCharId] = useState("raccoon");
@@ -133,6 +135,7 @@ function Search() {
     const [modal, setModal] = useState(null);
     const [showCateg, setShowCateg] = useState(false);
     const [items, setItems] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const [locationFilter, setLocationFilter] = useState("Any Location");
@@ -142,7 +145,9 @@ function Search() {
 
     useEffect(() => {
         const ui = searchParams.get("c") || "";
+        const query = searchParams.get("q") || "";
         setSelectedCat(ui ? toCanonKey(ui) : "");
+        setSearchQuery(query);
     }, [searchParams]);
 
     useEffect(() => {
@@ -170,9 +175,30 @@ function Search() {
         (async () => {
             try {
                 setLoading(true);
-                const data = await listPosts({ page: 1, limit: 40 });
-                const arr = data?.items || [];
-                if (alive) setItems(arr);
+                if (searchQuery.trim()) {
+                    const [postsData, usersData] = await Promise.all([
+                        searchPosts({ 
+                            q: searchQuery, 
+                            page: 1, 
+                            limit: 40 
+                        }),
+                        searchUsers({ 
+                            q: searchQuery, 
+                            page: 1, 
+                            limit: 20 
+                        })
+                    ]);
+                    if (alive) {
+                        setItems(postsData?.items || []);
+                        setUsers(usersData?.items || []);
+                    }
+                } else {
+                    const data = await listPosts({ page: 1, limit: 40 });
+                    if (alive) {
+                        setItems(data?.items || []);
+                        setUsers([]);
+                    }
+                }
               } catch (e) {
                 console.error(e);
               } finally {
@@ -180,7 +206,7 @@ function Search() {
               }
         })();
         return () => { alive = false; };
-    }, []);
+    }, [searchQuery]);
     
     useEffect(() => {
         function onCreated(e) {
@@ -209,6 +235,7 @@ function Search() {
     const selectCategory = (uiLabel) => {
         navigate(`/category?c=${encodeURIComponent(uiLabel)}`, { replace: true });
     };
+
 
     const visibleItems = useMemo(() => {
         let arr = [...items];
@@ -247,8 +274,11 @@ function Search() {
       }, [items, selectedCat, statusFilter, locationFilter, dateFilter, sortOrder]);
 
     const headerLabel = useMemo(() => {
+        if (searchQuery.trim()) {
+            return `Search: "${searchQuery}"`;
+        }
         return selectedCat ? `Category: "${selectedCat}"` : `All Categories`;
-    }, [selectedCat]);
+    }, [selectedCat, searchQuery]);
 
     return (
         <div className="home">
@@ -256,8 +286,7 @@ function Search() {
             <header className="home-navbar">
                 <div className="home-logo">help n seek</div>
                 <nav className="home-top">
-                    <input placeholder="Search" className="home-searchbar"/>
-                    <button className="home-search" aria-label="search">⌕</button>
+                    <SearchBar />
                     <button className="home-post" aria-label="create" onClick={() => setModal("choice")}>
                         <span className="new">New Post</span>
                     </button>
@@ -328,7 +357,68 @@ function Search() {
                         </div>
 
                         {loading && <div>Loading…</div>}
-                        {!loading && visibleItems.length === 0 && <div>No posts match your filters.</div>}
+                        {!loading && visibleItems.length === 0 && users.length === 0 && <div>No posts or users match your search.</div>}
+
+                        {!loading && users.length > 0 && (
+                            <div className="search-users-section">
+                                <h3>Users ({users.length})</h3>
+                                <div className="users-grid">
+                                    {users.map(user => {
+                                        const me = getCurrentUserId();
+                                        const href = me && String(user.id) === String(me)
+                                            ? "/profile"
+                                            : `/users/${user.id}`;
+
+                                        const char = charById(user.avatarCharId || "raccoon");
+                                        const color = colorById(user.avatarColor || "blue");
+
+                                        return (
+                                            <div key={user.id} className="user-result-card">
+                                                <Link
+                                                    to={href}
+                                                    className="user-avatar-link"
+                                                    style={{
+                                                        backgroundColor: color || "transparent",
+                                                        borderRadius: "50%",
+                                                        overflow: "hidden",
+                                                        width: 60,
+                                                        height: 60,
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        padding: 0,
+                                                        border: "none",
+                                                        textDecoration: "none",
+                                                        margin: "10px"
+                                                    }}
+                                                >
+                                                    <img
+                                                        className="ava-img"
+                                                        src={char.src}
+                                                        alt={`${user.name} avatar`}
+                                                        style={{
+                                                            width: "100%",
+                                                            height: "100%",
+                                                            objectFit: "contain",
+                                                            objectPosition: "center",
+                                                            transform: "translateY(14px)",
+                                                            display: "block"
+                                                        }}
+                                                    />
+                                                </Link>
+                                                <div className="user-name">{user.name}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {!loading && visibleItems.length > 0 && (
+                            <div className="search-posts-section">
+                                <h3>Posts ({visibleItems.length})</h3>
+                            </div>
+                        )}
 
                         {!loading && visibleItems.map(p => {
                         const me = getCurrentUserId();
@@ -355,6 +445,11 @@ function Search() {
                             avatarSrc={avatarSrc}
                             avatarBgColorHex={avatarBgColorHex}
                             profileHref={href}
+                            ownerId={postUserId}
+                            currentUserId={me}
+                            postId={p._id || p.id}
+                            ownerAvatarCharId={p?.user?.avatarCharId}
+                            ownerAvatarColor={p?.user?.avatarColor}
                             />
                         );
                         })}

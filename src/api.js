@@ -49,8 +49,28 @@ export function listPosts({ type, resolved = false, page = 1, limit = 20 }) {
   return getJson(`/api/posts?${q.toString()}`);
 }
 
+export function searchPosts({ q: searchQuery, type, resolved = false, page = 1, limit = 20 }) {
+  const params = new URLSearchParams({ 
+    q: searchQuery, 
+    type, 
+    resolved: String(resolved), 
+    page: String(page), 
+    limit: String(limit) 
+  });
+  return getJson(`/api/posts/search?${params.toString()}`);
+}
+
 export function resolvePost(postId, resolved = true) {
   return putJson(`/api/posts/${postId}/resolve`, { resolved });
+}
+
+export function searchUsers({ q: searchQuery, page = 1, limit = 20 }) {
+  const params = new URLSearchParams({ 
+    q: searchQuery, 
+    page: String(page), 
+    limit: String(limit) 
+  });
+  return getJson(`/api/profile/search?${params.toString()}`);
 }
 
 export async function listThreads() {
