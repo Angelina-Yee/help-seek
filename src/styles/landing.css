@@ -75,16 +75,18 @@
 
 @media (max-width: 480px){
   .navbar{
-    padding: 1rem;
+    padding: 0;
   }
 
-  .logo{
-    font-size: 20px;
+  .navbar .logo{
+    font-size: 1rem;
+    margin: 0;
+    padding: 0;
   }
 
-  .navbar a{
-    font-size: 20px;
-    margin: 0 0.5rem;
+  .navbar .si{
+    font-size: 1rem;
+    margin: 0;
   }
 
   .navbar .how-link{
@@ -92,7 +94,7 @@
   }
 
   .hero{
-    padding: 1rem;
+    padding: 1rem 1rem 1rem 2rem;
     height: 80vh;
     text-align: left;
     justify-content: flex-end;

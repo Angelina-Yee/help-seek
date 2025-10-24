@@ -8,8 +8,8 @@ function HowItWorks() {
       <header className="navbar">
         <div className="logo">help n seek</div>
         <nav>
-          <Link to="/">home</Link>
-          <Link to="/signup1">sign in</Link>
+          <Link to="/" className="si">home</Link>
+          <Link to="/signup1" className="si">sign in</Link>
         </nav>
       </header>
 

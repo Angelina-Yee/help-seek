@@ -8,7 +8,7 @@
 }
 
 .how-it-works-page {
-  min-height: 100vh;
+  min-height: 100%;
   background: var(--bg);
   color: var(--blue);
 }
@@ -203,7 +203,7 @@
 
 .btn-primary {
   background: var(--blue);
-  color: var(--white);
+  color: var(--bg);
 }
 
 .btn-primary:hover {
@@ -218,18 +218,18 @@
 
 .btn-secondary:hover {
   background: var(--blue);
-  color: var(--white);
+  color: var(--bg);
 }
 
 .page-footer {
   background: var(--blue);
-  color: var(--white);
+  color: var(--bg);
   padding: 40px 0;
   text-align: center;
 }
 
 .footer-content .logo {
-  color: var(--white);
+  color: var(--bg);
   font-size: 24px;
   font-weight: 400;
   margin-bottom: 8px;
@@ -254,7 +254,7 @@
   }
 
   .hero-section {
-    padding: 40px 0 60px;
+    padding: 40px 0 25px;
   }
 
   .hero-section h1 {
@@ -283,5 +283,68 @@
   .btn-primary,
   .btn-secondary {
     width: 200px;
+  }
+}
+
+@media (max-width: 480px){
+  .how-it-works-page .navbar{
+    display: none;
+  }
+
+  .hero-section h1{
+    font-size: 28px;
+  }
+
+  .hero-section p{
+    font-size: 13px;
+  }
+
+  .step-number{
+    width: 25px;
+    height: 25px;
+    font-size: 13px;
+  }
+
+  .step-card{
+    display: flex;
+    align-items: flex-start;
+    gap: 0px;
+    padding: 10px 20px 20px;
+  }
+
+  .step-content h3, .tip-card h4{
+    margin: 0 0 5px;
+    font-size: 18px;
+  }
+
+  .step-content p, .tip-card p, .cta-section p{
+    font-size: 14px;
+  }
+
+  .steps-container{
+    margin-bottom: 40px;
+  }
+
+  .tips-section h2{
+    font-size: 25px;
+    margin: 0 0 20px;
+  }
+
+  .cta-section{
+    margin-top: 3.5rem;
+    margin-bottom: 0;
+  }
+
+  .cta-section h2{
+    font-size: 25px;
+  }
+
+  .btn-primary, .btn-secondary{
+    font-size: 16px;
+  }
+
+  .page-footer{
+    padding-bottom: 0;
+    margin-bottom: 0;
   }
 }

@@ -216,8 +216,7 @@ function Profile() {
             </button>
           </div>
         </section>
-
-        {/*Help image cropping please*/}
+        
         <aside className="prof-stamp" style={{ "--glow": glowColor }}>
           <div className="stamp-frame">
             {(() => {

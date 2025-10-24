@@ -10,7 +10,7 @@ function landing() {
         <div className="logo">help n seek</div>
         <nav>
           <a href="/instructions" className="how-link">how it works</a>
-          <a href="/signup1">sign in</a>
+          <a href="/signup1" className="si">sign in</a>
         </nav>
       </header>
       {/*Hero*/}

@@ -174,9 +174,10 @@ html, body{
 }
 
 .posts-header{
-    margin-right: 40rem;
+    margin-right: 34rem;
     margin-bottom: 20px;
     margin-top: 20px;
+    width: 200px;
 }
 
 .posts-header h3{
@@ -187,4 +188,91 @@ html, body{
     letter-spacing: 1.5px;
     margin: 0;
     font-size: 1.4rem;
+}
+
+@media (max-width: 1024px){
+    .prof-container{
+        grid-template-columns: 1fr 280px;
+        padding: 8px 10px 20px 60px;
+        gap: 20px;
+    }
+
+    .prof-title{
+        font-size: 3.5rem;
+    }
+
+    .prof-stamp{
+        transform: scale(0.9);
+    }
+
+    .prof-stats{
+        gap: 6rem;
+        margin-top: 10px;
+        margin-bottom: 0;
+    }
+
+    .prof-posts{
+        transform: scale(0.94);
+        margin-top: -3.5rem;
+    }
+}
+
+@media (max-width: 480px){
+    .prof-container{
+        grid-template-columns: 1fr 240px;
+        padding: 8px 10px 20px 40px;
+        gap: 0px;
+    }
+
+    .prof-title{
+        font-size: 1.8rem;
+    }
+
+    .prof-box{
+        width: 180px;
+        height: auto;
+        padding: 0;
+    }
+    .prof-stamp{
+        transform: scale(0.55);
+        margin-top: -50px;
+        margin-left: -50px;
+    }
+
+    .prof-actions{
+        margin-top: 5px;
+    }
+
+    .prof-link, .prof-link-settings, .prof-link-third{
+        font-size: 10px;
+    }
+
+    .prof-link-settings{
+        margin-left: -25px;
+    }
+
+    .prof-stats{
+        gap: 2rem;
+        margin-top: -40px;
+        margin-bottom: 0;
+    }
+
+    .stat-value{
+        font-size: 1.6rem;
+    }
+
+    .stat-label{
+        font-size: 0.7rem;
+    }
+
+    .prof-posts{
+        transform: scale(0.4) translateY(6%);
+        transform-origin: top center;
+        margin-bottom: 0;
+    }
+
+    .posts-header{
+        transform: scale(1.2);
+        margin-left: 30px;
+    }
 }
