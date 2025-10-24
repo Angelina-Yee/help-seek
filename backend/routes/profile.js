@@ -8,6 +8,7 @@ import { User, USER_ENUMS } from "../models/User.js";
 import { Post } from "../models/Post.js";
 import Thread from "../models/Thread.js";
 import Message from "../models/Message.js";
+import authMiddleware from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -194,7 +195,7 @@ router.delete(
   }
 );
 
-router.get("/search", async (req, res, next) => {
+router.get("/search", authMiddleware, async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
@@ -219,6 +220,13 @@ router.get("/search", async (req, res, next) => {
         { email: searchRegex },
       ],
     };
+
+    const currentUser = await User.findById(req.user.id).select("blockedUsers").lean();
+    const blockedUserIds = currentUser?.blockedUsers || [];
+    
+    if (blockedUserIds.length > 0) {
+      searchConditions._id = { $nin: blockedUserIds };
+    }
 
     const [items, total] = await Promise.all([
       User.find(searchConditions)
@@ -269,6 +277,156 @@ router.get("/:id", async (req, res, next) => {
       name: user.name || "User",
       avatarCharId: user.avatarCharId || "raccoon",
       avatarColor: user.avatarColor || "blue",
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Block user
+router.post("/block/:userId", async (req, res, next) => {
+  try {
+    const currentUserId = getUserIdFromAuth(req);
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid user id" });
+    }
+
+    if (currentUserId === userId) {
+      return res.status(400).json({ error: "Cannot block yourself" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    await User.findByIdAndUpdate(
+      currentUserId,
+      { $addToSet: { blockedUsers: userId } },
+      { new: true }
+    );
+
+    res.json({ message: "User blocked successfully" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Unblock user
+router.delete("/block/:userId", async (req, res, next) => {
+  try {
+    const currentUserId = getUserIdFromAuth(req);
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid user id" });
+    }
+
+    await User.findByIdAndUpdate(
+      currentUserId,
+      { $pull: { blockedUsers: userId } },
+      { new: true }
+    );
+
+    res.json({ message: "User unblocked successfully" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/block-status/:userId", async (req, res, next) => {
+  try {
+    const currentUserId = getUserIdFromAuth(req);
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid user id" });
+    }
+
+    const user = await User.findById(currentUserId).select("blockedUsers").lean();
+    const isBlocked = user?.blockedUsers?.some(id => String(id) === userId) || false;
+
+    res.json({ isBlocked });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// notification preferences
+router.get("/notification-preferences", async (req, res, next) => {
+  try {
+    const userId = getUserIdFromAuth(req);
+    const user = await User.findById(userId).select("notificationPreferences").lean();
+    
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    res.json({ 
+      preferences: user.notificationPreferences || {
+        emailNotifications: true
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Update notification preferences
+router.put("/notification-preferences", [
+  body("preferences").isObject().withMessage("Preferences must be an object"),
+  body("preferences.emailNotifications").optional().isBoolean().withMessage("Email notifications must be boolean"),
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        error: "Validation failed", 
+        details: errors.array() 
+      });
+    }
+
+    const userId = getUserIdFromAuth(req);
+    const { preferences } = req.body;
+
+    const allowedFields = [
+      'emailNotifications'
+    ];
+    
+    const invalidFields = Object.keys(preferences).filter(key => !allowedFields.includes(key));
+    if (invalidFields.length > 0) {
+      return res.status(400).json({ 
+        error: `Invalid preference fields: ${invalidFields.join(', ')}` 
+      });
+    }
+
+    const currentUser = await User.findById(userId).select("notificationPreferences").lean();
+    if (!currentUser) {
+      throw createError(404, "User not found");
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { 
+        $set: { 
+          notificationPreferences: {
+            ...(currentUser.notificationPreferences || {}),
+            ...preferences
+          }
+        }
+      },
+      { new: true, select: "notificationPreferences" }
+    );
+
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    res.json({ 
+      message: "Notification preferences updated successfully",
+      preferences: user.notificationPreferences 
     });
   } catch (err) {
     next(err);

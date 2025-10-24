@@ -11,6 +11,11 @@ const router = express.Router();
 router.get("/", requireAuth, async (req, res, next) => {
   try {
     const me = String(req.user.id);
+    
+    // Get current user's blocked users
+    const currentUser = await User.findById(req.user.id).select("blockedUsers").lean();
+    const blockedUserIds = currentUser?.blockedUsers || [];
+    
     const threads = await Thread.find({ participants: me }).sort({ updatedAt: -1 }).lean();
     
     const validThreads = threads.filter((t) => {
@@ -19,8 +24,14 @@ router.get("/", requireAuth, async (req, res, next) => {
              participants.every(p => p && String(p).length === 24);
     });
     
+    // Filter out threads with blocked users
+    const filteredThreads = validThreads.filter((t) => {
+      const participants = t.participants || [];
+      return !participants.some(p => blockedUserIds.some(bid => String(bid) === String(p)));
+    });
+    
     const threadMap = new Map();
-    validThreads.forEach(thread => {
+    filteredThreads.forEach(thread => {
       const participants = (thread.participants || []).sort().join(',');
       if (!threadMap.has(participants) || 
           new Date(thread.updatedAt) > new Date(threadMap.get(participants).updatedAt)) {
@@ -150,9 +161,14 @@ router.post("/:id/messages", requireAuth, async (req, res, next) => {
     );
 
   try {
-    const recipients = await User.find({ _id: { $in: others } }).select("email name").lean();
+    const recipients = await User.find({ _id: { $in: others } }).select("email name notificationPreferences").lean();
     for (const r of recipients) {
       if (!r?.email) continue;
+      
+      // Check if user has email notifications enabled
+      const emailNotificationsEnabled = r.notificationPreferences?.emailNotifications !== false;
+      if (!emailNotificationsEnabled) continue;
+      
       await sendMessageNotification({
         to: r.email,
         recipientName: r.name || "",

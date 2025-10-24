@@ -19,7 +19,6 @@ router.post("/identify-item", upload.single("file"), async (req, res, next) => {
 
     const [result] = await visionClient.labelDetection(req.file.buffer);
     const labels = result.labelAnnotations;
-    console.log("LABELS", labels);
 
     if (labels && labels.length > 0) {
       res.json({ labels: labels });

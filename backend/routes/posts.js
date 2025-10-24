@@ -75,6 +75,7 @@ async function createPost(req, res, next, forcedType = null) {
       imagePublicId,
     });
 
+    await post.populate("user", "name email avatarCharId avatarColor");
 
     res.status(201).json(post);
   } catch (err) {
@@ -94,7 +95,7 @@ router.post("/", auth, uploadImage.single("image"), (req, res, next) =>
 );
 
 // List posts
-router.get("/", async (req, res, next) => {
+router.get("/", auth, async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
@@ -106,6 +107,13 @@ router.get("/", async (req, res, next) => {
 
     const t = String(req.query.type || "").toLowerCase().trim();
     if (t === "loss" || t === "find") q.type = t;
+
+    const currentUser = await User.findById(req.user.id).select("blockedUsers").lean();
+    const blockedUserIds = currentUser?.blockedUsers || [];
+    
+    if (blockedUserIds.length > 0 && !req.query.user) {
+      q.user = { $nin: blockedUserIds };
+    }
 
     const [items, total] = await Promise.all([
       Post.find(q)
@@ -130,7 +138,7 @@ router.get("/", async (req, res, next) => {
 });
 
 // Search posts
-router.get("/search", async (req, res, next) => {
+router.get("/search", auth, async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
@@ -147,10 +155,10 @@ router.get("/search", async (req, res, next) => {
       });
     }
 
-    // Create search regex for case-insensitive search
+    // Create search
     const searchRegex = new RegExp(searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
 
-    // Build search query across multiple fields
+    // Build search query
     const searchConditions = {
       $or: [
         { title: searchRegex },
@@ -160,7 +168,6 @@ router.get("/search", async (req, res, next) => {
       ],
     };
 
-    // Add additional filters if provided
     const q = { ...searchConditions };
     if (req.query.user) {
       q.user = String(req.query.user).trim();
@@ -172,6 +179,13 @@ router.get("/search", async (req, res, next) => {
     const resolved = String(req.query.resolved || "").toLowerCase().trim();
     if (resolved === "true" || resolved === "false") {
       q.resolved = resolved === "true";
+    }
+
+    const currentUser = await User.findById(req.user.id).select("blockedUsers").lean();
+    const blockedUserIds = currentUser?.blockedUsers || [];
+    
+    if (blockedUserIds.length > 0 && !req.query.user) {
+      q.user = { $nin: blockedUserIds };
     }
 
     const usersWithMatchingNames = await User.find({

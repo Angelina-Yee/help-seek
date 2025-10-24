@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema(
     verifiedAt: { type: Date, default: null },
     createdAt: { type: Date, default: Date.now },
     resolvedCount: { type: Number, default: 0 },
+    blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    notificationPreferences: {
+      emailNotifications: { type: Boolean, default: true }
+    },
   },
   { collection: "users" }
 );
