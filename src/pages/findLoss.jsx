@@ -119,6 +119,30 @@ function getTime(createdAt) {
 	}
 }
 
+function enrichWithCurrentUser(post, name, avatarCharId, avatarColor) {
+	const rawU = post?.user;
+	const postUserId =
+		(rawU && (rawU._id || rawU.id)) ||
+		(typeof rawU === "string" ? rawU : null) ||
+		post.userId ||
+		post.authorId ||
+		null;
+
+	// If user info is missing or incomplete, enrich it
+	if (!post.user || !post.user.name || !post.user.avatarCharId) {
+		post.user = {
+			_id: postUserId,
+			id: postUserId,
+			name: name || "User",
+			avatarCharId: avatarCharId || "raccoon",
+			avatarColor: avatarColor || "blue",
+		};
+	}
+
+	if (!post.createdAt) post.createdAt = new Date().toISOString();
+	return post;
+}
+
 // Find Page
 function FindLoss() {
 	const [name, setUserName] = useState("");
@@ -145,7 +169,6 @@ function FindLoss() {
 	const [dateFilter, setDateFilter] = useState("any");
 	const [sortOrder, setSortOrder] = useState("Most Recent");
 
-    // User profile fetch
 	useEffect(() => {
 		(async () => {
 			try {
@@ -161,7 +184,6 @@ function FindLoss() {
 					if (data.avatarColor) setAvatarColor(data.avatarColor);
 				}
 			} catch (err) {
-				console.error("profile load failed:", err);
 			}
 		})();
 	}, []);
@@ -174,7 +196,6 @@ function FindLoss() {
 				const onlyFind = (data?.items || []).filter(p => norm(p?.type) === "find");
 				if (alive) setItems(onlyFind);
 			} catch (e) {
-				console.error(e);
 			} finally {
 				if (alive) setLoading(false);
 			}
@@ -182,20 +203,22 @@ function FindLoss() {
 		return () => { alive = false; };
 	}, []);
 
-    // Add new post
 	useEffect(() => {
 		function onCreated(e) {
 			const p = e?.detail;
 			if (!p || norm(p.type) !== "find") return;
+			
+			const enrichedPost = enrichWithCurrentUser({ ...p }, name, avatarCharId, avatarColor);
+			
 			setItems(prev => {
-				const id = p._id || p.id;
+				const id = enrichedPost._id || enrichedPost.id;
 				const exists = prev.some(x => (x._id || x.id) === id);
-				return exists ? prev : [p, ...prev];
+				return exists ? prev : [enrichedPost, ...prev];
 			});
 		}
 		window.addEventListener("post:created", onCreated);
 		return () => window.removeEventListener("post:created", onCreated);
-	}, []);
+	}, [name, avatarCharId, avatarColor]);
 
 	// Delete Resolved Posts
 	useEffect(() => {
@@ -208,7 +231,34 @@ function FindLoss() {
 		return () => window.removeEventListener("post:resolved", onResolved);
 	}, []);
 
-    // Filter and sort items
+
+	useEffect(() => {
+		function onUserBlocked(e) {
+			const userId = e?.detail?.userId;
+			if (!userId) return;
+			
+			(async () => {
+				try {
+					const data = await listPosts({ type: "find", resolved: false, page: 1, limit: 20 });
+					const onlyFind = (data?.items || []).filter(p => norm(p?.type) === "find");
+					setItems(onlyFind);
+				} catch (e) {
+				}
+			})();
+		}
+
+		function onUserUnblocked(e) {
+			window.location.reload();
+		}
+
+		window.addEventListener("user:blocked", onUserBlocked);
+		window.addEventListener("user:unblocked", onUserUnblocked);
+		return () => {
+			window.removeEventListener("user:blocked", onUserBlocked);
+			window.removeEventListener("user:unblocked", onUserUnblocked);
+		};
+	}, []);
+
 	const visibleItems = useMemo(() => {
 		let arr = [...items];
 

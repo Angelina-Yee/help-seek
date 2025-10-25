@@ -83,22 +83,22 @@ function HowItWorks2() {
           <h2>Safety Tips</h2>
           <div className="tips-grid">
             <div className="tip-card">
-              <h4>🏪 Meet in Public</h4>
+              <h4>Meet in Public</h4>
               <p>
                 Always meet at busy, well-lit public places like coffee shops or
                 malls.
               </p>
             </div>
             <div className="tip-card">
-              <h4>🕐 Daytime Meetings</h4>
+              <h4>Daytime Meetings</h4>
               <p>Arrange meetups during daylight hours when possible.</p>
             </div>
             <div className="tip-card">
-              <h4>🆔 Verify Identity</h4>
+              <h4>Verify Identity</h4>
               <p>Ask for additional proof of ownership for valuable items.</p>
             </div>
             <div className="tip-card">
-              <h4>👥 Bring a Friend</h4>
+              <h4>Bring a Friend</h4>
               <p>
                 Consider bringing someone with you, especially for high-value
                 items.

@@ -22,11 +22,13 @@ function Signup1() {
     }
     try {
       setLoading(true);
+      
       const res = await fetch(`${API}/auth/signup/request-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
+      
       const data = await res.json();
 
       //Error cases

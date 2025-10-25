@@ -42,7 +42,7 @@
     color: var(--blue);
     letter-spacing: 0.9px;
     text-transform: uppercase;
-    margin: 20px 20px 0px;
+    margin: 20px 0 0 0;
 }
 
 .search-users-section {
@@ -104,12 +104,16 @@
     border: 3px solid var(--blue);
     border-radius: 10px;
     box-shadow: 0px 3px 6px rgb(128, 128, 128);
-    height: calc(100vh - 240px);
-    overflow: auto;
+    height: fit-content;
+    overflow: visible;
 }
 
 .lf-panel{
-    padding: 23px 25px 0px;
+    padding: 20px 25px 15px;
+}
+
+.lf-panel:last-child{
+    padding-bottom: 20px;
 }
 
 .lf-title{
@@ -155,7 +159,11 @@
 }
 
 .lf-panel2{
-    padding: 25px 25px 0px;
+    padding: 20px 25px 15px;
+}
+
+.lf-panel2:last-child{
+    padding-bottom: 20px;
 }
 
 .lf-right2{
@@ -163,6 +171,6 @@
     border: 3px solid var(--blue);
     border-radius: 10px;
     box-shadow: 0px 3px 6px rgb(128, 128, 128);
-    height: calc(100vh - 330px);
-    overflow: auto;
+    height: fit-content;
+    overflow: visible;
 }

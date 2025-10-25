@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {createPortal} from "react-dom";
 import { useNavigate } from "react-router-dom";
+import NotificationPreferences from "./NotificationPreferences";
 import "../styles/settings.css";
 
 // API request URL
@@ -10,6 +11,7 @@ function AccSettings({onClose}) {
     const dialogRef = useRef(null);
     const navigate = useNavigate();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showNotificationPrefs, setShowNotificationPrefs] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
@@ -82,10 +84,16 @@ function AccSettings({onClose}) {
                 >
                     {isDeleting ? "Deleting..." : "Delete Account"}
                 </button>
-                <button className="settings-btn">
+                <button 
+                    className="settings-btn" 
+                    onClick={() => setShowNotificationPrefs(true)}
+                >
                     Notification Preference
                 </button>
-                <button className="settings-btn">
+                <button 
+                    className="settings-btn" 
+                    onClick={() => navigate("/forgot-password")}
+                >
                     Reset Password
                 </button>
             </div>
@@ -94,6 +102,9 @@ function AccSettings({onClose}) {
         {showDeleteConfirm && (
             <div className="settings-overlay" onMouseDown={(e) => e.stopPropagation()}>
                 <div className="settings-dialog settings-confirm-dialog" role="document">
+                    <button className="settings-close" onClick={handleCancelDelete} aria-label="Close">
+                        X
+                    </button>
                     <h3 className="settings-confirm-title">Delete Account</h3>
                     <p className="settings-confirm-message">
                         Are you sure you want to delete your account? This action cannot be undone.
@@ -140,6 +151,13 @@ function AccSettings({onClose}) {
                     </div>
                 </div>
             </div>
+        )}
+        
+        {showNotificationPrefs && (
+            <NotificationPreferences 
+                onClose={() => setShowNotificationPrefs(false)} 
+                onCancel={() => setShowNotificationPrefs(false)}
+            />
         )}
     </div>,
     document.body

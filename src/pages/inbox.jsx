@@ -236,6 +236,7 @@ function ensureThreadShell(meta, setThreads) {
 
 function Inbox() {
   const [me, setMe] = useState(null);
+  const [isUserBlocked, setIsUserBlocked] = useState(false);
   const myAvatarBundle = useMemo(
     () => buildAvatarFromIds(me?.avatarCharId, me?.avatarColor),
     [me]
@@ -279,6 +280,33 @@ function Inbox() {
     () => getProfileHref(current?.peerId, me),
     [current?.peerId, me]
   );
+
+  // Check if current user is blocked
+  useEffect(() => {
+    if (!current?.peerId || !me?.id) {
+      setIsUserBlocked(false);
+      return;
+    }
+
+    const checkBlockStatus = async () => {
+      try {
+        const res = await fetch(`${API}/api/profile/block-status/${current.peerId}`, {
+          credentials: "include",
+          headers: { ...authHeaders() },
+        });
+        if (res.ok) {
+          const data = await res.json().catch(() => ({}));
+          setIsUserBlocked(data.isBlocked || false);
+        } else {
+          setIsUserBlocked(false);
+        }
+      } catch (error) {
+        setIsUserBlocked(false);
+      }
+    };
+
+    checkBlockStatus();
+  }, [current?.peerId, me?.id]);
 
   const mergeMessages = useCallback((threadId, incoming) => {
     setMessagesByThread((prev) => {
@@ -999,6 +1027,12 @@ function Inbox() {
               })
             )}
           </div>
+
+          {isUserBlocked && (
+            <div className="blocked-user-message">
+              You have blocked this user.
+            </div>
+          )}
 
           <footer className="composer">
             <button

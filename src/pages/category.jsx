@@ -161,7 +161,6 @@ function Category() {
                 if (data.avatarColor) setAvatarColor(data.avatarColor);
             }
           } catch (err) {
-            console.error("profile load failed:", err);
           }
         })();
     }, []);
@@ -175,7 +174,6 @@ function Category() {
                 const arr = data?.items || [];
                 if (alive) setItems(arr);
               } catch (e) {
-                console.error(e);
               } finally {
                 if (alive) setLoading(false);
               }
@@ -205,6 +203,36 @@ function Category() {
         }
         window.addEventListener("post:resolved", onResolved);
         return () => window.removeEventListener("post:resolved", onResolved);
+    }, []);
+
+    useEffect(() => {
+        function onUserBlocked(e) {
+            const userId = e?.detail?.userId;
+            if (!userId) return;
+            
+            (async () => {
+                try {
+                    const data = await listPosts({ 
+                        page: 1, 
+                        limit: 40 
+                    });
+                    const arr = data?.items || [];
+                    setItems(arr);
+                } catch (e) {
+                }
+            })();
+        }
+
+        function onUserUnblocked(e) {
+            window.location.reload();
+        }
+
+        window.addEventListener("user:blocked", onUserBlocked);
+        window.addEventListener("user:unblocked", onUserUnblocked);
+        return () => {
+            window.removeEventListener("user:blocked", onUserBlocked);
+            window.removeEventListener("user:unblocked", onUserUnblocked);
+        };
     }, []);
 
     const selectCategory = (uiLabel) => {
@@ -329,6 +357,12 @@ function Category() {
 
                         {loading && <div>Loading…</div>}
                         {!loading && visibleItems.length === 0 && <div>No posts match your filters.</div>}
+
+                        {!loading && visibleItems.length > 0 && (
+                            <div className="search-posts-section">
+                                <h3>Posts ({visibleItems.length})</h3>
+                            </div>
+                        )}
 
                         {!loading && visibleItems.map(p => {
                         const me = getCurrentUserId();

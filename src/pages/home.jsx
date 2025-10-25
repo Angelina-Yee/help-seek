@@ -112,7 +112,6 @@ function Home() {
 	const activeChar = useMemo(() => charById(meProfile.avatarCharId), [meProfile.avatarCharId]);
 	const glowColor = useMemo(() => colorById(meProfile.avatarColor), [meProfile.avatarColor]);
 
-	// recent lists
 	const [lossItems, setLossItems] = useState([]);
 	const [findItems, setFindItems] = useState([]);
 	const [loadingLoss, setLoadingLoss] = useState(true);
@@ -139,7 +138,6 @@ function Home() {
 					}));
 				}
 			} catch (err) {
-				console.error("profile load failed:", err);
 			}
 		})();
 	}, []);
@@ -154,7 +152,6 @@ function Home() {
 					.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
 				if (alive) setLossItems(onlyLoss);
 			} catch (e) {
-				console.error(e);
 			} finally {
 				if (alive) setLoadingLoss(false);
 			}
@@ -172,7 +169,6 @@ function Home() {
 					.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
 				if (alive) setFindItems(onlyFind);
 			} catch (e) {
-				console.error(e);
 			} finally {
 				if (alive) setLoadingFind(false);
 			}
@@ -243,6 +239,45 @@ function Home() {
 		}
 		window.addEventListener("post:resolved", onResolved);
 		return () => window.removeEventListener("post:resolved", onResolved);
+	}, []);
+
+	useEffect(() => {
+		function onUserBlocked(e) {
+			const userId = e?.detail?.userId;
+			if (!userId) return;
+			
+			(async () => {
+				try {
+					const [lossData, findData] = await Promise.all([
+						listPosts({ type: "loss", resolved: false, page: 1, limit: 20 }),
+						listPosts({ type: "find", resolved: false, page: 1, limit: 20 })
+					]);
+					
+					const onlyLoss = (lossData?.items || [])
+						.filter(p => String(p?.type).toLowerCase() === "loss")
+						.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
+					
+					const onlyFind = (findData?.items || [])
+						.filter(p => String(p?.type).toLowerCase() === "find")
+						.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
+					
+					setLossItems(onlyLoss);
+					setFindItems(onlyFind);
+				} catch (e) {
+				}
+			})();
+		}
+
+		function onUserUnblocked(e) {
+			window.location.reload();
+		}
+
+		window.addEventListener("user:blocked", onUserBlocked);
+		window.addEventListener("user:unblocked", onUserUnblocked);
+		return () => {
+			window.removeEventListener("user:blocked", onUserBlocked);
+			window.removeEventListener("user:unblocked", onUserUnblocked);
+		};
 	}, []);
 
 	const meId = meProfile.id && String(meProfile.id);

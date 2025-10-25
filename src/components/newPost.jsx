@@ -119,6 +119,12 @@ function NewPost({ onClose, onBack, postType, initialType }) {
       if (!res.ok) {
         throw new Error(data?.message || "Failed to create post");
       }
+      
+      // Dispatch event to notify all pages about the new post
+      window.dispatchEvent(new CustomEvent("post:created", { 
+        detail: data 
+      }));
+      
       onClose();
     } catch (err) {
       setError(err.message || "Something went wrong");
@@ -150,7 +156,7 @@ function NewPost({ onClose, onBack, postType, initialType }) {
       ],
       id: ["card", "identification", "license"],
       wallet: ["wallet", "purse", "pouch"],
-      "water-bottle": ["bottle", "flask", "thermos", "canteen"],
+      "water bottle": ["bottle", "flask", "thermos", "canteen"],
     };
 
     for (const label of labels) {
@@ -281,7 +287,7 @@ function NewPost({ onClose, onBack, postType, initialType }) {
                 <option value="electronics">Electronics</option>
                 <option value="id">ID</option>
                 <option value="wallet">Wallet</option>
-                <option value="water-bottle">Water Bottle</option>
+                <option value="water bottle">Water Bottle</option>
                 <option value="others">Others</option>
               </select>
             </div>

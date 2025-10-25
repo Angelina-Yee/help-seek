@@ -126,6 +126,29 @@ function getTime(createdAt) {
 	}
 }
 
+function enrichWithCurrentUser(post, name, avatarCharId, avatarColor) {
+	const rawU = post?.user;
+	const postUserId =
+		(rawU && (rawU._id || rawU.id)) ||
+		(typeof rawU === "string" ? rawU : null) ||
+		post.userId ||
+		post.authorId ||
+		null;
+
+	if (!post.user || !post.user.name || !post.user.avatarCharId) {
+		post.user = {
+			_id: postUserId,
+			id: postUserId,
+			name: name || "User",
+			avatarCharId: avatarCharId || "raccoon",
+			avatarColor: avatarColor || "blue",
+		};
+	}
+
+	if (!post.createdAt) post.createdAt = new Date().toISOString();
+	return post;
+}
+
 // Loss Page
 function LossFind() {
 	const [name, setUserName] = useState("");
@@ -167,7 +190,6 @@ function LossFind() {
 					if (data.avatarColor) setAvatarColor(data.avatarColor);
 				}
 			} catch (err) {
-				console.error("profile load failed:", err);
 			}
 		})();
 	}, []);
@@ -181,7 +203,6 @@ function LossFind() {
 				const onlyLoss = (data?.items || []).filter(p => norm(p?.type) === "loss");
 				if (alive) setItems(onlyLoss);
 			} catch (e) {
-				console.error(e);
 			} finally {
 				if (alive) setLoading(false);
 			}
@@ -189,22 +210,23 @@ function LossFind() {
 		return () => { alive = false; };
 	}, []);
 
-	// Live insert on create
 	useEffect(() => {
 		function onCreated(e) {
 			const p = e?.detail;
 			if (!p || norm(p.type) !== "loss") return;
+			
+			const enrichedPost = enrichWithCurrentUser({ ...p }, name, avatarCharId, avatarColor);
+			
 			setItems(prev => {
-				const id = p._id || p.id;
+				const id = enrichedPost._id || enrichedPost.id;
 				const exists = prev.some(x => (x._id || x.id) === id);
-				return exists ? prev : [p, ...prev];
+				return exists ? prev : [enrichedPost, ...prev];
 			});
 		}
 		window.addEventListener("post:created", onCreated);
 		return () => window.removeEventListener("post:created", onCreated);
-	}, []);
+	}, [name, avatarCharId, avatarColor]);
 
-    // Live remove on resolve
 	useEffect(() => {
 		function onResolved(e) {
 			const id = e?.detail?.id;
@@ -215,7 +237,33 @@ function LossFind() {
 		return () => window.removeEventListener("post:resolved", onResolved);
 	}, []);
 
-	// Derived: filtered + sorted items
+	useEffect(() => {
+		function onUserBlocked(e) {
+			const userId = e?.detail?.userId;
+			if (!userId) return;
+			
+			(async () => {
+				try {
+					const data = await listPosts({ type: "loss", resolved: false, page: 1, limit: 20 });
+					const onlyLoss = (data?.items || []).filter(p => norm(p?.type) === "loss");
+					setItems(onlyLoss);
+				} catch (e) {
+				}
+			})();
+		}
+
+		function onUserUnblocked(e) {
+			window.location.reload();
+		}
+
+		window.addEventListener("user:blocked", onUserBlocked);
+		window.addEventListener("user:unblocked", onUserUnblocked);
+		return () => {
+			window.removeEventListener("user:blocked", onUserBlocked);
+			window.removeEventListener("user:unblocked", onUserUnblocked);
+		};
+	}, []);
+
 	const visibleItems = useMemo(() => {
 		let arr = [...items];
 
@@ -232,7 +280,7 @@ function LossFind() {
 			arr = arr.filter(p => norm(p?.location) === norm(locationFilter));
 		}
 
-        // Date posted filter
+    // Date posted filter
 		if (dateFilter !== "any") {
 			const now = Date.now();
 			let cutoff = 0;

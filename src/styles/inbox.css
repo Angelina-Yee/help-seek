@@ -374,3 +374,12 @@
   white-space: nowrap;
   pointer-events: none;
 }
+
+.blocked-user-message {
+  padding: 8px 20px;
+  margin: 8px 20px 0px 20px;
+  text-align: center;
+  color: #0f3484;
+  font-weight: 500;
+  font-size: 14px;
+}

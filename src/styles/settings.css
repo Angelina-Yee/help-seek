@@ -100,8 +100,8 @@
 }
 
 .settings-confirm-dialog {
-    width: min(500px, 90vw);
-    padding: 50px;
+    width: min(480px, 92vw);
+    padding: 22px 20px 26px;
     text-align: center;
 }
 
@@ -110,11 +110,11 @@
     color: var(--blue);
     font-family: "Lato", sans-serif;
     font-weight: 700;
-    font-size: 28px;
+    font-size: 18px;
 }
 
 .settings-confirm-message {
-    margin: 0 0 30px 0;
+    margin: 0 0 25px 0;
     color: #333;
     font-family: "Lato", sans-serif;
     font-size: 16px;
@@ -123,13 +123,16 @@
 
 .settings-confirm-actions {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
+    margin-top: 30px;
 }
 
 .settings-confirm-actions .settings-btn {
     flex: 1;
-    max-width: 150px;
+    max-width: 100px;
+    padding: 10px 8px;
+    font-size: 14px;
 }
 
 .settings-password-section {
@@ -180,4 +183,129 @@
     font-family: "Lato", sans-serif;
     font-size: 14px;
     font-weight: 500;
+}
+
+/* Notification Preferences Styles */
+.settings-notification-dialog {
+    width: min(460px, 90vw);
+    padding: 50px 30px 50px;
+}
+
+.settings-title {
+    margin: 0 0 20px 0;
+    color: var(--blue);
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    text-align: center;
+}
+
+.notification-preferences {
+    margin: 15px 0 10px 0;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 25px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-info {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.notification-info h4 {
+    margin: 0 0 5px 0;
+    color: var(--blue);
+    font-family: "Lato", sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.notification-info p {
+    margin: 0;
+    color: #666;
+    font-family: "Lato", sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.notification-toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.notification-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 30px;
+    border: 2px solid var(--blue);
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.notification-toggle input:checked + .toggle-slider {
+    background-color: var(--blue);
+}
+
+.notification-toggle input:checked + .toggle-slider:before {
+    transform: translateX(30px);
+}
+
+.notification-toggle input:disabled + .toggle-slider {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.settings-loading {
+    text-align: center;
+    color: var(--blue);
+    font-family: "Lato", sans-serif;
+    font-size: 18px;
+    padding: 40px 20px;
+}
+
+.settings-btn-primary {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+}
+
+.settings-btn-primary:hover, .settings-btn-primary:active {
+    background: #0d2a6b;
+    border-color: #0d2a6b;
+    transform: translateY(3%) scale(0.98);
 }

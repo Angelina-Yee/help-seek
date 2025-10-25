@@ -71,15 +71,15 @@ function App() {
           <Route path="/howitworks" element={<HowItWorks2 />} />
           <Route path="/category" element={<Category />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/forgotpassword2" element={<ForgetPassword2 />} />
         <Route path="/forgotpassword3" element={<ForgotPassword3 />} />
         <Route path="/instructions" element={<HowItWorks />} />
-        <Route path="/terms" element={<TermsOfService />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       </Routes>
     </BrowserRouter>

@@ -64,8 +64,11 @@ function Others() {
   const [name, setName] = useState("");
   const [avatarCharId, setAvatarCharId] = useState("raccoon");
   const [avatarColor, setAvatarColor] = useState("blue");
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockLoading, setBlockLoading] = useState(false);
 
   const [posts, setPosts] = useState([]);
+  const [allPosts, setAllPosts] = useState([]);
   const [stats, setStats] = useState({ finds: 0, resolved: 0, losses: 0 });
 
   const activeChar = useMemo(
@@ -115,6 +118,17 @@ function Others() {
       }
 
       try {
+        const blockRes = await fetch(`${API}/api/profile/block-status/${id}`, {
+          credentials: "include",
+          headers,
+        });
+        if (blockRes.ok) {
+          const blockData = await blockRes.json().catch(() => ({}));
+          if (alive) setIsBlocked(blockData.isBlocked || false);
+        }
+      } catch {}
+
+      try {
         const sr = await fetch(
           `${API}/api/posts/stats?user=${encodeURIComponent(id)}`,
           { credentials: "include", headers }
@@ -159,7 +173,10 @@ function Others() {
         }
       }
 
-      if (alive) setPosts(mine);
+      if (alive) {
+        setAllPosts(mine);
+        setPosts(mine);
+      }
       if (alive) setLoading(false);
     })();
 
@@ -167,6 +184,56 @@ function Others() {
       alive = false;
     };
   }, [id]);
+
+  useEffect(() => {
+    if (isBlocked) {
+      setPosts([]);
+    } else {
+      setPosts(allPosts);
+    }
+  }, [isBlocked, allPosts]);
+
+  const handleBlockToggle = async () => {
+    if (blockLoading) return;
+    
+    setBlockLoading(true);
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
+      if (isBlocked) {
+        const res = await fetch(`${API}/api/profile/block/${id}`, {
+          method: "DELETE",
+          credentials: "include",
+          headers,
+        });
+        
+        if (res.ok) {
+          setIsBlocked(false);
+        } else {
+          const error = await res.json().catch(() => ({}));
+          alert(error.message || "Failed to unblock user");
+        }
+      } else {
+        const res = await fetch(`${API}/api/profile/block/${id}`, {
+          method: "POST",
+          credentials: "include",
+          headers,
+        });
+        
+        if (res.ok) {
+          setIsBlocked(true);
+        } else {
+          const error = await res.json().catch(() => ({}));
+          alert(error.message || "Failed to block user");
+        }
+      }
+    } catch (error) {
+      alert("An error occurred. Please try again.");
+    } finally {
+      setBlockLoading(false);
+    }
+  };
 
   if (loading) return <div className="prof">Loading…</div>;
 
@@ -190,8 +257,12 @@ function Others() {
             <section className="prof-box">
                 <h1 className="prof-title">Hello,<br />{safeName}</h1>
                 <div className="prof-actions">
-                    <button className="prof-link-third">
-                        Block
+                    <button 
+                        className="prof-link-third"
+                        onClick={handleBlockToggle}
+                        disabled={blockLoading}
+                    >
+                        {blockLoading ? "Loading..." : (isBlocked ? "Unblock" : "Block")}
                     </button>
                 </div>
             </section>

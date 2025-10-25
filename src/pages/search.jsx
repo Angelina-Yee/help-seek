@@ -165,7 +165,7 @@ function Search() {
                 if (data.avatarColor) setAvatarColor(data.avatarColor);
             }
           } catch (err) {
-            console.error("profile load failed:", err);
+            // Profile load failed silently
           }
         })();
     }, []);
@@ -200,7 +200,7 @@ function Search() {
                     }
                 }
               } catch (e) {
-                console.error(e);
+                // Error loading posts
               } finally {
                 if (alive) setLoading(false);
               }
@@ -231,6 +231,45 @@ function Search() {
         window.addEventListener("post:resolved", onResolved);
         return () => window.removeEventListener("post:resolved", onResolved);
     }, []);
+
+    // Handle user block/unblock events
+    useEffect(() => {
+        function onUserBlocked(e) {
+            const userId = e?.detail?.userId;
+            if (!userId) return;
+            
+            // Refetch posts and users to get updated list from backend
+            (async () => {
+                try {
+                    const [postsData, usersData] = await Promise.all([
+                        searchPosts({ 
+                            q: searchQuery, 
+                            page: 1, 
+                            limit: 20 
+                        }),
+                        searchUsers({ q: searchQuery, page: 1, limit: 20 })
+                    ]);
+                    
+                    setItems(postsData?.items || []);
+                    setUsers(usersData?.items || []);
+                } catch (e) {
+                    // Failed to refetch posts after blocking
+                }
+            })();
+        }
+
+        function onUserUnblocked(e) {
+            // When user is unblocked, refetch posts to show their content again
+            window.location.reload();
+        }
+
+        window.addEventListener("user:blocked", onUserBlocked);
+        window.addEventListener("user:unblocked", onUserUnblocked);
+        return () => {
+            window.removeEventListener("user:blocked", onUserBlocked);
+            window.removeEventListener("user:unblocked", onUserUnblocked);
+        };
+    }, [searchQuery]);
 
     const selectCategory = (uiLabel) => {
         navigate(`/category?c=${encodeURIComponent(uiLabel)}`, { replace: true });
