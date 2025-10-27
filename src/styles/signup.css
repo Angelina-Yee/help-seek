@@ -64,6 +64,7 @@
   align-items: center;
   margin-bottom: 10px;
 }
+
 .signup-header1 h2 {
   color: var(--blue);
   font-size: 32px;
@@ -95,7 +96,7 @@
 }
 
 .signup-form1 {
-  padding: 5rem 0;
+  padding: 1rem 0;
 }
 
 .signup-form1 input {
@@ -129,6 +130,7 @@
   font-weight: 400;
   font-style: normal;
 }
+
 .send-btn {
   background: none;
   border: none;
@@ -145,4 +147,167 @@
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 0px;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 13px;
+  }
+  .su1 .navbar {
+    padding: 0.875rem 1rem;
+    background-size: 100vw 3.5rem;
+  }
+  .su1 .navbar a {
+    font-size: 1.05rem;
+    margin-left: 0.75rem;
+  }
+
+  .signup-container1 {
+    padding: 5px 10px;
+  }
+
+  .signup-box1 {
+    max-width: 90%;
+    padding: 30px 20px;
+  }
+
+  .signup-header1 h2 {
+    font-size: 28px;
+  }
+
+  .step1 {
+    font-size: 20px;
+  }
+
+  .login-text {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .signup-form1 {
+    padding: 1rem 0;
+  }
+
+  .signup-form1 input {
+    padding: 12px;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .signup-form1 label {
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+
+  .send-btn {
+    padding: 20px 25px;
+    font-size: 22px;
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+  .su1 .navbar {
+    padding: 0.875rem 1rem;
+    background-size: 100vw 3.5rem;
+  }
+  .su1 .navbar a {
+    font-size: 1.05rem;
+    margin-left: 0.75rem;
+  }
+
+  .signup-box1 {
+    max-width: 95%;
+    padding: 25px 15px;
+  }
+
+  .signup-header1 h2 {
+    font-size: 24px;
+  }
+
+  .step1 {
+    font-size: 18px;
+  }
+
+  .login-text {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .signup-form1 {
+    padding: 1rem 0;
+  }
+
+  .signup-form1 input {
+    padding: 10px;
+    font-size: 13px;
+    margin-bottom: 6px;
+    border-width: 3px;
+  }
+
+  .signup-form1 label {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .send-btn {
+    padding: 18px 20px;
+    font-size: 20px;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 320px) {
+  html {
+    font-size: 13px;
+  }
+  .su1 .navbar {
+    padding: 0.875rem 1rem;
+    background-size: 100vw 3.5rem;
+  }
+  .su1 .navbar a {
+    font-size: 1.05rem;
+    margin-left: 0.75rem;
+  }
+
+  .signup-box1 {
+    padding: 20px 12px;
+  }
+
+  .signup-header1 h2 {
+    font-size: 20px;
+  }
+
+  .step1 {
+    font-size: 16px;
+  }
+
+  .login-text {
+    margin-bottom: 5px;
+  }
+
+  .signup-form1 {
+    padding: 0.8rem 0;
+  }
+
+  .signup-form1 input {
+    padding: 8px;
+    font-size: 12px;
+    margin-bottom: 5px;
+    border-width: 3px;
+  }
+
+  .signup-form1 label {
+    font-size: 14px;
+    margin-bottom: 3px;
+  }
+
+  .send-btn {
+    padding: 15px 15px;
+    font-size: 18px;
+    margin-top: 5px;
+  }
 }

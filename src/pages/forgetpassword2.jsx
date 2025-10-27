@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "../styles/signup2.css";
+import "../styles/forgotpassword2.css";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 const CODE_LEN = 5;

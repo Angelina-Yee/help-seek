@@ -9,6 +9,7 @@
   margin: 0;
   padding: 0;
 }
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -17,9 +18,21 @@
   background-size: 100vw 5rem;
   padding: 1.5rem 2rem;
 }
+
+.navbar a {
+  margin-left: 1.5rem;
+  color: var(--blue);
+  text-decoration: none;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.5rem;
+}
+
 .navbar a:hover {
   text-decoration: underline;
 }
+
 .logo {
   font-family: "Calistoga", serif;
   font-weight: 400;
@@ -28,7 +41,6 @@
   color: var(--blue);
 }
 
-/*Hero*/
 .signup-container3 {
   display: flex;
   justify-content: center;
@@ -50,7 +62,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .signup-header3 h2 {
@@ -71,19 +83,18 @@
 }
 
 .signup-form3 {
-  padding: 5rem 0;
+  padding: 1rem 0;
   display: flex;
   flex-direction: column;
 }
 
-/* Name row for first and last name */
 .name-row {
   display: flex;
   justify-content: center;
   gap: 15px;
   max-height: 95px;
-  margin-bottom: 18px;
-  margin-top: -60px;
+  margin-bottom: 10px;
+  margin-top: -10px;
 }
 
 .name-field {
@@ -96,6 +107,9 @@
   color: var(--blue);
   font-size: 16px;
   margin-bottom: 8px;
+  font-family: "Calistoga", serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .name-field input {
@@ -105,7 +119,7 @@
   border-radius: 8px;
   background-color: var(--bg);
   font-size: 16px;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   box-sizing: border-box;
   color: var(--blue);
   font-family: "Lato", sans-serif;
@@ -210,13 +224,15 @@
 
 .pw-fill.weak {
   background: #e74c3c;
-} /* red */
+}
+
 .pw-fill.medium {
   background: #f39c12;
-} /* orange */
+}
+
 .pw-fill.strong {
   background: #2ecc71;
-} /* green */
+}
 
 .pw-text {
   font-size: 12px;
@@ -234,7 +250,7 @@
   border: none;
   color: var(--blue);
   border-radius: 8px;
-  padding: 10px 40px;
+  padding: 30px 30px;
   font-size: 25px;
   font-family: "Calistoga", serif;
   font-weight: 400;
@@ -251,4 +267,245 @@
   background-color: transparent;
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 13px;
+  }
+  .su3 .navbar {
+    padding: 0.875rem 1rem;
+    background-size: 100vw 3.5rem;
+  }
+  .su3 .navbar a {
+    font-size: 1.05rem;
+    margin-left: 0.75rem;
+  }
+
+  .signup-container3 {
+    padding: 5px 10px;
+  }
+
+  .signup-box3 {
+    max-width: 90%;
+    padding: 30px 20px;
+  }
+
+  .signup-header3 h2 {
+    font-size: 28px;
+  }
+
+  .step3 {
+    font-size: 20px;
+  }
+
+  .signup-form3 {
+    padding: 1rem 0;
+  }
+
+  .name-row {
+    gap: 10px;
+    margin-bottom: 8px;
+    margin-top: -5px;
+  }
+
+  .name-field label {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .name-field input {
+    padding: 12px;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .signup-form3 label {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+
+  .password-contain input {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .password-toggle {
+    right: 10px;
+  }
+
+  .password-toggle svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .pw-text,
+  .name-field .name-hint {
+    font-size: 11px;
+  }
+
+  .signup-btn {
+    padding: 20px 25px;
+    font-size: 22px;
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+  .su3 .navbar {
+    padding: 0.875rem 1rem;
+    background-size: 100vw 3.5rem;
+  }
+  .su3 .navbar a {
+    font-size: 1.05rem;
+    margin-left: 0.75rem;
+  }
+
+  .signup-box3 {
+    max-width: 95%;
+    padding: 25px 15px;
+  }
+
+  .signup-header3 h2 {
+    font-size: 24px;
+  }
+
+  .step3 {
+    font-size: 18px;
+  }
+
+  .signup-form3 {
+    padding: 1rem 0;
+  }
+
+  .name-row {
+    gap: 8px;
+    margin-bottom: 6px;
+    margin-top: -3px;
+  }
+
+  .name-field label {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .name-field input {
+    padding: 10px;
+    font-size: 13px;
+    margin-bottom: 6px;
+    border-width: 3px;
+  }
+
+  .signup-form3 label {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .password-contain input {
+    padding: 10px;
+    font-size: 13px;
+    border-width: 3px;
+  }
+
+  .password-toggle {
+    right: 8px;
+  }
+
+  .password-toggle svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .pw-text,
+  .name-field .name-hint {
+    font-size: 10px;
+  }
+
+  .signup-btn {
+    padding: 18px 20px;
+    font-size: 20px;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 320px) {
+  html {
+    font-size: 13px;
+  }
+  .su3 .navbar {
+    padding: 0.875rem 1rem;
+    background-size: 100vw 3.5rem;
+  }
+  .su3 .navbar a {
+    font-size: 1.05rem;
+    margin-left: 0.75rem;
+  }
+
+  .signup-box3 {
+    padding: 20px 12px;
+  }
+
+  .signup-header3 h2 {
+    font-size: 20px;
+  }
+
+  .step3 {
+    font-size: 16px;
+  }
+
+  .signup-form3 {
+    padding: 0.8rem 0;
+  }
+
+  .name-row {
+    gap: 6px;
+    margin-bottom: 5px;
+    margin-top: -2px;
+  }
+
+  .name-field label {
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+
+  .name-field input {
+    padding: 8px;
+    font-size: 12px;
+    margin-bottom: 5px;
+    border-width: 3px;
+  }
+
+  .signup-form3 label {
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+
+  .password-contain input {
+    padding: 8px;
+    font-size: 12px;
+    border-width: 3px;
+  }
+
+  .password-toggle {
+    right: 6px;
+  }
+
+  .password-toggle svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .pw-text,
+  .name-field .name-hint {
+    font-size: 9px;
+  }
+
+  .signup-btn {
+    padding: 15px 15px;
+    font-size: 18px;
+    margin-top: 5px;
+  }
 }
