@@ -172,3 +172,36 @@ select{
     transform: translateY(3%) scale(0.98);
     opacity: 90%;
 }
+
+@media (max-width: 480px){
+    .eP-box{
+        max-width: 280px;
+        max-height: 320px;
+    }
+
+    .eP-prev{
+        left: 30px;
+        top: 10rem;
+    }
+}
+
+@media (max-width: 375px){
+    .eP-box{
+        max-width: 240px;
+        max-height: 320px;
+    }
+
+    .eP-prev{
+        left: 30px;
+        top: 10rem;
+    }
+
+    .row label{
+        font-size: 14px;
+    }
+
+    .eP-prev{
+        left: 60px;
+        top: 11rem;
+    }
+}
