@@ -281,7 +281,6 @@ function Inbox() {
     [current?.peerId, me]
   );
 
-  // Check if current user is blocked
   useEffect(() => {
     if (!current?.peerId || !me?.id) {
       setIsUserBlocked(false);
