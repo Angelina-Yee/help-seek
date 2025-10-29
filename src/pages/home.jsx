@@ -308,6 +308,7 @@ function Home() {
                         avatarBgColorHex={avatarBgColorHex}
                         profileHref={href}
                         type={type}
+                        postId={p._id || p.id}
                         />
                     );
                 })}

@@ -6,6 +6,18 @@ import { charById, colorById } from "../lib/avatarCatalog";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
+function getCurrentUserId() {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  if (!token) return null;
+  try {
+    const b64 = token.split(".")[1];
+    const json = JSON.parse(atob(b64.replace(/-/g, "+").replace(/_/g, "/")));
+    return json.sub || json.userId || json.id || null;
+  } catch {
+    return null;
+  }
+}
+
 const toArray = (raw) => {
   if (Array.isArray(raw)) return raw;
   if (Array.isArray(raw?.items)) return raw.items;
@@ -317,6 +329,10 @@ function Others() {
                     imageSrc= {getImg(p)}
                     avatarSrc={activeChar.src}
                     avatarBgColorHex={glowColor}
+                    ownerId={id}
+                    currentUserId={getCurrentUserId()}
+                    ownerAvatarCharId={avatarCharId}
+                    ownerAvatarColor={avatarColor}
                 />
             ))}
         </section>

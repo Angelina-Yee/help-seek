@@ -213,7 +213,14 @@ html, body{
 
     .prof-posts{
         transform: scale(0.94);
-        margin-top: -3.5rem;
+        margin-top: 4rem;
+    }
+}
+
+@media (max-width: 768px){
+    .prof-posts{
+        transform: scale(0.94);
+        margin-top: 3rem;
     }
 }
 
@@ -236,7 +243,7 @@ html, body{
     .prof-stamp{
         transform: scale(0.55);
         margin-top: -50px;
-        margin-left: -50px;
+        margin-left: -30px;
     }
 
     .prof-actions{
@@ -266,9 +273,18 @@ html, body{
     }
 
     .prof-posts{
-        transform: scale(0.4) translateY(6%);
+        transform: scale(0.5);
         transform-origin: top center;
-        margin-bottom: 0;
+        margin: 2rem 15rem 0 0;
+        align-items: stretch;
+        min-height: 80px;
+        align-self: center;
+    }
+
+    .prof-posts:empty::before{
+        content: "";
+        display: block;
+        min-height: 80px;
     }
 
     .posts-header{

@@ -157,7 +157,6 @@
   padding: 8px 12px;
 }
 
-
 .inbox-root .bubble.me {
   margin-left: auto;
   background: #eef4ff;
@@ -285,7 +284,6 @@
   width: 100%;
   height: 44px;
   box-sizing: border-box;
-
   border: 3px solid var(--blue);
   border-radius: 6px;
   background: #fff;
@@ -360,9 +358,13 @@
   margin-bottom: 10px;
 }
 
-.inbox-root .msg-row.other .bubble-stack { justify-self: start; }
-.inbox-root .msg-row.me    .bubble-stack { justify-self: end;   }
+.inbox-root .msg-row.other .bubble-stack {
+  justify-self: start;
+}
 
+.inbox-root .msg-row.me .bubble-stack {
+  justify-self: end;
+}
 
 .inbox-root .msg-time-outside {
   position: absolute;
@@ -382,4 +384,242 @@
   color: #0f3484;
   font-weight: 500;
   font-size: 14px;
+}
+
+.mobile-back-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+  margin-right: 12px;
+}
+
+@media (max-width: 768px) {
+  .inbox-navbar {
+    padding: 0.875rem 1rem;
+    background-size: 100vw 3.5rem;
+  }
+
+  .inbox-logo {
+    font-size: 1.3rem;
+  }
+
+  .inbox-root .inbox-page {
+    padding: 16px 1rem;
+    gap: 0;
+    grid-template-columns: 1fr;
+    min-height: calc(100vh - 64px);
+  }
+
+  .inbox-root .inbox-list h1 {
+    font-size: 36px;
+    margin: 4px 0 12px;
+  }
+
+  .inbox-root .inbox-list {
+    display: block;
+  }
+
+  .inbox-root .chat {
+    display: none;
+    height: calc(100vh - 80px);
+    max-height: calc(100vh - 80px);
+  }
+
+  .inbox-root.chat-active .inbox-list {
+    display: none;
+  }
+
+  .inbox-root.chat-active .chat {
+    display: grid;
+  }
+
+  /* Show back button in mobile chat view */
+  .inbox-root.chat-active .mobile-back-btn {
+    display: block;
+  }
+
+  .inbox-root .chat-header {
+    padding: 0 12px;
+  }
+
+  .inbox-root .chat-title-name {
+    font-size: 16px;
+  }
+
+  .inbox-root .bubble-stack {
+    max-width: 85%;
+  }
+
+  .inbox-root .composer {
+    padding: 8px 12px 6px;
+    gap: 10px;
+  }
+
+  .inbox-root .icon-btn,
+  .inbox-root .send-btn.arrow,
+  .inbox-root .send-arrow-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .inbox-root .composer-textarea {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inbox-navbar {
+    padding: 0.6rem 0.8rem;
+    background-size: 100vw 3rem;
+  }
+
+  .inbox-logo {
+    font-size: 1.1rem;
+  }
+
+  .inbox-root .inbox-page {
+    padding: 12px 0.5rem;
+  }
+
+  .inbox-root .inbox-list h1 {
+    font-size: 32px;
+    margin: 2px 0 8px;
+  }
+
+  .inbox-root .thread {
+    padding: 10px 12px;
+  }
+
+  .inbox-root .thread .name {
+    font-size: 14px;
+  }
+
+  .inbox-root .thread .preview {
+    font-size: 12px;
+  }
+
+  .inbox-root input.thread-search {
+    height: 40px;
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .inbox-root .chat-header {
+    padding: 0 8px;
+  }
+
+  .inbox-root .chat-title-name {
+    font-size: 14px;
+  }
+
+  .inbox-root .bubble {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+
+  .inbox-root .bubble-stack {
+    max-width: 90%;
+  }
+
+  .inbox-root .composer {
+    padding: 6px 8px 4px;
+    gap: 8px;
+  }
+
+  .inbox-root .icon-btn,
+  .inbox-root .send-btn.arrow,
+  .inbox-root .send-arrow-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .inbox-root .composer-textarea {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+
+  .inbox-root .pc-avatar,
+  .inbox-root .avatar,
+  .inbox-root .chat-title-avatar {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 320px) {
+  .inbox-navbar {
+    padding: 0.5rem 0.6rem;
+    background-size: 100vw 2.5rem;
+  }
+
+  .inbox-logo {
+    font-size: 1rem;
+  }
+
+  .inbox-root .inbox-page {
+    padding: 8px 0.25rem;
+  }
+
+  .inbox-root .inbox-list h1 {
+    font-size: 28px;
+  }
+
+  .inbox-root .thread {
+    padding: 8px 10px;
+  }
+
+  .inbox-root .thread .name {
+    font-size: 13px;
+  }
+
+  .inbox-root .thread .preview {
+    font-size: 11px;
+  }
+
+  .inbox-root input.thread-search {
+    height: 36px;
+    font-size: 13px;
+  }
+
+  .inbox-root .chat-header {
+    padding: 0 6px;
+  }
+
+  .inbox-root .chat-title-name {
+    font-size: 13px;
+  }
+
+  .inbox-root .bubble {
+    padding: 5px 8px;
+    font-size: 13px;
+  }
+
+  .inbox-root .composer {
+    padding: 4px 6px 3px;
+    gap: 6px;
+  }
+
+  .inbox-root .icon-btn,
+  .inbox-root .send-btn.arrow,
+  .inbox-root .send-arrow-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .inbox-root .composer-textarea {
+    font-size: 12px;
+    padding: 5px 6px;
+  }
+
+  .inbox-root .pc-avatar,
+  .inbox-root .avatar,
+  .inbox-root .chat-title-avatar {
+    width: 32px;
+    height: 32px;
+  }
 }
