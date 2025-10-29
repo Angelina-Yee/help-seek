@@ -46,7 +46,7 @@ const api = {
   },
 
   async getUser(userId) {
-    const res = await fetch(`${API}/users/${encodeURIComponent(userId)}`, {
+    const res = await fetch(`${API}/api/users/${encodeURIComponent(userId)}`, {
       credentials: "include",
       headers: { ...authHeaders() },
     });
@@ -301,7 +301,6 @@ function Inbox() {
     [current?.peerId, me]
   );
 
-  // Check if current user is blocked
   useEffect(() => {
     if (!current?.peerId || !me?.id) {
       setIsUserBlocked(false);

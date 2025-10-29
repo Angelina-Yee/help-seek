@@ -36,6 +36,8 @@ const allowed = new Set([
   "https://localhost:3000",
   "http://localhost:3001",
   "https://localhost:3001",
+  "http://localhost:3005",
+  "https://localhost:3005",
 ]);
 
 app.use(

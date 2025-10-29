@@ -5,7 +5,7 @@ import Choice from "../components/choice";
 import NewPost from "../components/newPost";
 import CategAll from "../components/categAll";
 import { listPosts } from "../api";
-import { Link, useNavigate} from "react-router-dom"; 
+import { Link, useNavigate, useSearchParams} from "react-router-dom"; 
 import { charById, colorById } from "../lib/avatarCatalog";
 import Notif from "../components/notif";
 import SearchBar from "../components/SearchBar";
@@ -157,6 +157,8 @@ function FindLoss() {
 	const [items, setItems] = useState([]);
 	const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
+	const targetPostId = searchParams.get("post");
 
 	const goToCategoryPage = (label) => {
 		navigate(`/category?c=${encodeURIComponent(label)}`);
@@ -295,6 +297,15 @@ function FindLoss() {
 		return arr;
 	}, [items, selectedCats, locationFilter, dateFilter, sortOrder]);
 
+	useEffect(() => {
+		if (!targetPostId || loading) return;
+		const timer = setTimeout(() => {
+			const element = document.querySelector(`[data-post-id="${targetPostId}"]`);
+			if (element) element.scrollIntoView({ behavior: "smooth", block: "center" });
+		}, 200);
+		return () => clearTimeout(timer);
+	}, [targetPostId, loading, visibleItems]);
+
 	const toggleCategory = (uiLabel) => {
 		const canon = toCanonKey(uiLabel);
 		setSelectedCats(prev => {
@@ -397,23 +408,24 @@ function FindLoss() {
                             const { avatarSrc, avatarBgColorHex } = getAuthorAvatar(p);
 
 							return (
-								<Postcard
-									className="postC"
-									key={p._id}
-									name={authorName}
-									date={new Date(getTime(p.createdAt)).toLocaleDateString()}
-									title={p.title}
-									location={p.location}
-									desc={p.description}
-									imageSrc={p.imageUrl}
-									avatarSrc={avatarSrc}
-									avatarBgColorHex={avatarBgColorHex}
-									profileHref={href}
-                                    ownerId={postUserId}
-                                    currentUserId={me}
-                                    ownerAvatarCharId={p?.user?.avatarCharId}
-      						        ownerAvatarColor={p?.user?.avatarColor}
-								/>
+								<div key={p._id} data-post-id={p._id}>
+									<Postcard
+										className="postC"
+										name={authorName}
+										date={new Date(getTime(p.createdAt)).toLocaleDateString()}
+										title={p.title}
+										location={p.location}
+										desc={p.description}
+										imageSrc={p.imageUrl}
+										avatarSrc={avatarSrc}
+										avatarBgColorHex={avatarBgColorHex}
+										profileHref={href}
+										ownerId={postUserId}
+										currentUserId={me}
+										ownerAvatarCharId={p?.user?.avatarCharId}
+										ownerAvatarColor={p?.user?.avatarColor}
+									/>
+								</div>
 							);
                         })}
                     </div>
