@@ -287,8 +287,9 @@
   }
 
   .signup-box3 {
-    max-width: 90%;
+    max-width: 40%;
     padding: 30px 20px;
+    align-self: center;
   }
 
   .signup-header3 h2 {
@@ -300,7 +301,7 @@
   }
 
   .signup-form3 {
-    padding: 1rem 0;
+    padding: 3rem 0 1rem;
   }
 
   .name-row {
@@ -365,7 +366,8 @@
   }
 
   .signup-box3 {
-    max-width: 95%;
+    max-width: 70%;
+    border-width: 3px;
     padding: 25px 15px;
   }
 

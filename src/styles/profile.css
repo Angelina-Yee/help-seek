@@ -213,14 +213,21 @@ html, body{
 
     .prof-posts{
         transform: scale(0.94);
-        margin-top: -3.5rem;
+        margin-top: 4rem;
+    }
+}
+
+@media (max-width: 768px){
+    .prof-posts{
+        transform: scale(0.94);
+        margin-top: 3rem;
     }
 }
 
 @media (max-width: 480px){
     .prof-container{
         grid-template-columns: 1fr 240px;
-        padding: 8px 10px 20px 60px;
+        padding: 8px 10px 20px 40px;
         gap: 0px;
     }
 
@@ -271,6 +278,7 @@ html, body{
         margin: 2rem 15rem 0 0;
         align-items: stretch;
         min-height: 80px;
+        align-self: center;
     }
 
     .prof-posts:empty::before{

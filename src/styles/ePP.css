@@ -346,6 +346,7 @@
     .ePP-preview{
       width: 30rem;
       height: 30rem;
+      margin-right: 20px;
     }
   
     .ePP-preview::after{
@@ -353,6 +354,7 @@
       height: 28px;
       bottom: 6.5rem;
       margin-left: 6px;
+      margin-right: 20px;
     }
   
     .ePP-preview img{
@@ -362,6 +364,7 @@
   
     .ePP-save{
       margin-left: 0;
+      margin-right: 20px;
       margin-top: -5rem;
       align-self: center;
       padding: 12px 26px;
@@ -378,6 +381,8 @@
       border-width: 4px;
       border-radius: 12px;
       width: 300px;
+      align-self: center;
+      margin-right: 20px;
     }
   
     .ePP-group{
@@ -427,6 +432,7 @@
     .ePP-preview{
         width: 25rem;
         height: 25rem;
+        margin-left: 20px;
     }
 
     .ePP-back{
@@ -437,7 +443,7 @@
         width: 60%;
         height: 28px;
         bottom: 6.5rem;
-        margin-left: 6px;
+        margin-left: 26px;
     }
     
     .ePP-preview img{
@@ -446,7 +452,7 @@
     }
     
     .ePP-save{
-        margin-left: 0;
+        margin-left: 20px;
         margin-top: -5.5rem;
         align-self: center;
         padding: 12px 26px;
@@ -457,6 +463,7 @@
     .ePP-panel-inner{
         width: 260px;
         align-self: center;
+        margin-left: 20px;
     }
 
     .ePP-paints .dots{

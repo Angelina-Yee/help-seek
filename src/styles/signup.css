@@ -167,8 +167,9 @@
   }
 
   .signup-box1 {
-    max-width: 90%;
-    padding: 30px 20px;
+    max-width: 40%;
+    padding: 40px 20px;
+    align-self: center;
   }
 
   .signup-header1 h2 {
@@ -185,7 +186,7 @@
   }
 
   .signup-form1 {
-    padding: 1rem 0;
+    padding: 3rem 0;
   }
 
   .signup-form1 input {
@@ -202,7 +203,7 @@
   .send-btn {
     padding: 20px 25px;
     font-size: 22px;
-    margin-top: 10px;
+    margin-top: 30px;
   }
 }
 
@@ -214,14 +215,16 @@
     padding: 0.875rem 1rem;
     background-size: 100vw 3.5rem;
   }
+
   .su1 .navbar a {
     font-size: 1.05rem;
     margin-left: 0.75rem;
   }
 
   .signup-box1 {
-    max-width: 95%;
+    max-width: 70%;
     padding: 25px 15px;
+    border-width: 3px;
   }
 
   .signup-header1 h2 {
@@ -238,7 +241,7 @@
   }
 
   .signup-form1 {
-    padding: 1rem 0;
+    padding: 3rem 0 1rem;
   }
 
   .signup-form1 input {
@@ -256,7 +259,7 @@
   .send-btn {
     padding: 18px 20px;
     font-size: 20px;
-    margin-top: 8px;
+    margin-bottom: 0;
   }
 }
 
