@@ -125,7 +125,6 @@ function EditProfile() {
                     justifyContent: "center",
                   }}
                 >
-                  {/*Help with image cropping please*/}
                   <img
                     src={activeChar.src}
                     alt={`${activeChar.label} avatar`}

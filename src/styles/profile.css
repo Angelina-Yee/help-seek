@@ -273,12 +273,19 @@ html, body{
     }
 
     .prof-posts{
-        transform: scale(0.5);
-        transform-origin: top center;
-        margin: 2rem 15rem 0 0;
+        margin: 0;
+        padding: 0;
         align-items: stretch;
-        min-height: 80px;
         align-self: center;
+        width: 400px;
+    }
+
+    .prof-posts > .postcard{ 
+        margin-top: -7rem;
+        height: auto; 
+        overflow: hidden; 
+        margin-bottom: -7rem;
+        margin-left: -8.5rem;
     }
 
     .prof-posts:empty::before{
@@ -288,7 +295,7 @@ html, body{
     }
 
     .posts-header{
-        transform: scale(1.2);
-        margin-left: 30px;
+        margin-left: 20px;
+        margin-top: -10px;
     }
 }

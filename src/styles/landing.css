@@ -13,7 +13,7 @@
 }
 
 /*NavBar*/
-.navbar {
+.Land1 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -74,7 +74,7 @@
 }
 
 @media (max-width: 480px){
-  .navbar{
+  .Land1 .navbar{
     padding: 0;
     position: sticky;
     top: 0;
