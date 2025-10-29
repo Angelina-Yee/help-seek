@@ -220,7 +220,7 @@ html, body{
 @media (max-width: 768px){
     .prof-posts{
         transform: scale(0.94);
-        margin-top: 3rem;
+        margin-top: 1rem;
     }
 }
 
