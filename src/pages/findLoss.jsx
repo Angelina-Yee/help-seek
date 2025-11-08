@@ -154,7 +154,8 @@ function FindLoss() {
 
 	const [modal, setModal] = useState(null);
 	const [showCateg, setShowCateg] = useState(false);
-	const [items, setItems] = useState([]);
+    const [items, setItems] = useState([]);
+    const [showFilterMobile, setShowFilterMobile] = useState(false);
 	const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
@@ -341,8 +342,8 @@ function FindLoss() {
                             backgroundColor: glowColor || "transparent",
 							borderRadius: "50%",
 							overflow: "hidden",
-							width: 40,
-							height: 40,
+							width: 42,
+							height: 42,
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "center",
@@ -383,6 +384,26 @@ function FindLoss() {
 
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
+
+                {/* Mobile toolbar (shown only on mobiles via CSS) */}
+                <div className="lf-toolbar">
+                    <div className="lf-toolbar-center">
+                        <button className="lf-categories-btn" onClick={() => setShowCateg(true)}>Categories</button>
+                        <button
+                            className="lf-filter-btn"
+                            type="button"
+                            onClick={() => setShowFilterMobile(true)}
+                            aria-label="Open filters"
+                        >
+                            Filter
+                        </button>
+                        <button className="lf-add" aria-label="create" onClick={() => setModal("choice")} />
+                    </div>
+                    <div className="lf-notif">
+                        <Notif notifications={useMessageNotifications()} />
+                    </div>
+                </div>
+
                 <Notif notifications={useMessageNotifications()} />
             </div>
 
@@ -390,8 +411,16 @@ function FindLoss() {
             <section className="lf-hero">
                 <div className="lf-container">
                     <div className="lf-row">
-						<div className="lf-header">
+                        <div className="lf-header">
                             <h2>Finds</h2>
+                            <button
+                                type="button"
+                                className="lf-filter-fab"
+                                onClick={() => setShowFilterMobile(true)}
+                                aria-label="Open filters"
+                            >
+                                Filter
+                            </button>
                         </div>
                     {loading && <div>Loading…</div>}
 						{!loading && visibleItems.length === 0 && <div>No posts match your filters.</div>}
@@ -536,6 +565,133 @@ function FindLoss() {
                     </aside>
                 </div>
             </section>
+            {showFilterMobile && (
+                <div className="lf-filter-modal-backdrop" role="dialog" aria-modal="true">
+                    <div className="lf-filter-modal">
+                        <div className="lf-filter-modal-header">
+                            <div className="lf-title">Filters</div>
+                            <button
+                                type="button"
+                                className="lf-filter-close"
+                                onClick={() => setShowFilterMobile(false)}
+                                aria-label="Close filters"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="lf-panel">
+                            <div className="lf-title">Sort By</div>
+                            <select
+                                className="lf-select"
+                                value={sortOrder}
+                                onChange={(e) => setSortOrder(e.target.value)}
+                            >
+                                <option>Most Recent</option>
+                                <option>Oldest</option>
+                            </select>
+                        </div>
+
+                        <div className="lf-panel">
+                            <div className="lf-title">Category</div>
+                            {lfCategories.map(c => {
+                                const cCanon = toCanonKey(c);
+                                return (
+                                    <label key={c} className="lf-check">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCats.has(cCanon)}
+                                            onChange={() => toggleCategory(c)}
+                                        />{" "}
+                                        <span>{c}</span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+
+                        <div className="lf-panel">
+                            <div className="lf-title">Location</div>
+                            <select
+                                className="lf-select"
+                                value={locationFilter}
+                                onChange={(e) => setLocationFilter(e.target.value)}
+                            >
+                                <option>Any Location</option>
+                                <option>Center Hall</option>
+                                <option>Dining Halls</option>
+                                <option>Dorms</option>
+                                <option>Eighth</option>
+                                <option>ERC</option>
+                                <option>Geisel Library</option>
+                                <option>Gym</option>
+                                <option>John Muir</option>
+                                <option>Mandeville Auditorium</option>
+                                <option>Marshall</option>
+                                <option>Price Center</option>
+                                <option>Revelle</option>
+                                <option>Sally T. WongAvery Library</option>
+                                <option>Seventh</option>
+                                <option>Sixth</option>
+                                <option>UCSD Restaurants</option>
+                                <option>Warren</option>
+                            </select>
+                        </div>
+
+                        <div className="lf-panel">
+                            <div className="lf-title">Date Posted</div>
+                            <label className="lf-check">
+                                <input
+                                    type="radio"
+                                    name="date-mobile-find"
+                                    checked={dateFilter === "any"}
+                                    onChange={() => setDateFilter("any")}
+                                />{" "}
+                                Any time
+                            </label>
+
+                            <label className="lf-check">
+                                <input
+                                    type="radio"
+                                    name="date-mobile-find"
+                                    checked={dateFilter === "24h"}
+                                    onChange={() => setDateFilter("24h")}
+                                />{" "}
+                                Last 24 hours
+                            </label>
+
+                            <label className="lf-check">
+                                <input
+                                    type="radio"
+                                    name="date-mobile-find"
+                                    checked={dateFilter === "week"}
+                                    onChange={() => setDateFilter("week")}
+                                />{" "}
+                                Past Week
+                            </label>
+
+                            <label className="lf-check">
+                                <input
+                                    type="radio"
+                                    name="date-mobile-find"
+                                    checked={dateFilter === "month"}
+                                    onChange={() => setDateFilter("month")}
+                                /> {" "}
+                                Past Month
+                            </label>
+                        </div>
+
+                        <div className="lf-filter-modal-actions">
+                            <button
+                                type="button"
+                                className="lf-apply"
+                                onClick={() => setShowFilterMobile(false)}
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {modal === "choice" && (
                 <Choice
                     onClose={() => setModal(null)}
