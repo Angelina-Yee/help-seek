@@ -78,6 +78,114 @@
     }
 }
 
+@media (min-width: 768px){
+    .settings-dialog,
+    .settings-confirm-dialog{
+        width: min(540px, 70vw);
+        padding: 26px 24px 32px;
+    }
+
+    .settings-actions{
+        gap: 24px;
+        padding: 18px 22px;
+    }
+
+    .settings-btn{
+        font-size: 19px;
+        padding: 16px 14px;
+    }
+
+    .settings-confirm-actions{
+        gap: 24px;
+    }
+
+    .settings-confirm-actions .settings-btn{
+        max-width: 140px;
+        padding: 12px 10px;
+        font-size: 16px;
+    }
+
+    .settings-password-label,
+    .settings-confirm-title,
+    .settings-confirm-message{
+        font-size: 18px;
+    }
+
+    .settings-password-input{
+        padding: 14px 18px;
+    }
+
+    .settings-notification-dialog{
+        width: min(580px, 68vw);
+        padding: 56px 36px 48px;
+    }
+
+    .notification-item{
+        gap: 24px;
+        padding: 28px 0;
+    }
+}
+
+@media (min-width: 1200px){
+    .settings-dialog,
+    .settings-confirm-dialog{
+        width: min(640px, 54vw);
+        padding: 30px 32px 36px;
+    }
+
+    .settings-actions{
+        gap: 28px;
+        padding: 22px 30px;
+    }
+
+    .settings-btn{
+        font-size: 20px;
+        padding: 18px 16px;
+    }
+
+    .settings-confirm-actions{
+        gap: 28px;
+        justify-content: flex-end;
+    }
+
+    .settings-confirm-actions .settings-btn{
+        max-width: 160px;
+        font-size: 17px;
+        padding: 14px 12px;
+    }
+
+    .settings-confirm-title{
+        font-size: 20px;
+    }
+
+    .settings-confirm-message{
+        font-size: 18px;
+        line-height: 1.6;
+    }
+
+    .settings-password-input{
+        padding: 16px 20px;
+        font-size: 18px;
+    }
+
+    .settings-notification-dialog{
+        width: min(680px, 50vw);
+        padding: 64px 44px 56px;
+    }
+
+    .notification-item{
+        padding: 32px 0;
+    }
+
+    .notification-info h4{
+        font-size: 20px;
+    }
+
+    .notification-info p{
+        font-size: 16px;
+    }
+}
+
 .settings-close{
     position: absolute;
     top: 8px;
