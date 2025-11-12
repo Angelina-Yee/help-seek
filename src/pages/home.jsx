@@ -98,6 +98,7 @@ function Home() {
     const [modal, setModal] = useState(null);
     const [showCateg, setShowCateg] = useState(false);
 	const navigate = useNavigate();
+	const messageNotifications = useMessageNotifications();
 
     const goToCategoryPage = (label) => {
         navigate(`/category?c=${encodeURIComponent(label)}`);
@@ -393,7 +394,35 @@ function Home() {
                     ))}
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
-				<Notif notifications={useMessageNotifications()} />
+				<div className="lf-toolbar">
+					<div className="lf-toolbar-center">
+						<button
+							className="lf-categories-btn"
+							type="button"
+							onClick={() => setShowCateg(true)}
+						>
+							Categories
+						</button>
+						<button
+							className="lf-filter-btn"
+							type="button"
+							onClick={() => navigate("/lossFind")}
+						>
+							Filter
+						</button>
+						<button
+							className="lf-add"
+							type="button"
+							aria-label="create"
+							onClick={() => setModal("choice")}
+						/>
+					</div>
+					<div className="lf-notif">
+						<Notif notifications={messageNotifications} />
+					</div>
+				</div>
+
+				<Notif notifications={messageNotifications} />
             </div>
 
             {/*Recent Losses*/}

@@ -283,3 +283,30 @@
 .home-row{
     position: relative;
 }
+
+@media (max-width: 600px) {
+    .home-hero {
+        margin: 24px 0;
+        padding: 0 16px;
+        max-width: 100%;
+    }
+
+    .home-head {
+        padding: 0 12px;
+        margin-bottom: 12px;
+    }
+
+    .home-head h4 {
+        margin: 0;
+    }
+
+    .home-row {
+        gap: 8px;
+        padding: 0;
+    }
+
+    .home-postc {
+        width: 100%;
+        max-width: 100%;
+    }
+}

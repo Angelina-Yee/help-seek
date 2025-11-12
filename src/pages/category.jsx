@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useMemo} from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import "../styles/lossFind.css";
+import "../styles/home.css";
 import Postcard from "../components/postcard";
 import Choice from "../components/choice";
 import NewPost from "../components/newPost";
@@ -121,6 +122,7 @@ function Category() {
 
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const messageNotifications = useMessageNotifications();
 
     const [selectedCat, setSelectedCat] = useState("");
 
@@ -344,7 +346,35 @@ function Category() {
                     })} 
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
-                <Notif notifications={useMessageNotifications()} />
+				<div className="lf-toolbar">
+					<div className="lf-toolbar-center">
+						<button
+							className="lf-categories-btn"
+							type="button"
+							onClick={() => setShowCateg(true)}
+						>
+							Categories
+						</button>
+						<button
+							className="lf-filter-btn"
+							type="button"
+							onClick={() => navigate("/lossFind")}
+						>
+							Filter
+						</button>
+						<button
+							className="lf-add"
+							type="button"
+							aria-label="create"
+							onClick={() => setModal("choice")}
+						/>
+					</div>
+					<div className="lf-notif">
+						<Notif notifications={messageNotifications} />
+					</div>
+				</div>
+
+                <Notif notifications={messageNotifications} />
             </div>
 
             {/*Hero*/}

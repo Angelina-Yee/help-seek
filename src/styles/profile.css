@@ -273,29 +273,24 @@ html, body{
     }
 
     .prof-posts{
-        margin: 0;
+        margin: 24px 8px 40px;
         padding: 0;
-        align-items: stretch;
-        align-self: center;
-        width: 400px;
+        width: 100%;
+        max-width: 420px;
+        align-items: flex-start;
+        align-self: stretch;
     }
 
     .prof-posts > .postcard{ 
-        margin-top: -7rem;
+        margin: 12px 0;
+        width: calc(100% - 24px);
         height: auto; 
         overflow: hidden; 
-        margin-bottom: -7rem;
-        margin-left: -8.5rem;
-    }
-
-    .prof-posts:empty::before{
-        content: "";
-        display: block;
-        min-height: 80px;
+        margin-left: 12px;
     }
 
     .posts-header{
-        margin-left: 20px;
-        margin-top: -10px;
+        align-self: flex-start;
+        margin: 0 0 16px 12px;
     }
 }

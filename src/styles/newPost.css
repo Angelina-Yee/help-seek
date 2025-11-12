@@ -17,7 +17,7 @@
 
 .np-dialog {
   position: relative;
-  width: min(600px, 95vw);
+  width: min(540px, 92vw);
   border: 5px solid var(--blue);
   background-color: var(--bg);
   border-radius: 16px;
@@ -27,6 +27,36 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width: 480px){
+  .np-dialog{
+    width: min(360px, 90vw);
+    padding: 18px 16px 22px;
+    border-width: 4px;
+  }
+
+  .np-form{
+    max-width: 300px;
+    gap: 12px;
+  }
+
+  .np-duo{
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .np-ai-btn,
+  .np-back,
+  .np-submit{
+    font-size: 12px;
+    padding: 10px 16px;
+  }
+
+  .np-previewBox{
+    max-width: 200px;
+    height: 130px;
+  }
 }
 
 .np-title {

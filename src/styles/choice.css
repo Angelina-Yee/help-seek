@@ -24,6 +24,23 @@
     padding: 22px 20px 26px;
 }
 
+@media (max-width: 480px){
+    .choice-dialog{
+        width: min(360px, 85vw);
+        padding: 18px 16px 22px;
+        border-width: 4px;
+    }
+
+    .choice-btn, .categ-btn{
+        font-size: 14px;
+        padding: 12px 8px;
+    }
+
+    .categ-btn{
+        margin-top: 14px;
+    }
+}
+
 .choice-close{
     position: absolute;
     top: 8px;
