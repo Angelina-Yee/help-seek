@@ -250,6 +250,43 @@ function ensureThreadShell(meta, setThreads) {
   });
 }
 
+function formatDateStamp(date) {
+  const now = new Date();
+  const msgDate = new Date(date);
+  const diffInDays = Math.floor((now - msgDate) / (1000 * 60 * 60 * 24));
+
+  if (diffInDays === 0) {
+    return "Today";
+  } else if (diffInDays === 1) {
+    return "Yesterday";
+  } else if (diffInDays < 7) {
+    return msgDate.toLocaleDateString("en-US", { weekday: "long" });
+  } else {
+    return msgDate.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: now.getFullYear() !== msgDate.getFullYear() ? "numeric" : undefined,
+    });
+  }
+}
+
+function shouldShowDateStamp(currentMsg, previousMsg) {
+  if (!previousMsg) return true;
+
+  const currentDate = new Date(currentMsg.ts);
+  const previousDate = new Date(previousMsg.ts);
+
+  return currentDate.toDateString() !== previousDate.toDateString();
+}
+
+function DateStamp({ date }) {
+  return (
+    <div className="date-stamp">
+      <span>{formatDateStamp(date)}</span>
+    </div>
+  );
+}
+
 function Inbox() {
   const [me, setMe] = useState(null);
   const [isUserBlocked, setIsUserBlocked] = useState(false);
@@ -1110,56 +1147,61 @@ function Inbox() {
                   : "Choose a conversation."}
               </div>
             ) : (
-              msgs.map((m) => {
+              msgs.map((m, index) => {
                 const mine = m.from === "me";
-                return (
-                  <div
-                    key={m.id}
-                    className={`msg-row ${mine ? "me" : "other"}`}
-                  >
-                    {!mine && (
-                      <PcAvatar
-                        as={otherProfileHref ? "link" : "div"}
-                        to={otherProfileHref || undefined}
-                        src={otherAvatar}
-                        bg={otherAvatarBg}
-                        title={
-                          current?.name
-                            ? `View ${current.name}'s profile`
-                            : "Profile"
-                        }
-                      />
-                    )}
-                    <div className="bubble-stack">
-                      {m.kind === "image" ? (
-                        <div
-                          className={`bubble image ${mine ? "me" : "other"}`}
-                          title={m.name || "image"}
-                        >
-                          <img
-                            src={m.url}
-                            alt={m.name || "sent image"}
-                            draggable="false"
-                            onLoad={scrollToBottom}
-                          />
-                        </div>
-                      ) : (
-                        <div className={`bubble ${mine ? "me" : "other"}`}>
-                          {m.text}
-                        </div>
-                      )}
-                      <TimeOutside ts={m.ts} />
-                      <div ref={endRef} />
-                    </div>
+                const previousMsg = index > 0 ? msgs[index - 1] : null;
+                const showDateStamp = shouldShowDateStamp(m, previousMsg);
 
-                    {mine && (
-                      <PcAvatar
-                        src={myAvatar}
-                        bg={myAvatarBundle.avatarBg}
-                        title="My avatar"
-                      />
-                    )}
-                  </div>
+                return (
+                  <React.Fragment key={m.id}>
+                    {/* Show date stamp if needed */}
+                    {showDateStamp && <DateStamp date={m.ts} />}
+
+                    <div className={`msg-row ${mine ? "me" : "other"}`}>
+                      {!mine && (
+                        <PcAvatar
+                          as={otherProfileHref ? "link" : "div"}
+                          to={otherProfileHref || undefined}
+                          src={otherAvatar}
+                          bg={otherAvatarBg}
+                          title={
+                            current?.name
+                              ? `View ${current.name}'s profile`
+                              : "Profile"
+                          }
+                        />
+                      )}
+                      <div className="bubble-stack">
+                        {m.kind === "image" ? (
+                          <div
+                            className={`bubble image ${mine ? "me" : "other"}`}
+                            title={m.name || "image"}
+                          >
+                            <img
+                              src={m.url}
+                              alt={m.name || "sent image"}
+                              draggable="false"
+                              onLoad={scrollToBottom}
+                            />
+                          </div>
+                        ) : (
+                          <div className={`bubble ${mine ? "me" : "other"}`}>
+                            {m.text}
+                          </div>
+                        )}
+                        <TimeOutside ts={m.ts} />
+                        <div ref={endRef} />
+                      </div>
+
+                      {mine && (
+                        <PcAvatar
+                          src={myAvatar}
+                          bg={myAvatarBundle.avatarBg}
+                          title="My avatar"
+                        />
+                      )}
+                    </div>
+                  </React.Fragment>
                 );
               })
             )}
