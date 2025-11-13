@@ -157,17 +157,6 @@ function getProfileHref(userId, me) {
   return myId && String(myId) === String(userId) ? "/profile" : `/users/${userId}`;
 }
 
-function toMs(value) {
-  if (!value) return 0;
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string") {
-    const parsed = Number(value);
-    if (Number.isFinite(parsed)) return parsed;
-  }
-  const parsedDate = new Date(value).getTime();
-  return Number.isFinite(parsedDate) ? parsedDate : 0;
-}
-
 function TimeOutside({ ts }) {
   if (!ts) return null;
   const d = new Date(ts);
@@ -225,26 +214,23 @@ function ensureThreadShell(meta, setThreads) {
     avatarBg: meta.avatarBg || "transparent",
     peerId: meta.peerId || null,
     updatedAt: meta.updatedAt,
-    lastActivity: toMs(
-      meta.lastActivity !== undefined ? meta.lastActivity : meta.updatedAt
-    ),
   };
   setThreads((prev) => {
     const exists = prev.find((t) => t.id === base.id);
     if (exists) {
-      const updated = prev.map((t) =>
-        t.id === base.id
-          ? {
-              ...t,
-              ...base,
-              lastActivity: Math.max(toMs(t.lastActivity), toMs(base.lastActivity)),
-            }
-          : t
-      );
-      return updated.sort((a, b) => toMs(b.lastActivity) - toMs(a.lastActivity));
+      const updated = prev.map((t) => (t.id === base.id ? { ...t, ...base } : t));
+      return updated.sort((a, b) => {
+        const aTime = new Date(a.updatedAt || 0).getTime();
+        const bTime = new Date(b.updatedAt || 0).getTime();
+        return bTime - aTime;
+      });
     }
     const newThreads = [base, ...prev];
-    return newThreads.sort((a, b) => toMs(b.lastActivity) - toMs(a.lastActivity));
+    return newThreads.sort((a, b) => {
+      const aTime = new Date(a.updatedAt || 0).getTime();
+      const bTime = new Date(b.updatedAt || 0).getTime();
+      return bTime - aTime;
+    });
   });
 }
 
@@ -282,36 +268,17 @@ function Inbox() {
     });
   }, []);
 
-  const getThreadActivity = useCallback((thread) => {
-    if (!thread) return 0;
-    const fromThread = toMs(thread.lastActivity);
-    if (fromThread) return fromThread;
-    const updated = toMs(thread.updatedAt);
-    if (updated) return updated;
-    return 0;
-  }, []);
-
-  const sortThreads = useCallback(
-    (list) => {
-      const clone = [...list];
-      clone.sort((a, b) => getThreadActivity(b) - getThreadActivity(a));
-      return clone;
-    },
-    [getThreadActivity]
-  );
-
   const visibleThreads = useMemo(() => {
-    const map = new Map();
+    const seen = new Set();
+    const result = [];
     for (const t of threads) {
       const key = t.peerId ? `peer:${t.peerId}` : `thread:${t.id}`;
-      const existing = map.get(key);
-      const currentTime = getThreadActivity(t);
-      if (!existing || currentTime > getThreadActivity(existing)) {
-        map.set(key, t);
-      }
+      if (seen.has(key)) continue;
+      seen.add(key);
+      result.push(t);
     }
-    return sortThreads(Array.from(map.values()));
-  }, [threads, getThreadActivity, sortThreads]);
+    return result;
+  }, [threads]);
 
   const current = useMemo(
     () => threads.find((t) => t.id === selectedId) || null,
@@ -411,13 +378,6 @@ function Inbox() {
                       avatarBg: bundle.avatarBg,
                       preview: t.lastPreview || x.preview || "",
                       unread: Boolean(t.unread),
-                      updatedAt: meta?.updatedAt ?? x.updatedAt ?? t.updatedAt,
-                      lastActivity: Math.max(
-                        toMs(x.lastActivity),
-                        toMs(meta?.updatedAt),
-                        toMs(t.updatedAt),
-                        toMs(x.updatedAt)
-                      ),
                     }
                   : x
               )
@@ -459,22 +419,11 @@ function Inbox() {
           for (const f of fresh) {
             const existing = map.get(f.id);
             if (existing) {
-              const candidateActivity = toMs(f.updatedAt);
-              const existingActivity = toMs(existing.lastActivity);
-              const previewUnchanged =
-                (existing.preview || "") === (f.lastPreview || existing.preview || "");
-              const unreadUnchanged = Boolean(existing.unread) === Boolean(f.unread);
-              const nextActivity =
-                candidateActivity > existingActivity && !(previewUnchanged && unreadUnchanged)
-                  ? candidateActivity
-                  : existingActivity;
-
               map.set(f.id, {
                 ...existing,
                 preview: f.lastPreview || existing.preview || "",
                 unread: Boolean(f.unread),
                 updatedAt: f.updatedAt || existing.updatedAt,
-                lastActivity: nextActivity,
               });
             } else {
               map.set(f.id, {
@@ -486,7 +435,6 @@ function Inbox() {
                 avatarBg: "transparent",
                 peerId: null,
                 updatedAt: f.updatedAt,
-                lastActivity: toMs(f.updatedAt),
               });
             }
           }
@@ -499,8 +447,12 @@ function Inbox() {
           for (const [id, item] of map) {
             if (!ordered.find((x) => x.id === id)) ordered.push(item);
           }
-
-          return sortThreads(ordered);
+          
+          return ordered.sort((a, b) => {
+            const aTime = new Date(a.updatedAt || 0).getTime();
+            const bTime = new Date(b.updatedAt || 0).getTime();
+            return bTime - aTime;
+          });
         });
       } catch (e) {
         console.warn("thread refresh failed", e);
@@ -535,22 +487,17 @@ function Inbox() {
 
           const bundle = buildAvatarFromIds(peer?.avatarCharId, peer?.avatarColor);
 
-          const metaActivity = toMs(meta?.updatedAt);
           setThreads((prev) =>
-            sortThreads(
-              prev.map((t) =>
-                t.id === queryThreadId
-                  ? {
-                      ...t,
-                      peerId: meta?.peerId ?? t.peerId ?? null,
-                      name: (peer?.name || t.name || "User").trim(),
-                      avatarSrc: bundle.avatarSrc,
-                      avatarBg: bundle.avatarBg,
-                      updatedAt: meta?.updatedAt ?? t.updatedAt,
-                      lastActivity: Math.max(getThreadActivity(t), metaActivity),
-                    }
-                  : t
-              )
+            prev.map((t) =>
+              t.id === queryThreadId
+                ? {
+                    ...t,
+                    peerId: meta?.peerId ?? t.peerId ?? null,
+                    name: (peer?.name || t.name || "User").trim(),
+                    avatarSrc: bundle.avatarSrc,
+                    avatarBg: bundle.avatarBg,
+                  }
+                : t
             )
           );
         } catch (e) {
@@ -585,43 +532,17 @@ function Inbox() {
           setThreads((prev) => {
             const exists = prev.find(t => t.id === serverThreadWithUser.id);
             if (exists) {
-              return sortThreads(
-                prev.map(t =>
-                  t.id === serverThreadWithUser.id
-                    ? {
-                        ...t,
-                        name: peer?.name || t.name,
-                        avatarSrc: bundle.avatarSrc,
-                        avatarBg: bundle.avatarBg,
-                        updatedAt: meta?.updatedAt ?? t.updatedAt ?? serverThreadWithUser.updatedAt,
-                        lastActivity: Math.max(
-                          getThreadActivity(t),
-                          toMs(meta?.updatedAt),
-                          toMs(serverThreadWithUser.updatedAt)
-                        ),
-                        peerId: meta?.peerId ?? t.peerId ?? userId,
-                      }
-                    : t
-                )
-              );
+              return prev.map(t => t.id === serverThreadWithUser.id ? { ...t, name: peer?.name || t.name } : t);
             } else {
-              return sortThreads([
-                {
-                  id: serverThreadWithUser.id,
-                  name: peer?.name || "User",
-                  preview: serverThreadWithUser.lastPreview || "",
-                  unread: Boolean(serverThreadWithUser.unread),
-                  avatarSrc: bundle.avatarSrc,
-                  avatarBg: bundle.avatarBg,
-                  peerId: userId,
-                  updatedAt: meta?.updatedAt ?? serverThreadWithUser.updatedAt,
-                  lastActivity: Math.max(
-                    toMs(meta?.updatedAt),
-                    toMs(serverThreadWithUser.updatedAt)
-                  ),
-                },
-                ...prev,
-              ]);
+              return [{
+                id: serverThreadWithUser.id,
+                name: peer?.name || "User",
+                preview: serverThreadWithUser.lastPreview || "",
+                unread: Boolean(serverThreadWithUser.unread),
+                avatarSrc: bundle.avatarSrc,
+                avatarBg: bundle.avatarBg,
+                peerId: userId,
+              }, ...prev];
             }
           });
           setSelectedId(serverThreadWithUser.id);
@@ -659,22 +580,19 @@ function Inbox() {
           const existingThread = withoutTemp.find((t) => t.id === realThreadId);
           
           if (existingThread) {
-            return sortThreads(
-              withoutTemp.map((t) =>
-                t.id === realThreadId
-                  ? {
-                      ...t,
-                      name: finalName,
-                      avatarSrc: finalBundle.avatarSrc,
-                      avatarBg: finalBundle.avatarBg,
-                      peerId: userId,
-                      lastActivity: Math.max(getThreadActivity(t), Date.now()),
-                    }
-                  : t
-              )
+            return withoutTemp.map((t) =>
+              t.id === realThreadId
+                ? {
+                    ...t,
+                    name: finalName,
+                    avatarSrc: finalBundle.avatarSrc,
+                    avatarBg: finalBundle.avatarBg,
+                    peerId: userId,
+                  }
+                : t
             );
           } else {
-            return sortThreads([
+            return [
               {
                 id: realThreadId,
                 name: finalName,
@@ -683,11 +601,9 @@ function Inbox() {
                 avatarSrc: finalBundle.avatarSrc,
                 avatarBg: finalBundle.avatarBg,
                 peerId: userId,
-                updatedAt: Date.now(),
-                lastActivity: Date.now(),
               },
               ...withoutTemp,
-            ]);
+            ];
           }
         });
         setSelectedId(realThreadId);
@@ -695,7 +611,7 @@ function Inbox() {
         console.error("Inbox hydrate/open failed; keeping shell:", e);
       }
     })();
-  }, [location.state, searchParams, me, threads, sortThreads, getThreadActivity]);
+  }, [location.state, searchParams, me, threads]);
 
   useEffect(() => {
     const missingPeer = (threads || []).filter((t) => !t.peerId);
@@ -715,18 +631,16 @@ function Inbox() {
           );
 
           setThreads((prev) =>
-            sortThreads(
-              prev.map((x) =>
-                x.id === t.id
-                  ? {
-                      ...x,
-                      peerId: meta.peerId,
-                      name: (peer?.name || x.name || "User").trim(),
-                      avatarSrc: bundle.avatarSrc,
-                      avatarBg: bundle.avatarBg,
-                    }
-                  : x
-              )
+            prev.map((x) =>
+              x.id === t.id
+                ? {
+                    ...x,
+                    peerId: meta.peerId,
+                    name: (peer?.name || x.name || "User").trim(),
+                    avatarSrc: bundle.avatarSrc,
+                    avatarBg: bundle.avatarBg,
+                  }
+                : x
             )
           );
         } catch (e) {
@@ -734,7 +648,7 @@ function Inbox() {
         }
       }
     })();
-  }, [threads, sortThreads]);
+  }, [threads]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -804,24 +718,6 @@ function Inbox() {
           const merged = Array.from(byId.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0));
           return { ...prev, [selectedId]: merged };
         });
-        const newest = messages[messages.length - 1];
-        const newestTs = toMs(newest?.ts);
-        if (newestTs) {
-          setThreads((prev) =>
-            sortThreads(
-              prev.map((t) =>
-                t.id === selectedId
-                  ? {
-                      ...t,
-                      lastActivity: Math.max(getThreadActivity(t), newestTs),
-                      updatedAt: Math.max(toMs(t.updatedAt), newestTs),
-                      preview: newest?.kind === "image" ? "Image" : newest?.text || t.preview,
-                    }
-                  : t
-              )
-            )
-          );
-        }
         await api.seen(selectedId);
         scrollToBottom();
       } catch (e) {
@@ -837,7 +733,7 @@ function Inbox() {
       stop = true;
       if (timer) clearTimeout(timer);
     };
-  }, [selectedId, mergeMessages, scrollToBottom, sortThreads, getThreadActivity]);
+  }, [selectedId, mergeMessages, scrollToBottom]);
 
   const onDraftChange = useCallback(
     (e) => {
@@ -863,20 +759,13 @@ function Inbox() {
       ...prev,
       [selectedId]: [...(prev[selectedId] || []), optimistic],
     }));
-    const now = Date.now();
     setThreads((prev) =>
-      sortThreads(
-        prev.map((t) =>
-          t.id === selectedId
-            ? {
-                ...t,
-                preview: text,
-                updatedAt: now,
-                lastActivity: Math.max(getThreadActivity(t), now),
-              }
-            : t
-        )
-      )
+      prev.map((t) => (t.id === selectedId ? { ...t, preview: text, updatedAt: Date.now() } : t))
+        .sort((a, b) => {
+          const aTime = new Date(a.updatedAt || 0).getTime();
+          const bTime = new Date(b.updatedAt || 0).getTime();
+          return bTime - aTime;
+        })
     );
     setDraft("");
 
@@ -897,22 +786,6 @@ function Inbox() {
         const merged = Array.from(byId.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0));
         return { ...prev, [selectedId]: merged };
       });
-      const newestTs = toMs(saved?.ts ?? Date.now());
-      if (newestTs) {
-        setThreads((prev) =>
-          sortThreads(
-            prev.map((t) =>
-              t.id === selectedId
-                ? {
-                    ...t,
-                    lastActivity: Math.max(getThreadActivity(t), newestTs),
-                    updatedAt: Math.max(toMs(t.updatedAt), newestTs),
-                  }
-                : t
-            )
-          )
-        );
-      }
       scrollToBottom();
     } catch (err) {
       console.error("send failed", err);
@@ -975,20 +848,13 @@ function Inbox() {
       ...prev,
       [selectedId]: [...(prev[selectedId] || []), ...optimisticMsgs],
     }));
-    const now = Date.now();
     setThreads((prev) =>
-      sortThreads(
-        prev.map((t) =>
-          t.id === selectedId
-            ? {
-                ...t,
-                preview: "Image",
-                updatedAt: now,
-                lastActivity: Math.max(getThreadActivity(t), now),
-              }
-            : t
-        )
-      )
+      prev.map((t) => (t.id === selectedId ? { ...t, preview: "Image", updatedAt: Date.now() } : t))
+        .sort((a, b) => {
+          const aTime = new Date(a.updatedAt || 0).getTime();
+          const bTime = new Date(b.updatedAt || 0).getTime();
+          return bTime - aTime;
+        })
     );
 
     try {
@@ -1002,7 +868,6 @@ function Inbox() {
           name: f.name,
         });
 
-        const savedTs = toMs(saved?.ts ?? Date.now());
         setMessagesByThread((prev) => {
           const list = prev[selectedId] || [];
           const without = list.filter((m) => m.id !== optimistic.id && m.id !== saved.id);
@@ -1018,21 +883,6 @@ function Inbox() {
           const merged = [...without, finalMsg].sort((a, b) => (a.ts || 0) - (b.ts || 0));
           return { ...prev, [selectedId]: merged };
         });
-        if (savedTs) {
-          setThreads((prev) =>
-            sortThreads(
-              prev.map((t) =>
-                t.id === selectedId
-                  ? {
-                      ...t,
-                      lastActivity: Math.max(getThreadActivity(t), savedTs),
-                      updatedAt: Math.max(toMs(t.updatedAt), savedTs),
-                    }
-                  : t
-              )
-            )
-          );
-        }
       }
       scrollToBottom();
     } catch (err) {
