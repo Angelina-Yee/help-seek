@@ -437,7 +437,6 @@
     display: grid;
   }
 
-  /* Show back button in mobile chat view */
   .inbox-root.chat-active .mobile-back-btn {
     display: block;
   }
@@ -457,13 +456,41 @@
   .inbox-root .composer {
     padding: 8px 12px 6px;
     gap: 10px;
+    align-items: center;
   }
 
   .inbox-root .icon-btn,
-  .inbox-root .send-btn.arrow,
-  .inbox-root .send-arrow-btn {
+  .inbox-root .send-btn.arrow {
+    background: none;
+    border: 3px solid var(--blue);
+    color: var(--blue);
+    border-radius: 8px;
     width: 40px;
     height: 40px;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .inbox-root .send-arrow-btn {
+    background: none;
+    border: none;
+    color: var(--blue);
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .inbox-root .send-arrow {
+    width: 30px;
+    height: auto;
   }
 
   .inbox-root .composer-textarea {
@@ -529,13 +556,41 @@
   .inbox-root .composer {
     padding: 6px 8px 4px;
     gap: 8px;
+    align-items: center;
   }
 
   .inbox-root .icon-btn,
-  .inbox-root .send-btn.arrow,
-  .inbox-root .send-arrow-btn {
+  .inbox-root .send-btn.arrow {
+    background: none;
+    border: 3px solid var(--blue);
+    color: var(--blue);
+    border-radius: 8px;
     width: 36px;
     height: 36px;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .inbox-root .send-arrow-btn {
+    background: none;
+    border: none;
+    color: var(--blue);
+    border-radius: 8px;
+    width: 45px;
+    height: 45px;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .inbox-root .send-arrow {
+    width: 28px;
+    height: auto;
   }
 
   .inbox-root .composer-textarea {
@@ -602,13 +657,41 @@
   .inbox-root .composer {
     padding: 4px 6px 3px;
     gap: 6px;
+    align-items: center;
   }
 
   .inbox-root .icon-btn,
-  .inbox-root .send-btn.arrow,
-  .inbox-root .send-arrow-btn {
+  .inbox-root .send-btn.arrow {
+    background: none;
+    border: 3px solid var(--blue);
+    color: var(--blue);
+    border-radius: 8px;
     width: 32px;
     height: 32px;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .inbox-root .send-arrow-btn {
+    background: none;
+    border: none;
+    color: var(--blue);
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .inbox-root .send-arrow {
+    width: 26px;
+    height: auto;
   }
 
   .inbox-root .composer-textarea {
