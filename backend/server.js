@@ -123,12 +123,12 @@ async function start() {
     };
     https.createServer(creds, app).listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on https://localhost:${PORT}`);
-      console.log(`CORS allowed origin: ${FRONTEND_URL}`);
+      console.log("CORS allowed origins:", Array.from(allowed));
     });
   } else {
     http.createServer(app).listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on http://localhost:${PORT}`);
-      console.log(`CORS allowed origin: ${FRONTEND_URL}`);
+      console.log("CORS allowed origins:", Array.from(allowed));
     });
   }
 }
