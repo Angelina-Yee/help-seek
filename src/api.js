@@ -1,4 +1,4 @@
-const API = process.env.REACT_APP_API_URL || "http://localhost:4000";
+const API = process.env.REACT_APP_API_URL || window?.APP_API_URL || "http://localhost:4000";
 
 const ACCESS_KEY = "token";
 
