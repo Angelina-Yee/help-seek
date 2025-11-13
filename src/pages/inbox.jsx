@@ -268,6 +268,22 @@ function Inbox() {
     });
   }, []);
 
+  const visibleThreads = useMemo(() => {
+    const seen = new Set();
+    const result = [];
+    for (const t of threads) {
+      const key = t.peerId ? `peer:${t.peerId}` : `thread:${t.id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      result.push(t);
+    }
+    return result.sort((a, b) => {
+      const aTime = new Date(a.updatedAt || 0).getTime();
+      const bTime = new Date(b.updatedAt || 0).getTime();
+      return bTime - aTime;
+    });
+  }, [threads]);
+
   const current = useMemo(
     () => threads.find((t) => t.id === selectedId) || null,
     [threads, selectedId]
@@ -380,10 +396,18 @@ function Inbox() {
   }, []);
 
   useEffect(() => {
-    if (!selectedId && threads.length > 0) {
-      setSelectedId(threads[0].id);
+    if (!selectedId && visibleThreads.length > 0) {
+      setSelectedId(visibleThreads[0].id);
     }
-  }, [selectedId, threads]);
+  }, [selectedId, visibleThreads]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    const existsInVisible = visibleThreads.some((t) => t.id === selectedId);
+    if (!existsInVisible && visibleThreads.length > 0) {
+      setSelectedId(visibleThreads[0].id);
+    }
+  }, [selectedId, visibleThreads]);
 
   useEffect(() => {
     let stop = false;
@@ -918,7 +942,7 @@ function Inbox() {
             {(() => {
               const q = threadSearch.trim().toLowerCase();
               const source = q
-                ? threads.filter((t) => {
+                ? visibleThreads.filter((t) => {
                     const nameHit = (t.name || "").toLowerCase().includes(q);
                     let msgHit = false;
                     const list = messagesByThread[t.id] || [];
@@ -930,7 +954,7 @@ function Inbox() {
                     }
                     return nameHit || msgHit;
                   })
-                : threads;
+                : visibleThreads;
 
               if (source.length === 0) return <div className="thread-empty">No matches</div>;
               return source.map((t) => <ThreadButton key={t.id} thread={t} />);
