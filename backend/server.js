@@ -63,7 +63,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
 
 // Logging and body parsing
 app.use(express.json());
