@@ -151,7 +151,6 @@ function Profile() {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      // Dispatch event to notify all pages about the resolved post
       window.dispatchEvent(new CustomEvent("post:resolved", { 
         detail: { id: postId } 
       }));

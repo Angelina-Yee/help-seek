@@ -30,8 +30,7 @@ function buildAvatarFromIds(charId, colorId) {
 }
 
 function authHeaders() {
-  const token =
-    localStorage.getItem("token") || sessionStorage.getItem("token");
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
@@ -44,9 +43,9 @@ const api = {
     if (!res.ok) throw new Error("me failed");
     return await res.json();
   },
-
+  
   async getUser(userId) {
-    const res = await fetch(`${API}/api/users/${encodeURIComponent(userId)}`, {
+    const res = await fetch(`${API}/users/${encodeURIComponent(userId)}`, {
       credentials: "include",
       headers: { ...authHeaders() },
     });
@@ -64,13 +63,10 @@ const api = {
   },
 
   async getThread(threadId) {
-    const res = await fetch(
-      `${API}/api/threads/${encodeURIComponent(threadId)}`,
-      {
-        credentials: "include",
-        headers: { ...authHeaders() },
-      }
-    );
+    const res = await fetch(`${API}/api/threads/${encodeURIComponent(threadId)}`, {
+      credentials: "include",
+      headers: { ...authHeaders() },
+    });
     if (!res.ok) throw new Error("getThread failed");
     return await res.json();
   },
@@ -88,9 +84,7 @@ const api = {
 
   async getMessages(threadId, limit = 50) {
     const res = await fetch(
-      `${API}/api/threads/${encodeURIComponent(
-        threadId
-      )}/messages?limit=${limit}`,
+      `${API}/api/threads/${encodeURIComponent(threadId)}/messages?limit=${limit}`,
       { credentials: "include", headers: { ...authHeaders() } }
     );
     if (!res.ok) throw new Error("getMessages failed");
@@ -98,14 +92,11 @@ const api = {
   },
 
   async seen(threadId) {
-    const res = await fetch(
-      `${API}/api/threads/${encodeURIComponent(threadId)}/seen`,
-      {
-        method: "PATCH",
-        credentials: "include",
-        headers: { ...authHeaders() },
-      }
-    );
+    const res = await fetch(`${API}/api/threads/${encodeURIComponent(threadId)}/seen`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { ...authHeaders() },
+    });
     if (!res.ok) throw new Error("seen failed");
     return await res.json();
   },
@@ -143,6 +134,7 @@ const api = {
     if (!res.ok) throw new Error("Cleanup failed");
     return await res.json();
   },
+
 };
 
 function load() {
@@ -162,9 +154,7 @@ function save(state) {
 function getProfileHref(userId, me) {
   const myId = me?._id || me?.id || me?.sub || null;
   if (!userId) return null;
-  return myId && String(myId) === String(userId)
-    ? "/profile"
-    : `/users/${userId}`;
+  return myId && String(myId) === String(userId) ? "/profile" : `/users/${userId}`;
 }
 
 function TimeOutside({ ts }) {
@@ -172,11 +162,7 @@ function TimeOutside({ ts }) {
   const d = new Date(ts);
   const hh = d.getHours().toString().padStart(2, "0");
   const mm = d.getMinutes().toString().padStart(2, "0");
-  return (
-    <span className="msg-time-outside">
-      {hh}:{mm}
-    </span>
-  );
+  return <span className="msg-time-outside">{hh}:{mm}</span>;
 }
 
 function PcAvatar({ src, bg, as = "div", to, title, className = "" }) {
@@ -232,9 +218,7 @@ function ensureThreadShell(meta, setThreads) {
   setThreads((prev) => {
     const exists = prev.find((t) => t.id === base.id);
     if (exists) {
-      const updated = prev.map((t) =>
-        t.id === base.id ? { ...t, ...base } : t
-      );
+      const updated = prev.map((t) => (t.id === base.id ? { ...t, ...base } : t));
       return updated.sort((a, b) => {
         const aTime = new Date(a.updatedAt || 0).getTime();
         const bTime = new Date(b.updatedAt || 0).getTime();
@@ -261,12 +245,8 @@ function Inbox() {
 
   const persisted = load();
   const [threads, setThreads] = useState(() => persisted.threads || []);
-  const [selectedId, setSelectedId] = useState(
-    () => persisted.selectedId || null
-  );
-  const [messagesByThread, setMessagesByThread] = useState(
-    () => persisted.messagesByThread || {}
-  );
+  const [selectedId, setSelectedId] = useState(() => persisted.selectedId || null);
+  const [messagesByThread, setMessagesByThread] = useState(() => persisted.messagesByThread || {});
   const [draft, setDraft] = useState("");
   const [threadSearch, setThreadSearch] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -309,13 +289,10 @@ function Inbox() {
 
     const checkBlockStatus = async () => {
       try {
-        const res = await fetch(
-          `${API}/api/profile/block-status/${current.peerId}`,
-          {
-            credentials: "include",
-            headers: { ...authHeaders() },
-          }
-        );
+        const res = await fetch(`${API}/api/profile/block-status/${current.peerId}`, {
+          credentials: "include",
+          headers: { ...authHeaders() },
+        });
         if (res.ok) {
           const data = await res.json().catch(() => ({}));
           setIsUserBlocked(data.isBlocked || false);
@@ -335,9 +312,7 @@ function Inbox() {
       const existing = prev[threadId] || [];
       const byId = new Map(existing.map((m) => [m.id, m]));
       for (const m of incoming) byId.set(m.id, m);
-      const merged = Array.from(byId.values()).sort(
-        (a, b) => (a.ts || 0) - (b.ts || 0)
-      );
+      const merged = Array.from(byId.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0));
       return { ...prev, [threadId]: merged };
     });
   }, []);
@@ -355,9 +330,9 @@ function Inbox() {
 
   useEffect(() => {
     (async () => {
-      try {
-        const { threads: list } = await api.listThreads();
-        list.forEach((t) => {
+        try {
+          const { threads: list } = await api.listThreads();
+          list.forEach((t) => {
           ensureThreadShell(
             {
               id: t.id,
@@ -376,14 +351,9 @@ function Inbox() {
             const meta = await api.getThread(t.id);
             const peer =
               meta?.peer ||
-              (meta?.peerId
-                ? await api.getUser(meta.peerId).catch(() => null)
-                : null);
+              (meta?.peerId ? await api.getUser(meta.peerId).catch(() => null) : null);
 
-            const bundle = buildAvatarFromIds(
-              peer?.avatarCharId,
-              peer?.avatarColor
-            );
+            const bundle = buildAvatarFromIds(peer?.avatarCharId, peer?.avatarColor);
 
             setThreads((prev) =>
               prev.map((x) =>
@@ -400,7 +370,8 @@ function Inbox() {
                   : x
               )
             );
-          } catch {}
+          } catch {
+          }
         }
       } catch (e) {
         console.warn("listThreads failed", e);
@@ -456,7 +427,7 @@ function Inbox() {
           for (const [id, item] of map) {
             if (!ordered.find((x) => x.id === id)) ordered.push(item);
           }
-
+          
           return ordered.sort((a, b) => {
             const aTime = new Date(a.updatedAt || 0).getTime();
             const bTime = new Date(b.updatedAt || 0).getTime();
@@ -494,10 +465,7 @@ function Inbox() {
             meta?.peer ||
             (meta?.peerId ? await api.getUser(meta.peerId) : null);
 
-          const bundle = buildAvatarFromIds(
-            peer?.avatarCharId,
-            peer?.avatarColor
-          );
+          const bundle = buildAvatarFromIds(peer?.avatarCharId, peer?.avatarColor);
 
           setThreads((prev) =>
             prev.map((t) =>
@@ -524,62 +492,43 @@ function Inbox() {
       const myId = me?._id || me?.id || me?.sub || null;
       if (myId && String(myId) === String(userId)) return;
 
-      const existingThread = threads.find((t) => t.peerId === userId);
+      const existingThread = threads.find(t => t.peerId === userId);
       if (existingThread) {
         setSelectedId(existingThread.id);
         return;
       }
 
-      const { threads: serverThreads } = await api
-        .listThreads()
-        .catch(() => ({ threads: [] }));
-      const serverThreadWithUser = serverThreads.find((t) => {
-        return (
-          t.participants &&
-          t.participants.some((p) => String(p) === String(userId))
-        );
+      const { threads: serverThreads } = await api.listThreads().catch(() => ({ threads: [] }));
+      const serverThreadWithUser = serverThreads.find(t => {
+        return t.participants && t.participants.some(p => String(p) === String(userId));
       });
-
+      
       if (serverThreadWithUser) {
         try {
           const meta = await api.getThread(serverThreadWithUser.id);
-          const peer =
-            meta?.peer ||
-            (meta?.peerId
-              ? await api.getUser(meta.peerId).catch(() => null)
-              : null);
-          const bundle = buildAvatarFromIds(
-            peer?.avatarCharId,
-            peer?.avatarColor
-          );
-
+          const peer = meta?.peer || (meta?.peerId ? await api.getUser(meta.peerId).catch(() => null) : null);
+          const bundle = buildAvatarFromIds(peer?.avatarCharId, peer?.avatarColor);
+          
           setThreads((prev) => {
-            const exists = prev.find((t) => t.id === serverThreadWithUser.id);
+            const exists = prev.find(t => t.id === serverThreadWithUser.id);
             if (exists) {
-              return prev.map((t) =>
-                t.id === serverThreadWithUser.id
-                  ? { ...t, name: peer?.name || t.name }
-                  : t
-              );
+              return prev.map(t => t.id === serverThreadWithUser.id ? { ...t, name: peer?.name || t.name } : t);
             } else {
-              return [
-                {
-                  id: serverThreadWithUser.id,
-                  name: peer?.name || "User",
-                  preview: serverThreadWithUser.lastPreview || "",
-                  unread: Boolean(serverThreadWithUser.unread),
-                  avatarSrc: bundle.avatarSrc,
-                  avatarBg: bundle.avatarBg,
-                  peerId: userId,
-                },
-                ...prev,
-              ];
+              return [{
+                id: serverThreadWithUser.id,
+                name: peer?.name || "User",
+                preview: serverThreadWithUser.lastPreview || "",
+                unread: Boolean(serverThreadWithUser.unread),
+                avatarSrc: bundle.avatarSrc,
+                avatarBg: bundle.avatarBg,
+                peerId: userId,
+              }, ...prev];
             }
           });
           setSelectedId(serverThreadWithUser.id);
           return;
         } catch (e) {
-          console.warn("Failed to load existing server thread:", e);
+          console.warn('Failed to load existing server thread:', e);
         }
       }
 
@@ -609,7 +558,7 @@ function Inbox() {
         setThreads((prev) => {
           const withoutTemp = prev.filter((t) => t.id !== tempId);
           const existingThread = withoutTemp.find((t) => t.id === realThreadId);
-
+          
           if (existingThread) {
             return withoutTemp.map((t) =>
               t.id === realThreadId
@@ -746,9 +695,7 @@ function Inbox() {
           for (const m of optimisticOnly) {
             if (!byId.has(m.id)) byId.set(m.id, m);
           }
-          const merged = Array.from(byId.values()).sort(
-            (a, b) => (a.ts || 0) - (b.ts || 0)
-          );
+          const merged = Array.from(byId.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0));
           return { ...prev, [selectedId]: merged };
         });
         await api.seen(selectedId);
@@ -793,12 +740,7 @@ function Inbox() {
       [selectedId]: [...(prev[selectedId] || []), optimistic],
     }));
     setThreads((prev) =>
-      prev
-        .map((t) =>
-          t.id === selectedId
-            ? { ...t, preview: text, updatedAt: Date.now() }
-            : t
-        )
+      prev.map((t) => (t.id === selectedId ? { ...t, preview: text, updatedAt: Date.now() } : t))
         .sort((a, b) => {
           const aTime = new Date(a.updatedAt || 0).getTime();
           const bTime = new Date(b.updatedAt || 0).getTime();
@@ -821,9 +763,7 @@ function Inbox() {
           text,
         };
         byId.set(finalMsg.id, finalMsg);
-        const merged = Array.from(byId.values()).sort(
-          (a, b) => (a.ts || 0) - (b.ts || 0)
-        );
+        const merged = Array.from(byId.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0));
         return { ...prev, [selectedId]: merged };
       });
       scrollToBottom();
@@ -889,12 +829,7 @@ function Inbox() {
       [selectedId]: [...(prev[selectedId] || []), ...optimisticMsgs],
     }));
     setThreads((prev) =>
-      prev
-        .map((t) =>
-          t.id === selectedId
-            ? { ...t, preview: "Image", updatedAt: Date.now() }
-            : t
-        )
+      prev.map((t) => (t.id === selectedId ? { ...t, preview: "Image", updatedAt: Date.now() } : t))
         .sort((a, b) => {
           const aTime = new Date(a.updatedAt || 0).getTime();
           const bTime = new Date(b.updatedAt || 0).getTime();
@@ -915,9 +850,7 @@ function Inbox() {
 
         setMessagesByThread((prev) => {
           const list = prev[selectedId] || [];
-          const without = list.filter(
-            (m) => m.id !== optimistic.id && m.id !== saved.id
-          );
+          const without = list.filter((m) => m.id !== optimistic.id && m.id !== saved.id);
           const finalMsg = {
             ...optimistic,
             id: saved.id ?? optimistic.id,
@@ -927,9 +860,7 @@ function Inbox() {
             from: "me",
             kind: "image",
           };
-          const merged = [...without, finalMsg].sort(
-            (a, b) => (a.ts || 0) - (b.ts || 0)
-          );
+          const merged = [...without, finalMsg].sort((a, b) => (a.ts || 0) - (b.ts || 0));
           return { ...prev, [selectedId]: merged };
         });
       }
@@ -941,46 +872,13 @@ function Inbox() {
     }
   }
 
-  const [isMobile, setIsMobile] = useState(false);
-  const [showChat, setShowChat] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-      if (window.innerWidth > 768) {
-        setShowChat(false);
-      }
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  const handleThreadSelect = useCallback(
-    (threadId) => {
-      setSelectedId(threadId);
-      if (isMobile) {
-        setShowChat(true);
-      }
-    },
-    [isMobile]
-  );
-
-  const handleBackToInbox = useCallback(() => {
-    setShowChat(false);
-  }, []);
-
   const ThreadButton = ({ thread }) => (
     <button
       type="button"
       className={`thread ${thread.id === selectedId ? "active" : ""}`}
-      onClick={() => handleThreadSelect(thread.id)}
+      onClick={() => setSelectedId(thread.id)}
     >
-      <PcAvatar
-        src={thread.avatarSrc || "/img/raccoon.png"}
-        bg={thread.avatarBg}
-      />
+      <PcAvatar src={thread.avatarSrc || "/img/raccoon.png"} bg={thread.avatarBg} />
       <div className="thread-info">
         <div className="name">{thread.name}</div>
         <div className="preview">{thread.preview}</div>
@@ -990,7 +888,7 @@ function Inbox() {
   );
 
   return (
-    <div className={`home inbox-root ${showChat ? "chat-active" : ""}`}>
+    <div className="home inbox-root">
       <header className="home-navbar inbox-navbar">
         <div className="home-logo inbox-logo">help n seek</div>
 
@@ -1026,10 +924,7 @@ function Inbox() {
                     const list = messagesByThread[t.id] || [];
                     for (let i = 0; i < list.length && !msgHit; i++) {
                       const m = list[i];
-                      if (
-                        m.kind === "text" &&
-                        (m.text || "").toLowerCase().includes(q)
-                      ) {
+                      if (m.kind === "text" && (m.text || "").toLowerCase().includes(q)) {
                         msgHit = true;
                       }
                     }
@@ -1037,8 +932,7 @@ function Inbox() {
                   })
                 : threads;
 
-              if (source.length === 0)
-                return <div className="thread-empty">No matches</div>;
+              if (source.length === 0) return <div className="thread-empty">No matches</div>;
               return source.map((t) => <ThreadButton key={t.id} thread={t} />);
             })()}
           </div>
@@ -1046,29 +940,19 @@ function Inbox() {
 
         <section className="chat">
           <header className="chat-header">
-            <button
-              className="mobile-back-btn"
-              onClick={handleBackToInbox}
-              aria-label="Back to inbox"
-            >
-              ←
-            </button>
-
             <div className="chat-title">
               <PcAvatar
                 as={otherProfileHref ? "link" : "div"}
                 to={otherProfileHref || undefined}
                 src={otherAvatar}
                 bg={otherAvatarBg}
-                title={
-                  current?.name ? `View ${current.name}'s profile` : "Profile"
-                }
+                title={current?.name ? `View ${current.name}'s profile` : "Profile"}
               />
               <div className="chat-title-name">
                 {current?.name || "Select a chat"}
               </div>
             </div>
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 className="icon-btn cleanup-btn"
@@ -1076,18 +960,10 @@ function Inbox() {
                 onClick={async () => {
                   try {
                     const result = await api.cleanupThreads();
-                    alert(
-                      `Cleanup complete! Removed ${
-                        result.totalRemoved
-                      } threads. ${
-                        result.keptThread
-                          ? "Kept 1 valid thread."
-                          : "No valid threads found."
-                      }`
-                    );
+                    alert(`Cleanup complete! Removed ${result.totalRemoved} threads. ${result.keptThread ? 'Kept 1 valid thread.' : 'No valid threads found.'}`);
                     window.location.reload();
                   } catch (e) {
-                    alert("Cleanup failed. Please try again.");
+                    alert('Cleanup failed. Please try again.');
                   }
                 }}
               >
@@ -1113,29 +989,19 @@ function Inbox() {
               msgs.map((m) => {
                 const mine = m.from === "me";
                 return (
-                  <div
-                    key={m.id}
-                    className={`msg-row ${mine ? "me" : "other"}`}
-                  >
+                  <div key={m.id} className={`msg-row ${mine ? "me" : "other"}`}>
                     {!mine && (
                       <PcAvatar
                         as={otherProfileHref ? "link" : "div"}
                         to={otherProfileHref || undefined}
                         src={otherAvatar}
                         bg={otherAvatarBg}
-                        title={
-                          current?.name
-                            ? `View ${current.name}'s profile`
-                            : "Profile"
-                        }
+                        title={current?.name ? `View ${current.name}'s profile` : "Profile"}
                       />
                     )}
                     <div className="bubble-stack">
                       {m.kind === "image" ? (
-                        <div
-                          className={`bubble image ${mine ? "me" : "other"}`}
-                          title={m.name || "image"}
-                        >
+                        <div className={`bubble image ${mine ? "me" : "other"}`} title={m.name || "image"}>
                           <img
                             src={m.url}
                             alt={m.name || "sent image"}
@@ -1153,11 +1019,7 @@ function Inbox() {
                     </div>
 
                     {mine && (
-                      <PcAvatar
-                        src={myAvatar}
-                        bg={myAvatarBundle.avatarBg}
-                        title="My avatar"
-                      />
+                      <PcAvatar src={myAvatar} bg={myAvatarBundle.avatarBg} title="My avatar" />
                     )}
                   </div>
                 );
@@ -1209,12 +1071,7 @@ function Inbox() {
               rows={1}
             />
 
-            <button
-              className="send-arrow-btn"
-              type="button"
-              onClick={send}
-              aria-label="Send"
-            >
+            <button className="send-arrow-btn" type="button" onClick={send} aria-label="Send">
               <img className="send-arrow" src={sendArrow} alt="" />
             </button>
 
@@ -1229,8 +1086,8 @@ function Inbox() {
 
           <div className="composer-note">
             <strong>
-              *Messages are being monitored for user safety and for the purpose
-              of this site.*
+              *Messages are being monitored for user safety and for the purpose of
+              this site.*
             </strong>
           </div>
         </section>
