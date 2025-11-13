@@ -1,5 +1,12 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Outlet,
+  useLocation,
+  matchPath,
+} from "react-router-dom";
 
 import Landing from "./pages/landing";
 import Signup1 from "./pages/signup1";
@@ -31,6 +38,37 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 import { initAuth } from "./api";
 
+const TITLE_MAP = [
+  { path: "/", title: "Help N Seek - Landing" },
+  { path: "/home", title: "Help N Seek - Home" },
+  { path: "/lossFind", title: "Help N Seek - Losses" },
+  { path: "/findLoss", title: "Help N Seek - Finds" },
+  { path: "/choice", title: "Help N Seek - Choice" },
+  { path: "/login", title: "Help N Seek - Login" },
+  { path: "/signup1", title: "Help N Seek - Sign Up" },
+  { path: "/signup2", title: "Help N Seek - Sign Up" },
+  { path: "/signup3", title: "Help N Seek - Sign Up" },
+  { path: "/newPost", title: "Help N Seek - New Post" },
+  { path: "/inbox", title: "Help N Seek - Inbox" },
+  { path: "/search", title: "Help N Seek - Search" },
+  { path: "/categAll", title: "Help N Seek - Categories" },
+  { path: "/category", title: "Help N Seek - Category" },
+  { path: "/howitworks", title: "Help N Seek - How It Works" },
+  { path: "/instructions", title: "Help N Seek - Instructions" },
+  { path: "/accSettings", title: "Help N Seek - Account Settings" },
+  { path: "/editProfile", title: "Help N Seek - Edit Profile" },
+  { path: "/editPP", title: "Help N Seek - Edit Picture" },
+  { path: "/profile", title: "Help N Seek - My Profile" },
+  { path: "/users/:id", title: "Help N Seek - Profile" },
+  { path: "/terms", title: "Help N Seek - Terms of Service" },
+  { path: "/terms-of-service", title: "Help N Seek - Terms of Service" },
+  { path: "/privacy", title: "Help N Seek - Privacy Policy" },
+  { path: "/privacy-policy", title: "Help N Seek - Privacy Policy" },
+  { path: "/forgot-password", title: "Help N Seek - Forgot Password" },
+  { path: "/forgotpassword2", title: "Help N Seek - Verify Code" },
+  { path: "/forgotpassword3", title: "Help N Seek - Reset Password" },
+];
+
 function Layout() {
   return (
     <>
@@ -42,6 +80,32 @@ function Layout() {
   );
 }
 
+function TitleUpdater() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const { pathname } = location;
+    let title = "Help N Seek";
+    for (const entry of TITLE_MAP) {
+      if (
+        matchPath(
+          {
+            path: entry.path,
+            end: true,
+          },
+          pathname
+        )
+      ) {
+        title = entry.title;
+        break;
+      }
+    }
+    document.title = title;
+  }, [location]);
+
+  return null;
+}
+
 function App() {
   useEffect(() => {
     initAuth();
@@ -49,6 +113,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <TitleUpdater />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/signup1" element={<Signup1 />} />
