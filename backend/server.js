@@ -29,9 +29,17 @@ app.set("trust proxy", 1);
 app.use(cookieParser());
 
 // CORS
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const rawAllowed = [
+  process.env.FRONTEND_URLS,
+  process.env.FRONTEND_URL,
+]
+  .filter(Boolean)
+  .flatMap((entry) => String(entry).split(","))
+  .map((entry) => entry.trim())
+  .filter(Boolean);
+
 const allowed = new Set([
-  FRONTEND_URL,
+  ...rawAllowed,
   "http://localhost:3000",
   "https://localhost:3000",
   "http://localhost:3001",
