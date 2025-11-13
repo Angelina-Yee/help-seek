@@ -777,10 +777,12 @@ function Inbox() {
         const byId = new Map(withoutTemp.map((m) => [m.id, m]));
         const finalMsg = {
           ...optimistic,
-          ...saved,
+          id: saved.id ?? optimistic.id,
+          ts: saved.ts ?? optimistic.ts,
           from: "me",
           kind: "text",
           text,
+          seen: saved.seen ?? false,
         };
         byId.set(finalMsg.id, finalMsg);
         const merged = Array.from(byId.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0));
@@ -879,6 +881,7 @@ function Inbox() {
             ts: saved.ts ?? optimistic.ts,
             from: "me",
             kind: "image",
+            seen: saved.seen ?? false,
           };
           const merged = [...without, finalMsg].sort((a, b) => (a.ts || 0) - (b.ts || 0));
           return { ...prev, [selectedId]: merged };
@@ -896,7 +899,17 @@ function Inbox() {
     <button
       type="button"
       className={`thread ${thread.id === selectedId ? "active" : ""}`}
-      onClick={() => setSelectedId(thread.id)}
+      onClick={() => {
+        setSelectedId(thread.id);
+        const root = document.querySelector(".inbox-root");
+        if (root) root.classList.add("chat-active");
+        requestAnimationFrame(() => {
+          if (window.innerWidth <= 768) {
+            const chatEl = document.querySelector(".inbox-root.chat-active .chat");
+            chatEl?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      }}
     >
       <PcAvatar src={thread.avatarSrc || "/img/raccoon.png"} bg={thread.avatarBg} />
       <div className="thread-info">
@@ -960,6 +973,20 @@ function Inbox() {
 
         <section className="chat">
           <header className="chat-header">
+            <button
+              type="button"
+              className="mobile-back-btn"
+              onClick={() => {
+                const root = document.querySelector(".inbox-root");
+                root?.classList.remove("chat-active");
+                requestAnimationFrame(() => {
+                  const listEl = document.querySelector(".inbox-root .inbox-list");
+                  listEl?.scrollIntoView({ behavior: "smooth", block: "start" });
+                });
+              }}
+            >
+              &lt;
+            </button>
             <div className="chat-title">
               <PcAvatar
                 as={otherProfileHref ? "link" : "div"}
