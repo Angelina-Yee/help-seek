@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 
 import Landing from "./pages/landing";
-import Instructions from "./pages/instructions";
 import Signup1 from "./pages/signup1";
 import Signup2 from "./pages/signup2";
 import Signup3 from "./pages/signup3";

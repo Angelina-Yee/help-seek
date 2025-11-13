@@ -591,7 +591,7 @@ function Inbox() {
         console.error("Inbox hydrate/open failed; keeping shell:", e);
       }
     })();
-  }, [location.state, searchParams, me]);
+  }, [location.state, searchParams, me, threads]);
 
   useEffect(() => {
     const missingPeer = (threads || []).filter((t) => !t.peerId);
@@ -628,7 +628,7 @@ function Inbox() {
         }
       }
     })();
-  }, [threads.map((t) => t.id).join("|")]);
+  }, [threads]);
 
   useEffect(() => {
     if (!selectedId) return;

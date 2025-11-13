@@ -41,13 +41,17 @@ function Profile() {
       }
 
       // Load Posts
+      let postsList = [];
       try {
         const pRes = await fetch(`${API}/api/posts/me`, {
           credentials: "include",
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         const pData = await pRes.json().catch(() => []);
-        if (pRes.ok) setPosts(pData);
+        if (pRes.ok) {
+          postsList = Array.isArray(pData) ? pData : [];
+          setPosts(postsList);
+        }
       } catch {}
 
       // Load Stats
@@ -65,14 +69,13 @@ function Profile() {
           });
         } else {
           setStatsState((prev) => {
-            const finds0 = Array.isArray(posts)
-              ? posts.filter((p) => (p.type || "").toLowerCase() === "find")
-                  .length
-              : 0;
-            const losses0 = Array.isArray(posts)
-              ? posts.filter((p) => (p.type || "").toLowerCase() === "loss")
-                  .length
-              : 0;
+            const base = Array.isArray(postsList) ? postsList : [];
+            const finds0 = base.filter(
+              (p) => (p.type || "").toLowerCase() === "find"
+            ).length;
+            const losses0 = base.filter(
+              (p) => (p.type || "").toLowerCase() === "loss"
+            ).length;
             return { ...prev, finds: finds0, losses: losses0 };
           });
         }

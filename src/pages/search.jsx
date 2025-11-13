@@ -125,7 +125,6 @@ function Search() {
     const [selectedCat, setSelectedCat] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
 
-    const [name, setUserName] = useState("");
     const [avatarCharId, setAvatarCharId] = useState("raccoon");
     const [avatarColor, setAvatarColor] = useState("blue");
     const activeChar = useMemo(() => charById(avatarCharId), [avatarCharId]);
@@ -160,7 +159,6 @@ function Search() {
             });
             const data = await res.json().catch(() => ({}));
             if (res.ok && data) {
-                setUserName(data.name || "");
                 if (data.avatarCharId) setAvatarCharId(data.avatarCharId);
                 if (data.avatarColor) setAvatarColor(data.avatarColor);
             }
