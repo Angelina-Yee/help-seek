@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect, useMemo} from "react";
+import React, {useRef, useState, useEffect, useMemo, useCallback} from "react";
 import "../styles/home.css";
 import HomePostcard from "../components/homePostcard";
 import Choice from "../components/choice";
@@ -177,7 +177,7 @@ function Home() {
 		return () => { alive = false; };
 	}, []);
 
-    function enrichWithCurrentUser(post) {
+    const enrichWithCurrentUser = useCallback((post) => {
 		const meId = meProfile.id && String(meProfile.id);
 
 		const rawU = post?.user;
@@ -200,7 +200,7 @@ function Home() {
 
 		if (!post.createdAt) post.createdAt = new Date().toISOString();
 		return post;
-	}
+	}, [meProfile]);
 
     useEffect(() => {
 		function onCreated(e) {
@@ -229,7 +229,7 @@ function Home() {
 		}
 		window.addEventListener("post:created", onCreated);
 		return () => window.removeEventListener("post:created", onCreated);
-	}, [meProfile]);
+	}, [enrichWithCurrentUser]);
 
     useEffect(() => {
 		function onResolved(e) {

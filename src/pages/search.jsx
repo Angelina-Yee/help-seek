@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useMemo} from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import "../styles/lossFind.css";
-import "../styles/home.css";
 import Postcard from "../components/postcard";
 import Choice from "../components/choice";
 import NewPost from "../components/newPost";
@@ -122,12 +121,10 @@ function Search() {
 
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const messageNotifications = useMessageNotifications();
 
     const [selectedCat, setSelectedCat] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
 
-    const [name, setUserName] = useState("");
     const [avatarCharId, setAvatarCharId] = useState("raccoon");
     const [avatarColor, setAvatarColor] = useState("blue");
     const activeChar = useMemo(() => charById(avatarCharId), [avatarCharId]);
@@ -162,12 +159,10 @@ function Search() {
             });
             const data = await res.json().catch(() => ({}));
             if (res.ok && data) {
-                setUserName(data.name || "");
                 if (data.avatarCharId) setAvatarCharId(data.avatarCharId);
                 if (data.avatarColor) setAvatarColor(data.avatarColor);
             }
           } catch (err) {
-            // Profile load failed silently
           }
         })();
     }, []);
@@ -202,7 +197,6 @@ function Search() {
                     }
                 }
               } catch (e) {
-                // Error loading posts
               } finally {
                 if (alive) setLoading(false);
               }
@@ -234,13 +228,11 @@ function Search() {
         return () => window.removeEventListener("post:resolved", onResolved);
     }, []);
 
-    // Handle user block/unblock events
     useEffect(() => {
         function onUserBlocked(e) {
             const userId = e?.detail?.userId;
             if (!userId) return;
             
-            // Refetch posts and users to get updated list from backend
             (async () => {
                 try {
                     const [postsData, usersData] = await Promise.all([
@@ -255,13 +247,11 @@ function Search() {
                     setItems(postsData?.items || []);
                     setUsers(usersData?.items || []);
                 } catch (e) {
-                    // Failed to refetch posts after blocking
                 }
             })();
         }
 
         function onUserUnblocked(e) {
-            // When user is unblocked, refetch posts to show their content again
             window.location.reload();
         }
 
@@ -386,35 +376,7 @@ function Search() {
                     })} 
                     <button className="home-all" onClick={() => setShowCateg(true)}>See all</button>
                 </div>
-				<div className="lf-toolbar">
-					<div className="lf-toolbar-center">
-						<button
-							className="lf-categories-btn"
-							type="button"
-							onClick={() => setShowCateg(true)}
-						>
-							Categories
-						</button>
-						<button
-							className="lf-filter-btn"
-							type="button"
-							onClick={() => navigate("/lossFind")}
-						>
-							Filter
-						</button>
-						<button
-							className="lf-add"
-							type="button"
-							aria-label="create"
-							onClick={() => setModal("choice")}
-						/>
-					</div>
-					<div className="lf-notif">
-						<Notif notifications={messageNotifications} />
-					</div>
-				</div>
-
-                <Notif notifications={messageNotifications} />
+                <Notif notifications={useMessageNotifications()} />
             </div>
 
             {/*Hero*/}

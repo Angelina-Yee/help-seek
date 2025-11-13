@@ -29,9 +29,17 @@ app.set("trust proxy", 1);
 app.use(cookieParser());
 
 // CORS
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const rawAllowed = [
+  process.env.FRONTEND_URLS,
+  process.env.FRONTEND_URL,
+]
+  .filter(Boolean)
+  .flatMap((entry) => String(entry).split(","))
+  .map((entry) => entry.trim())
+  .filter(Boolean);
+
 const allowed = new Set([
-  FRONTEND_URL,
+  ...rawAllowed,
   "http://localhost:3000",
   "https://localhost:3000",
   "http://localhost:3001",
@@ -44,17 +52,17 @@ const allowed = new Set([
   "http://localhost:3002",
 ]);
 
-app.use(
-  cors({
-    origin(origin, cb) {
-      if (!origin || allowed.has(origin)) return cb(null, true);
-      cb(new Error("Not allowed by CORS: " + origin));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+const corsOptions = {
+  origin(origin, cb) {
+    if (!origin || allowed.has(origin)) return cb(null, true);
+    cb(new Error("Not allowed by CORS: " + origin));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 
 // Logging and body parsing
 app.use(express.json());
@@ -114,12 +122,12 @@ async function start() {
     };
     https.createServer(creds, app).listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on https://localhost:${PORT}`);
-      console.log(`CORS allowed origin: ${FRONTEND_URL}`);
+      console.log("CORS allowed origins:", Array.from(allowed));
     });
   } else {
     http.createServer(app).listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on http://localhost:${PORT}`);
-      console.log(`CORS allowed origin: ${FRONTEND_URL}`);
+      console.log("CORS allowed origins:", Array.from(allowed));
     });
   }
 }

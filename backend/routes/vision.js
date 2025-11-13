@@ -13,8 +13,17 @@ const upload = multer({
 
 let visionClient;
 try {
-  const credentialsPath = path.join(process.cwd(), "google-credentials.json");
-  const credentials = JSON.parse(readFileSync(credentialsPath, "utf8"));
+  const encoded = process.env.GOOGLE_CREDENTIALS_B64;
+  let raw;
+
+  if (encoded) {
+    raw = Buffer.from(encoded, "base64").toString("utf8");
+  } else {
+    const credentialsPath = path.join(process.cwd(), "google-credentials.json");
+    raw = readFileSync(credentialsPath, "utf8");
+  }
+
+  const credentials = JSON.parse(raw);
 
   visionClient = new ImageAnnotatorClient({
     credentials: credentials,
@@ -23,6 +32,11 @@ try {
   console.log("Vision API client initialized successfully");
 } catch (error) {
   console.error("Failed to initialize Vision API client:", error.message);
+  if (!process.env.GOOGLE_CREDENTIALS_B64) {
+    console.error(
+      "Set GOOGLE_CREDENTIALS_B64 environment variable with base64-encoded credentials for production deployments."
+    );
+  }
 
   visionClient = null;
 }

@@ -120,7 +120,6 @@ function NewPost({ onClose, onBack, postType, initialType }) {
         throw new Error(data?.message || "Failed to create post");
       }
       
-      // Dispatch event to notify all pages about the new post
       window.dispatchEvent(new CustomEvent("post:created", { 
         detail: data 
       }));
