@@ -46,7 +46,7 @@ const api = {
   },
 
   async getUser(userId) {
-    const res = await fetch(`${API}/api/users/${encodeURIComponent(userId)}`, {
+    const res = await fetch(`${API}/users/${encodeURIComponent(userId)}`, {
       credentials: "include",
       headers: { ...authHeaders() },
     });
@@ -325,6 +325,18 @@ function Inbox() {
     });
   }, []);
 
+  const visibleThreads = useMemo(() => {
+    const seen = new Set();
+    const result = [];
+    for (const t of threads) {
+      const key = t.peerId ? `peer:${t.peerId}` : `thread:${t.id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      result.push(t);
+    }
+    return result;
+  }, [threads]);
+
   const current = useMemo(
     () => threads.find((t) => t.id === selectedId) || null,
     [threads, selectedId]
@@ -446,10 +458,18 @@ function Inbox() {
   }, []);
 
   useEffect(() => {
-    if (!selectedId && threads.length > 0) {
-      setSelectedId(threads[0].id);
+    if (!selectedId && visibleThreads.length > 0) {
+      setSelectedId(visibleThreads[0].id);
     }
-  }, [selectedId, threads]);
+  }, [selectedId, visibleThreads]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    const existsInVisible = visibleThreads.some((t) => t.id === selectedId);
+    if (!existsInVisible && visibleThreads.length > 0) {
+      setSelectedId(visibleThreads[0].id);
+    }
+  }, [selectedId, visibleThreads]);
 
   useEffect(() => {
     let stop = false;
@@ -679,7 +699,7 @@ function Inbox() {
         console.error("Inbox hydrate/open failed; keeping shell:", e);
       }
     })();
-  }, [location.state, searchParams, me]);
+  }, [location.state, searchParams, me, threads]);
 
   useEffect(() => {
     const missingPeer = (threads || []).filter((t) => !t.peerId);
@@ -716,7 +736,7 @@ function Inbox() {
         }
       }
     })();
-  }, [threads.map((t) => t.id).join("|")]);
+  }, [threads]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -852,10 +872,12 @@ function Inbox() {
         const byId = new Map(withoutTemp.map((m) => [m.id, m]));
         const finalMsg = {
           ...optimistic,
-          ...saved,
+          id: saved.id ?? optimistic.id,
+          ts: saved.ts ?? optimistic.ts,
           from: "me",
           kind: "text",
           text,
+          seen: saved.seen ?? false,
         };
         byId.set(finalMsg.id, finalMsg);
         const merged = Array.from(byId.values()).sort(
@@ -963,6 +985,7 @@ function Inbox() {
             ts: saved.ts ?? optimistic.ts,
             from: "me",
             kind: "image",
+            seen: saved.seen ?? false,
           };
           const merged = [...without, finalMsg].sort(
             (a, b) => (a.ts || 0) - (b.ts || 0)
@@ -978,41 +1001,23 @@ function Inbox() {
     }
   }
 
-  const [isMobile, setIsMobile] = useState(false);
-  const [showChat, setShowChat] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-      if (window.innerWidth > 768) {
-        setShowChat(false);
-      }
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  const handleThreadSelect = useCallback(
-    (threadId) => {
-      setSelectedId(threadId);
-      if (isMobile) {
-        setShowChat(true);
-      }
-    },
-    [isMobile]
-  );
-
-  const handleBackToInbox = useCallback(() => {
-    setShowChat(false);
-  }, []);
-
   const ThreadButton = ({ thread }) => (
     <button
       type="button"
       className={`thread ${thread.id === selectedId ? "active" : ""}`}
-      onClick={() => handleThreadSelect(thread.id)}
+      onClick={() => {
+        setSelectedId(thread.id);
+        const root = document.querySelector(".inbox-root");
+        if (root) root.classList.add("chat-active");
+        requestAnimationFrame(() => {
+          if (window.innerWidth <= 768) {
+            const chatEl = document.querySelector(
+              ".inbox-root.chat-active .chat"
+            );
+            chatEl?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      }}
     >
       <PcAvatar
         src={thread.avatarSrc || "/img/raccoon.png"}
@@ -1027,7 +1032,7 @@ function Inbox() {
   );
 
   return (
-    <div className={`home inbox-root ${showChat ? "chat-active" : ""}`}>
+    <div className="home inbox-root">
       <header className="home-navbar inbox-navbar">
         <div className="home-logo inbox-logo">help n seek</div>
 
@@ -1057,7 +1062,7 @@ function Inbox() {
             {(() => {
               const q = threadSearch.trim().toLowerCase();
               const source = q
-                ? threads.filter((t) => {
+                ? visibleThreads.filter((t) => {
                     const nameHit = (t.name || "").toLowerCase().includes(q);
                     let msgHit = false;
                     const list = messagesByThread[t.id] || [];
@@ -1072,7 +1077,7 @@ function Inbox() {
                     }
                     return nameHit || msgHit;
                   })
-                : threads;
+                : visibleThreads;
 
               if (source.length === 0)
                 return <div className="thread-empty">No matches</div>;
@@ -1084,13 +1089,24 @@ function Inbox() {
         <section className="chat">
           <header className="chat-header">
             <button
+              type="button"
               className="mobile-back-btn"
-              onClick={handleBackToInbox}
-              aria-label="Back to inbox"
+              onClick={() => {
+                const root = document.querySelector(".inbox-root");
+                root?.classList.remove("chat-active");
+                requestAnimationFrame(() => {
+                  const listEl = document.querySelector(
+                    ".inbox-root .inbox-list"
+                  );
+                  listEl?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                });
+              }}
             >
-              ←
+              &lt;
             </button>
-
             <div className="chat-title">
               <PcAvatar
                 as={otherProfileHref ? "link" : "div"}
@@ -1154,7 +1170,7 @@ function Inbox() {
 
                 return (
                   <React.Fragment key={m.id}>
-                    {/* Show date stamp if needed */}
+                    {}
                     {showDateStamp && <DateStamp date={m.ts} />}
 
                     <div className={`msg-row ${mine ? "me" : "other"}`}>

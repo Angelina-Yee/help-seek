@@ -20,12 +20,13 @@ export default function HomePostcard(props={}){
 
     const [showZoom, setShowZoom] = useState(false);
     const typeClass = type === "find" ? "is-find" : type === "loss" ? "is-loss" : "";
+    const classes = ["postcard", typeClass, className].filter(Boolean).join(" ");
     const targetHref = postId 
         ? (type === "find" ? `/findLoss?post=${encodeURIComponent(postId)}` : (type === "loss" ? `/lossFind?post=${encodeURIComponent(postId)}` : null))
         : (type === "find" ? "/findLoss" : (type === "loss" ? "/lossFind" : null));
 
     return(
-        <article className={`postcard ${className}`}>
+        <article className={classes}>
             <header className="pc-head">
                 <div className="pc-user">
                     {profileHref ? (

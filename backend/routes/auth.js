@@ -67,7 +67,15 @@ router.post(
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
 
-      await sendVerificationEmail("signup", { to: email, name: "", code });
+      sendVerificationEmail("signup", { to: email, name: "", code })
+        .then((info) => {
+          if (process.env.NODE_ENV !== "production") {
+            console.log("[mail] signup code queued:", info.messageId);
+          }
+        })
+        .catch((err) => {
+          console.error("[mail] signup code failed:", err.message);
+        });
 
       return res.json({ message: "Code sent", next: "verify-code" });
     } catch (err) {
@@ -247,7 +255,15 @@ router.post(
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
 
-      await sendVerificationEmail("forgot", { to: email, name: user?.name || "", code });
+      sendVerificationEmail("forgot", { to: email, name: user?.name || "", code })
+        .then((info) => {
+          if (process.env.NODE_ENV !== "production") {
+            console.log("[mail] forgot code queued:", info.messageId);
+          }
+        })
+        .catch((err) => {
+          console.error("[mail] forgot code failed:", err.message);
+        });
 
       return res.json({ message: "sent" });
     } catch (err) {

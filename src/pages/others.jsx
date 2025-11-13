@@ -171,16 +171,16 @@ function Others() {
 
       if (alive && mine.length > 0) {
         const u = mine[0]?.user || {};
-        if (!name) {
-          const derived =
-            (typeof u.name === "string" && u.name.trim()) ||
-            (u.email ? String(u.email).split("@")[0] : "");
-          if (derived) setName(derived);
+        const derived =
+          (typeof u.name === "string" && u.name.trim()) ||
+          (u.email ? String(u.email).split("@")[0] : "");
+        if (derived) {
+          setName((prev) => prev || derived);
         }
-        if ((!avatarCharId || avatarCharId === "raccoon") && u.avatarCharId) {
+        if (u.avatarCharId) {
           setAvatarCharId(u.avatarCharId);
         }
-        if ((!avatarColor || avatarColor === "blue") && u.avatarColor) {
+        if (u.avatarColor) {
           setAvatarColor(u.avatarColor);
         }
       }

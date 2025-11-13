@@ -317,10 +317,6 @@ function FindLoss() {
 		});
 	};
 
-	const quickPick = (uiLabel) => {
-		toggleCategory(uiLabel);
-	};
-
     // HTML
     return (
         <div className="home">

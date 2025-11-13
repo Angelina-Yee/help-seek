@@ -326,10 +326,6 @@ function LossFind() {
 		});
 	};
 
-	const quickPick = (uiLabel) => {
-		toggleCategory(uiLabel);
-	};
-
     return (
         <div className="home">
             {/*Navbar*/}

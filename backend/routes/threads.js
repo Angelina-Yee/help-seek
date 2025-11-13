@@ -12,7 +12,6 @@ router.get("/", requireAuth, async (req, res, next) => {
   try {
     const me = String(req.user.id);
     
-    // Get current user's blocked users
     const currentUser = await User.findById(req.user.id).select("blockedUsers").lean();
     const blockedUserIds = currentUser?.blockedUsers || [];
     
@@ -24,7 +23,6 @@ router.get("/", requireAuth, async (req, res, next) => {
              participants.every(p => p && String(p).length === 24);
     });
     
-    // Filter out threads with blocked users
     const filteredThreads = validThreads.filter((t) => {
       const participants = t.participants || [];
       return !participants.some(p => blockedUserIds.some(bid => String(bid) === String(p)));
@@ -165,7 +163,6 @@ router.post("/:id/messages", requireAuth, async (req, res, next) => {
     for (const r of recipients) {
       if (!r?.email) continue;
       
-      // Check if user has email notifications enabled
       const emailNotificationsEnabled = r.notificationPreferences?.emailNotifications !== false;
       if (!emailNotificationsEnabled) continue;
       
