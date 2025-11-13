@@ -52,17 +52,18 @@ const allowed = new Set([
   "http://localhost:3002",
 ]);
 
-app.use(
-  cors({
-    origin(origin, cb) {
-      if (!origin || allowed.has(origin)) return cb(null, true);
-      cb(new Error("Not allowed by CORS: " + origin));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+const corsOptions = {
+  origin(origin, cb) {
+    if (!origin || allowed.has(origin)) return cb(null, true);
+    cb(new Error("Not allowed by CORS: " + origin));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 // Logging and body parsing
 app.use(express.json());
